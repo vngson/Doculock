@@ -8,6 +8,7 @@ import { FileVerifier, type FileVerifierHandle } from './components/FileVerifier
 import { DocumentHistory } from './components/DocumentHistory';
 import { RegistryCreator } from './components/RegistryCreator';
 import { BatchVerifier } from './components/BatchVerifier';
+import { DocumentComparison } from './components/DocumentComparison';
 import { Toast, useToast } from './components/Toast';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
@@ -16,7 +17,7 @@ import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { createStoreDocumentTx } from '@/lib/doculock';
 import { useSuiClient } from '@mysten/dapp-kit';
 
-type Tab = 'upload' | 'verify' | 'history' | 'batch';
+type Tab = 'upload' | 'verify' | 'history' | 'batch' | 'compare';
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('upload');
@@ -255,6 +256,13 @@ export default function Home() {
           <span>📁</span>
           Batch
         </button>
+        <button
+          className={`tab ${tab === 'compare' ? 'tab--active' : ''}`}
+          onClick={() => handleTabChange('compare')}
+        >
+          <span>⚖️</span>
+          Compare
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -268,6 +276,7 @@ export default function Home() {
         {tab === 'verify' && <FileVerifier initialHash={preloadedHash} />}
         {tab === 'history' && <DocumentHistory />}
         {tab === 'batch' && <BatchVerifier />}
+        {tab === 'compare' && <DocumentComparison />}
       </div>
 
       {/* Toast Container */}

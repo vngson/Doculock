@@ -12,6 +12,25 @@ export interface BatchVerificationResult {
   verified: boolean;
   timestamp?: number;
   errorMessage?: string;
+  existingFileWithSameName?: {
+    file_name: string;
+    file_size: number;
+    mime_type: string;
+    timestamp?: number;
+    document_hash: string;
+  } | null;
+}
+
+/**
+ * Get status for PDF export display
+ * @param result - Verification result
+ * @returns Status string for export
+ */
+function getStatus(result: BatchVerificationResult): string {
+  if (result.existingFileWithSameName) {
+    return 'CONTENT DIFFERS';
+  }
+  return result.verified ? 'VERIFIED' : 'NOT FOUND';
 }
 
 /**
@@ -60,6 +79,7 @@ export function exportToPDF(
     const summaryLines = [
       `Total Files: ${summary.total}`,
       `Verified: ${summary.verified} (${summary.verificationRate.toFixed(1)}%)`,
+      `Content Differs: ${summary.contentDiffers}`,
       `Not Found: ${summary.notFound}`,
       `Errors: ${summary.errors}`,
       `Total Size: ${formatFileSize(summary.totalSize)}`,
@@ -76,7 +96,7 @@ export function exportToPDF(
   const tableData = results.map(result => {
     const fileInfo = `${truncateString(result.fileName, 40)}\n${formatFileSize(result.fileSize)}`;
 
-    let verification = result.verified ? 'VERIFIED' : 'NOT FOUND';
+    let verification = getStatus(result);
     if (result.errorMessage) {
       verification += `\n${truncateString(result.errorMessage, 50)}`;
     }
@@ -154,7 +174,7 @@ export function exportToPDF(
           }
         } else if (data.column.index === 1) {
           // Verification column
-          let text = result.verified ? 'VERIFIED' : 'NOT FOUND';
+          let text = getStatus(result);
           if (result.errorMessage) {
             text += `\n${truncateString(result.errorMessage, 50)}`;
           }
@@ -163,6 +183,8 @@ export function exportToPDF(
           // Status (bold, colored)
           if (result.verified) {
             doc.setTextColor(0, 128, 0);
+          } else if (result.existingFileWithSameName) {
+            doc.setTextColor(245, 158, 11);
           } else {
             doc.setTextColor(200, 0, 0);
           }
@@ -221,13 +243,15 @@ export function exportToPDF(
 function calculateSummary(results: BatchVerificationResult[]) {
   const total = results.length;
   const verified = results.filter(r => r.verified).length;
-  const notFound = total - verified;
+  const contentDiffers = results.filter(r => r.existingFileWithSameName).length;
+  const notFound = total - verified - contentDiffers;
   const errors = results.filter(r => r.errorMessage).length;
   const totalSize = results.reduce((sum, r) => sum + r.fileSize, 0);
 
   return {
     total,
     verified,
+    contentDiffers,
     notFound,
     errors,
     totalSize,

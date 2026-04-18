@@ -339,6 +339,66 @@ export async function getDocumentMetadata(
 }
 
 /**
+ * Find a document by filename (case-sensitive)
+ * @param suiClient - Sui client instance
+ * @param fileName - Filename to search for
+ * @returns Document event with matching filename or null
+ */
+export async function findDocumentByName(
+  suiClient: SuiClient,
+  fileName: string,
+): Promise<DocumentStoredEvent | null> {
+  try {
+    const packageId = doculockConfig.packageId;
+
+    if (!packageId) {
+      console.error('[findDocumentByName] Package ID not found');
+      return null;
+    }
+
+    console.log('[findDocumentByName] Searching for file:', fileName);
+
+    const events = await suiClient.queryEvents({
+      query: {
+        MoveEventType: `${packageId}::doculock::DocumentStored`,
+      },
+    });
+
+    for (const event of events.data) {
+      const parsed = event.parsedJson as any;
+
+      if (parsed.file_name === fileName) {
+        let eventHash = parsed.document_hash;
+
+        if (Array.isArray(eventHash)) {
+          eventHash = bytesToHex(new Uint8Array(eventHash));
+        } else if (typeof eventHash !== 'string') {
+          eventHash = String(eventHash);
+        }
+
+        console.log('[findDocumentByName] Found file with matching name!');
+        console.log('[findDocumentByName] Event hash:', eventHash);
+
+        return {
+          document_hash: eventHash,
+          creator: parsed.creator,
+          timestamp: parsed.timestamp,
+          file_name: parsed.file_name,
+          file_size: parsed.file_size,
+          mime_type: parsed.mime_type,
+        };
+      }
+    }
+
+    console.log('[findDocumentByName] No file found with matching name');
+    return null;
+  } catch (error) {
+    console.error('Error finding document by name:', error);
+    return null;
+  }
+}
+
+/**
  * Query DocumentStored events for a specific creator
  * @param suiClient - Sui client instance
  * @param creatorAddress - Wallet address of the creator
