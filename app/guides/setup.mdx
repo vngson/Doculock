@@ -27,25 +27,37 @@ A DocuLock project consists of a Next.js frontend and Move smart contract:
 <Files>
   <Folder name="DocuLock">
     <File name="package.json" />
+
     <File name=".env.local.example" />
+
     <File name=".env.local" />
+
     <Folder name="app">
       <File name="page.tsx" />
+
       <File name="layout.tsx" />
+
       <Folder name="components">
         <File name="FileUploader.tsx" />
+
         <File name="FileVerifier.tsx" />
+
         <File name="DocumentHistory.tsx" />
       </Folder>
     </Folder>
+
     <Folder name="lib">
       <File name="doculock.ts" />
+
       <File name="crypto.ts" />
     </Folder>
+
     <Folder name="contracts">
       <Folder name="doculock">
         <Folder name="sources" />
+
         <File name="Move.toml" />
+
         <File name="deploy-res.json" />
       </Folder>
     </Folder>
@@ -64,7 +76,7 @@ npm install
 
 Navigate to the contract directory and deploy to Sui testnet:
 
-<Tabs items="[&quot;Build&quot;, &quot;Publish&quot;]">
+<Tabs items="[&#x22;Build&#x22;, &#x22;Publish&#x22;]">
   <Tab value="Build">
 ```bash
 cd contracts/doculock
@@ -122,17 +134,24 @@ Open http://localhost:3000 in your browser.
 
 DocuLock uses a simple but secure architecture:
 
-<Mermaid
-  chart="graph LR;
-A[User Browser] --> B[SHA-256 Hash];
-B --> C[Sui Transaction];
-C --> D[DocuLock Contract];
-D --> E[Document Registry];
-F[Verifier] --> B;
-F --> D;"
-/>
+### Key Components
 
-Key security features:
+1. **User Browser** - Client-side application
+2. **SHA-256 Hash** - Cryptographic hash calculation
+3. **Sui Transaction** - Blockchain transaction
+4. **DocuLock Contract** - Smart contract
+5. **Document Registry** - On-chain storage
+
+### Data Flow
+
+```
+User Browser → SHA-256 Hash → Sui Transaction → DocuLock Contract → Document Registry
+     ↑                                                                    ↓
+     └─────────────────────── Verifier ←──────────────────────────────────────┘
+```
+
+### Key Security Features
+
 - Client-side hashing (files never leave unhashed)
 - Only hashes stored on-chain (privacy-preserving)
 - Immutable timestamp proof on blockchain

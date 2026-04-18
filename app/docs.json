@@ -1,5 +1,6 @@
 {
   "name": "DocuLock Documentation",
+  "baseUrl": "https://doculock.docs.cmdocs.sh",
   "navigation": {
     "tabs": [
       {

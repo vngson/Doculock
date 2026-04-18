@@ -44,17 +44,16 @@ Generate PDF/CSV reports for audit trails
 
 ## How It Works [#how-it-works]
 
-<Mermaid
-  chart="graph LR;
-  A[Upload Document] --> B[Calculate SHA-256 Hash];
-  B --> C[Store on Sui Blockchain];
-  C --> D[Generate QR Code];
-  D --> E[Share for Verification];
-  E --> F[Verify on Blockchain];
-  F --> G{Hash Match?};
-  G -->|Yes| H[Document Authentic];
-  G -->|No| I[Document Modified];"
-/>
+### Flow Overview
+
+```
+Upload Document → Calculate SHA-256 Hash → Store on Sui Blockchain → Generate QR Code
+                                    ↓
+Share for Verification → Verify on Blockchain → Hash Match?
+                                    ↓
+                    Yes → Document Authentic
+                     No → Document Modified
+```
 
 ### The Verification Process
 
@@ -77,11 +76,16 @@ Generate PDF/CSV reports for audit trails
 <Files>
   <Folder name="doculock">
     <File name="package.json" />
+
     <File name="next.config.js" />
+
     <Folder name="app">
       <File name="page.tsx" />
+
       <File name="layout.tsx" />
+
       <File name="providers.tsx" />
+
       <Folder name="components">
         <File name="FileUploader.tsx" />
         <File name="FileVerifier.tsx" />
@@ -90,15 +94,23 @@ Generate PDF/CSV reports for audit trails
         <File name="DocumentHistory.tsx" />
       </Folder>
     </Folder>
+
     <Folder name="lib">
       <File name="crypto.ts" />
+
       <File name="doculock.ts" />
+
       <File name="file.ts" />
+
       <File name="config.ts" />
+
       <File name="export.ts" />
+
       <File name="pdfExport.ts" />
+
       <File name="hashWorker.ts" />
     </Folder>
+
     <Folder name="public">
       <Folder name="workers">
         <File name="hashWorker.js" />

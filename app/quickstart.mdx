@@ -87,20 +87,24 @@ Click the QR code icon to generate a shareable proof:
 
 DocuLock uses a secure, privacy-preserving workflow:
 
-<Mermaid
-  chart="sequenceDiagram;
-participant User
-participant Browser
-participant Blockchain
+### Sequence Diagram
 
-User->>Browser: Upload file
-Browser->>Browser: Calculate SHA-256 hash
-Browser->>Blockchain: Store hash (transaction)
-Blockchain-->>Browser: Confirmation + timestamp
-Browser->>Blockchain: Verify hash (query)
-Blockchain-->>Browser: Exists/Not Found
-Browser->>User: Show verification result;"
-/>
+```
+User       Browser        Blockchain
+ │           │                │
+ │  ────────── Upload file →
+ │           │                │
+ │           │  Calculate SHA-256 hash
+ │           │                │
+ │           │  ─────────── Store hash (transaction) ────────→
+ │           │                │
+ │           │  ←─────── Confirmation + timestamp ───────────
+ │           │                │
+ │           │  ─────────── Verify hash (query) ──────────→
+ │           │                │
+ │           │  ←─────── Exists/Not Found ───────────────
+ │  ←─────── Show verification result
+```
 
 **Key Points:**
 - File content never leaves your device unhashed

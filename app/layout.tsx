@@ -8,6 +8,7 @@ import { NetworkCursor } from './components/NetworkCursor';
 export const metadata: Metadata = {
   title: 'DocuLock - Document Timestamping & Authenticity Verifier',
   description: 'Proof of Existence on SUI Blockchain - Store document hashes and verify authenticity',
+  metadataBase: new URL('https://doculock.docs.cmdocs.sh'),
 };
 
 export default function RootLayout({
