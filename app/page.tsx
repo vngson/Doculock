@@ -27,9 +27,39 @@ export default function Home() {
 
   const uploadRef = useRef<FileUploaderHandle>(null);
   const verifyRef = useRef<FileVerifierHandle>(null);
+  const analyticsWrapperRef = useRef<HTMLDivElement>(null);
+  const analyticsIframeRef = useRef<HTMLIFrameElement | null>(null);
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
   const suiClient = useSuiClient();
+
+  // Create iframe manually to prevent remount on theme change
+  useEffect(() => {
+    if (!analyticsWrapperRef.current) return;
+
+    // Only create iframe once
+    if (!analyticsIframeRef.current) {
+      const iframe = document.createElement('iframe');
+      iframe.src = '/analytics';
+      iframe.title = 'Analytics Dashboard';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      analyticsIframeRef.current = iframe;
+    }
+
+    // Add or remove iframe based on tab
+    const wrapper = analyticsWrapperRef.current;
+    if (tab === 'analytics') {
+      if (!wrapper.contains(analyticsIframeRef.current)) {
+        wrapper.appendChild(analyticsIframeRef.current);
+      }
+    } else {
+      if (wrapper.contains(analyticsIframeRef.current)) {
+        wrapper.removeChild(analyticsIframeRef.current);
+      }
+    }
+  }, [tab]);
 
   // Listen to hash changes for navigation
   useEffect(() => {
@@ -284,11 +314,7 @@ export default function Home() {
         {tab === 'history' && <DocumentHistory />}
         {tab === 'batch' && <BatchVerifier />}
         {tab === 'compare' && <DocumentComparison />}
-        {tab === 'analytics' && (
-          <div className="analytics-iframe-wrapper">
-            <iframe src="/analytics" className="analytics-iframe" title="Analytics Dashboard" />
-          </div>
-        )}
+        <div ref={analyticsWrapperRef} className="analytics-iframe-wrapper" style={{ display: tab === 'analytics' ? 'block' : 'none' }} />
       </div>
 
       {/* Toast Container */}

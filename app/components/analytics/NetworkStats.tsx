@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo } from 'react';
+import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
 
 interface AnalyticsStats {
   totalDocuments: number;
@@ -24,56 +25,8 @@ const statColors = {
   avgSize: '#f59e0b',
 };
 
-interface NetworkStatsProps {
-  onLoadingChange?: (loading: boolean) => void;
-}
-
-export function NetworkStats({ onLoadingChange }: NetworkStatsProps) {
-  const [stats, setStats] = useState<AnalyticsStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    onLoadingChange?.(loading);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
-
-  useEffect(() => {
-    fetch('/api/analytics/stats')
-      .then(res => res.json())
-      .then(data => {
-        if (data && typeof data === 'object' && !('error' in data)) {
-          // Ensure all fields have valid values
-          setStats({
-            totalDocuments: data.totalDocuments ?? 0,
-            uniqueUsers: data.uniqueUsers ?? 0,
-            totalFileSize: data.totalFileSize ?? 0,
-            avgFileSize: data.avgFileSize ?? 0,
-            topMimeTypes: Array.isArray(data.topMimeTypes) ? data.topMimeTypes : [],
-          });
-        } else {
-          console.error('Unexpected data format:', data);
-          setStats({
-            totalDocuments: 0,
-            uniqueUsers: 0,
-            totalFileSize: 0,
-            avgFileSize: 0,
-            topMimeTypes: [],
-          });
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching stats:', err);
-        setStats({
-          totalDocuments: 0,
-          uniqueUsers: 0,
-          totalFileSize: 0,
-          avgFileSize: 0,
-          topMimeTypes: [],
-        });
-        setLoading(false);
-      });
-  }, []);
+function NetworkStatsComponent() {
+  const { stats } = useAnalyticsData();
 
   const formatBytes = (bytes: number) => {
     if (!bytes || bytes === 0 || isNaN(bytes)) return { value: '0', unit: 'Bytes' };
@@ -84,23 +37,6 @@ export function NetworkStats({ onLoadingChange }: NetworkStatsProps) {
     const value = Math.round(bytes / Math.pow(k, i) * 100) / 100;
     return { value: value.toString(), unit };
   };
-
-  if (loading) {
-    return (
-      <div className="stats-grid stats-grid--loading">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="stat-card stat-card--loading">
-            <div className="stat-icon stat-icon--loading" />
-            <div className="stat-content">
-              <div className="stat-label stat-label--loading" />
-              <div className="stat-value stat-value--loading" />
-              <div className="stat-subtitle stat-subtitle--loading" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   const totalStorageFormatted = stats ? formatBytes(stats.totalFileSize) : { value: '0', unit: 'Bytes' };
   const avgFileSizeFormatted = stats ? formatBytes(stats.avgFileSize) : { value: '0', unit: 'Bytes' };
@@ -157,3 +93,7 @@ export function NetworkStats({ onLoadingChange }: NetworkStatsProps) {
     </div>
   );
 }
+
+// Use memo to prevent unnecessary re-renders
+export const NetworkStats = memo(NetworkStatsComponent);
+NetworkStats.displayName = 'NetworkStats';

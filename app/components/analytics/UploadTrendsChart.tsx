@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { memo } from 'react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
 
 interface TrendDataPoint {
   date: string;
@@ -10,37 +11,8 @@ interface TrendDataPoint {
   uniqueUsers: number;
 }
 
-interface UploadTrendsChartProps {
-  onLoadingChange?: (loading: boolean) => void;
-}
-
-export function UploadTrendsChart({ onLoadingChange }: UploadTrendsChartProps) {
-  const [data, setData] = useState<TrendDataPoint[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    onLoadingChange?.(loading);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
-
-  useEffect(() => {
-    fetch('/api/analytics/trends?days=30')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setData(data);
-        } else {
-          console.error('Unexpected data format:', data);
-          setData([]);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching trends:', err);
-        setData([]);
-        setLoading(false);
-      });
-  }, []);
+function UploadTrendsChartComponent() {
+  const { trends } = useAnalyticsData();
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0';
@@ -50,18 +22,6 @@ export function UploadTrendsChart({ onLoadingChange }: UploadTrendsChartProps) {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + sizes[i];
   };
 
-  if (loading) {
-    return (
-      <div className="chart-card chart-card--loading">
-        <div className="chart-header">
-          <div className="chart-icon">📈</div>
-          <h3 className="chart-title">Upload Trends (30 Days)</h3>
-        </div>
-        <div className="chart-content chart-content--loading" />
-      </div>
-    );
-  }
-
   return (
     <div className="chart-card">
       <div className="chart-header">
@@ -70,7 +30,7 @@ export function UploadTrendsChart({ onLoadingChange }: UploadTrendsChartProps) {
       </div>
       <div className="chart-content">
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={data}>
+          <AreaChart data={trends}>
             <defs>
               <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#00C0FF" stopOpacity={0.3}/>
@@ -108,3 +68,6 @@ export function UploadTrendsChart({ onLoadingChange }: UploadTrendsChartProps) {
     </div>
   );
 }
+
+export const UploadTrendsChart = memo(UploadTrendsChartComponent);
+UploadTrendsChart.displayName = 'UploadTrendsChart';

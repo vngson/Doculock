@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface FloatingElement {
   x: number;
@@ -18,23 +18,27 @@ const ELEMENTS: FloatingElement['type'][] = [
   'nextjs', 'react', 'typescript', 'sui', 'blockchain', 'code', 'hash'
 ];
 
-const ELEMENT_COUNT = 50;
+// Reduced from 50 to 25 for better performance
+const ELEMENT_COUNT = 25;
+const FPS_THROTTLE = 2; // Throttle to 30fps for better performance
 
 export function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const elementsRef = useRef<FloatingElement[]>([]);
   const animationRef = useRef<number>();
+  const lastFrameRef = useRef<number>(0);
+  const isVisibleRef = useRef(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     // Set canvas size
     const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2); // Limit DPR for performance
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
@@ -45,6 +49,13 @@ export function AnimatedBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      // Don't animate for users who prefer reduced motion
+      return () => window.removeEventListener('resize', resizeCanvas);
+    }
+
     // Create random element
     const createRandomElement = (width: number, height: number): FloatingElement => {
       const type = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
@@ -52,12 +63,12 @@ export function AnimatedBackground() {
       return {
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 1.2,
-        vy: (Math.random() - 0.5) * 1.2,
+        vx: (Math.random() - 0.5) * 0.8, // Reduced speed
+        vy: (Math.random() - 0.5) * 0.8,
         size,
         opacity: 0.08 + Math.random() * 0.12,
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.02,
+        rotationSpeed: (Math.random() - 0.5) * 0.015,
         type,
       };
     };
@@ -123,14 +134,12 @@ export function AnimatedBackground() {
       ctx.strokeStyle = '#61DAFB';
       ctx.lineWidth = 2;
 
-      // Draw 3 orbits
       for (let i = 0; i < 3; i++) {
         ctx.beginPath();
         ctx.ellipse(0, 0, size / 2, size / 4, (i * Math.PI * 2) / 3, 0, Math.PI * 2);
         ctx.stroke();
       }
 
-      // Draw nucleus
       ctx.fillStyle = '#61DAFB';
       ctx.beginPath();
       ctx.arc(0, 0, size / 8, 0, Math.PI * 2);
@@ -157,7 +166,6 @@ export function AnimatedBackground() {
       ctx.closePath();
       ctx.fill();
 
-      // Inner hexagon
       ctx.fillStyle = '#ffffff';
       ctx.globalAlpha = 0.5;
       ctx.beginPath();
@@ -177,7 +185,6 @@ export function AnimatedBackground() {
       const nodeSize = size / 5;
       ctx.fillStyle = '#00C9A7';
 
-      // Draw connected nodes
       const nodes = [
         { x: 0, y: -size / 2 },
         { x: size / 2, y: 0 },
@@ -185,7 +192,6 @@ export function AnimatedBackground() {
         { x: -size / 2, y: 0 },
       ];
 
-      // Draw connections
       ctx.strokeStyle = '#00C9A7';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -196,7 +202,6 @@ export function AnimatedBackground() {
       ctx.closePath();
       ctx.stroke();
 
-      // Draw nodes
       nodes.forEach(node => {
         ctx.beginPath();
         ctx.arc(node.x, node.y, nodeSize, 0, Math.PI * 2);
@@ -210,14 +215,12 @@ export function AnimatedBackground() {
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
 
-      // < symbol
       ctx.beginPath();
       ctx.moveTo(-size / 3, -size / 4);
       ctx.lineTo(-size / 2, 0);
       ctx.lineTo(-size / 3, size / 4);
       ctx.stroke();
 
-      // > symbol
       ctx.beginPath();
       ctx.moveTo(size / 3, -size / 4);
       ctx.lineTo(size / 2, 0);
@@ -230,14 +233,11 @@ export function AnimatedBackground() {
       ctx.strokeStyle = '#F472B6';
       ctx.lineWidth = 2;
 
-      // Draw #
       ctx.beginPath();
-      // Vertical lines
       ctx.moveTo(-size / 4, -size / 2);
       ctx.lineTo(-size / 4, size / 2);
       ctx.moveTo(size / 4, -size / 2);
       ctx.lineTo(size / 4, size / 2);
-      // Horizontal lines
       ctx.moveTo(-size / 2, -size / 4);
       ctx.lineTo(size / 2, -size / 4);
       ctx.moveTo(-size / 2, size / 4);
@@ -245,22 +245,31 @@ export function AnimatedBackground() {
       ctx.stroke();
     };
 
-    // Animation loop
-    const animate = () => {
+    // Animation loop with throttling
+    const animate = (timestamp: number) => {
+      if (!isVisibleRef.current) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      // Throttle frame rate for better performance
+      const elapsed = timestamp - lastFrameRef.current;
+      if (elapsed < 1000 / (60 / FPS_THROTTLE)) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameRef.current = timestamp;
+
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      // Clear canvas
       ctx.clearRect(0, 0, width, height);
 
-      // Update and draw elements
       elementsRef.current.forEach(element => {
-        // Update position
         element.x += element.vx;
         element.y += element.vy;
         element.rotation += element.rotationSpeed;
 
-        // Wrap around screen
         if (element.x > width + element.size) element.x = -element.size;
         if (element.x < -element.size) element.x = width + element.size;
         if (element.y > height + element.size) element.y = -element.size;
@@ -272,12 +281,24 @@ export function AnimatedBackground() {
       animationRef.current = requestAnimationFrame(animate);
     };
 
+    // Intersection Observer to pause when not visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          isVisibleRef.current = entry.isIntersecting;
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(canvas);
+
     // Start animation
-    animate();
+    animationRef.current = requestAnimationFrame(animate);
 
     // Cleanup
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      observer.disconnect();
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }

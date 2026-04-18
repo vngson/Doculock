@@ -20,11 +20,11 @@ interface Connection {
 }
 
 const CONFIG = {
-  particleCount: 30,
+  particleCount: 20, // Reduced from 30 to 20
   cursorRadius: 150,
   connectionDist: 100,
-  particleSpeed: 0.8,
-  cursorNodeCount: 8,
+  particleSpeed: 0.6, // Reduced from 0.8
+  cursorNodeCount: 6, // Reduced from 8
   minAlpha: 0.1,
   maxAlpha: 0.6,
 };
@@ -42,13 +42,21 @@ export function NetworkCursor() {
     lastX: number;
     lastY: number;
     trail: Array<{ x: number; y: number; alpha: number }>;
+    lastFrame: number;
+    isVisible: boolean;
   } | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      return;
+    }
 
     const S = {
       w: 0,
@@ -61,6 +69,8 @@ export function NetworkCursor() {
       lastX: window.innerWidth / 2,
       lastY: window.innerHeight / 2,
       trail: [] as Array<{ x: number; y: number; alpha: number }>,
+      lastFrame: 0,
+      isVisible: true,
     };
     stateRef.current = S;
 
@@ -112,7 +122,7 @@ export function NetworkCursor() {
 
       if (speed > 5) {
         S.trail.push({ x: S.mx, y: S.my, alpha: 0.5 });
-        if (S.trail.length > 20) S.trail.shift();
+        if (S.trail.length > 15) S.trail.shift(); // Reduced from 20 to 15
       }
 
       // Fade trail
@@ -120,7 +130,7 @@ export function NetworkCursor() {
       S.trail = S.trail.filter(t => t.alpha > 0.01);
 
       // Add cursor nodes periodically
-      if (Math.random() < 0.1) {
+      if (Math.random() < 0.08) { // Reduced from 0.1 to 0.08
         addCursorNode();
       }
 
@@ -129,7 +139,6 @@ export function NetworkCursor() {
         const node = S.nodes[i];
 
         if (node.type === 'cursor') {
-          // Cursor nodes move randomly around cursor
           const dx = S.mx - node.x;
           const dy = S.my - node.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -142,19 +151,16 @@ export function NetworkCursor() {
           node.life -= 0.005;
           node.alpha = node.life * 0.8;
         } else {
-          // Regular particles move randomly
           const dx = S.mx - node.x;
           const dy = S.my - node.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < CONFIG.cursorRadius) {
-            // Attract to cursor
             const force = (1 - dist / CONFIG.cursorRadius) * 0.05;
             node.vx += (dx / dist) * force;
             node.vy += (dy / dist) * force;
           }
 
-          // Random movement
           node.vx += (Math.random() - 0.5) * 0.1;
           node.vy += (Math.random() - 0.5) * 0.1;
         }
@@ -166,15 +172,12 @@ export function NetworkCursor() {
           node.vy = (node.vy / speed) * 2;
         }
 
-        // Update position
         node.x += node.vx;
         node.y += node.vy;
 
-        // Bounce off edges
         if (node.x < 0 || node.x > S.w) node.vx *= -1;
         if (node.y < 0 || node.y > S.h) node.vy *= -1;
 
-        // Remove dead cursor nodes
         if (node.type === 'cursor' && node.life <= 0) {
           S.nodes.splice(i, 1);
         }
@@ -198,7 +201,6 @@ export function NetworkCursor() {
         }
       }
 
-      // Update last mouse position
       S.lastX = S.mx;
       S.lastY = S.my;
     }
@@ -229,7 +231,6 @@ export function NetworkCursor() {
         const a = S.nodes[conn.a];
         const b = S.nodes[conn.b];
 
-        // Gradient from cyan to purple
         const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
         gradient.addColorStop(0, `rgba(0, 192, 255, ${conn.alpha})`);
         gradient.addColorStop(1, `rgba(188, 140, 255, ${conn.alpha})`);
@@ -244,7 +245,6 @@ export function NetworkCursor() {
 
       // Draw nodes
       S.nodes.forEach(node => {
-        // Glow
         const glowSize = node.type === 'cursor' ? node.size * 3 : node.size * 2;
         const gradient = ctx.createRadialGradient(
           node.x, node.y, 0,
@@ -259,7 +259,6 @@ export function NetworkCursor() {
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Core
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
         ctx.fillStyle = node.type === 'cursor'
@@ -281,7 +280,21 @@ export function NetworkCursor() {
       ctx.fillRect(0, 0, S.w, S.h);
     }
 
-    function animate() {
+    // Throttled animation at 30fps
+    const FPS_THROTTLE = 2;
+    function animate(timestamp: number) {
+      if (!S.isVisible) {
+        S.raf = requestAnimationFrame(animate);
+        return;
+      }
+
+      const elapsed = timestamp - S.lastFrame;
+      if (elapsed < 1000 / (60 / FPS_THROTTLE)) {
+        S.raf = requestAnimationFrame(animate);
+        return;
+      }
+      S.lastFrame = timestamp;
+
       updateNodes();
       draw();
       S.raf = requestAnimationFrame(animate);
@@ -301,20 +314,30 @@ export function NetworkCursor() {
 
     resize();
     initParticles();
+
+    // Intersection Observer to pause when not visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          S.isVisible = entry.isIntersecting;
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(canvas);
+
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchmove', onTouchMove, { passive: true });
 
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!prefersReduced.matches) {
-      animate();
-    }
+    S.raf = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(S.raf);
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('touchmove', onTouchMove);
+      observer.disconnect();
     };
   }, []);
 

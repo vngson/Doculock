@@ -49,6 +49,26 @@ export function ThemeProvider({
     saveThemeToStorage(state);
   }, [state]);
 
+  // Listen for localStorage changes from other windows/iframes (e.g., parent page theme change)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'doculock-theme') {
+        const newMode = e.newValue as ThemeMode | null;
+        if (newMode && newMode !== state.mode) {
+          setState(prev => ({ ...prev, mode: newMode }));
+        }
+      } else if (e.key === 'doculock-color-scheme') {
+        const newScheme = e.newValue as ColorScheme | null;
+        if (newScheme && newScheme !== state.scheme) {
+          setState(prev => ({ ...prev, scheme: newScheme }));
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [state.mode, state.scheme]);
+
   // Update resolved theme when mode or system preference changes
   useEffect(() => {
     const updateResolved = () => {

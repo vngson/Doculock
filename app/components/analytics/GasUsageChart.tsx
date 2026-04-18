@@ -1,64 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
 
 interface TrendDataPoint {
   date: string;
   count: number;
   totalSize: number;
   uniqueUsers: number;
+  estimatedGas?: number;
 }
 
-interface GasUsageChartProps {
-  onLoadingChange?: (loading: boolean) => void;
-}
+function GasUsageChartComponent() {
+  const { trends } = useAnalyticsData();
 
-export function GasUsageChart({ onLoadingChange }: GasUsageChartProps) {
-  const [data, setData] = useState<TrendDataPoint[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    onLoadingChange?.(loading);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
-
-  useEffect(() => {
-    fetch('/api/analytics/trends?days=30')
-      .then(res => res.json())
-      .then(data => {
-        if (!Array.isArray(data)) {
-          console.error('Unexpected data format:', data);
-          setData([]);
-          setLoading(false);
-          return;
-        }
-
-        const gasData = data.map((item: TrendDataPoint) => ({
-          ...item,
-          estimatedGas: item.count * 0.003,
-        }));
-        setData(gasData);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching gas data:', err);
-        setData([]);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="chart-card chart-card--loading">
-        <div className="chart-header">
-          <div className="chart-icon">⛽</div>
-          <h3 className="chart-title">Estimated Gas Usage (30 Days)</h3>
-        </div>
-        <div className="chart-content chart-content--loading" />
-      </div>
-    );
-  }
+  // Memoize gas data calculation to avoid recalculation on re-renders
+  const gasData = useMemo(() => {
+    return trends.map((item: TrendDataPoint) => ({
+      ...item,
+      estimatedGas: item.count * 0.003,
+    }));
+  }, [trends]);
 
   return (
     <div className="chart-card">
@@ -68,7 +31,7 @@ export function GasUsageChart({ onLoadingChange }: GasUsageChartProps) {
       </div>
       <div className="chart-content">
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
+          <LineChart data={gasData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="date"
@@ -104,3 +67,6 @@ export function GasUsageChart({ onLoadingChange }: GasUsageChartProps) {
     </div>
   );
 }
+
+export const GasUsageChart = memo(GasUsageChartComponent);
+GasUsageChart.displayName = 'GasUsageChart';
