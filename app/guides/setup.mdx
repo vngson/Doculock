@@ -24,45 +24,27 @@ Need help installing Sui CLI? Visit https://docs.sui.io/build/install
 
 A DocuLock project consists of a Next.js frontend and Move smart contract:
 
-<Files>
-  <Folder name="DocuLock">
-    <File name="package.json" />
-
-    <File name=".env.local.example" />
-
-    <File name=".env.local" />
-
-    <Folder name="app">
-      <File name="page.tsx" />
-
-      <File name="layout.tsx" />
-
-      <Folder name="components">
-        <File name="FileUploader.tsx" />
-
-        <File name="FileVerifier.tsx" />
-
-        <File name="DocumentHistory.tsx" />
-      </Folder>
-    </Folder>
-
-    <Folder name="lib">
-      <File name="doculock.ts" />
-
-      <File name="crypto.ts" />
-    </Folder>
-
-    <Folder name="contracts">
-      <Folder name="doculock">
-        <Folder name="sources" />
-
-        <File name="Move.toml" />
-
-        <File name="deploy-res.json" />
-      </Folder>
-    </Folder>
-  </Folder>
-</Files>
+```
+DocuLock/
+├── package.json
+├── .env.local.example
+├── .env.local
+├── app/
+│   ├── page.tsx
+│   ├── layout.tsx
+│   └── components/
+│       ├── FileUploader.tsx
+│       ├── FileVerifier.tsx
+│       └── DocumentHistory.tsx
+├── lib/
+│   ├── doculock.ts
+│   └── crypto.ts
+└── contracts/
+    └── doculock/
+        ├── sources/
+        ├── Move.toml
+        └── deploy-res.json
+```
 
 ## Step 1: Install Dependencies [#install-dependencies]
 

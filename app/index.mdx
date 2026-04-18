@@ -73,51 +73,32 @@ Share for Verification → Verify on Blockchain → Hash Match?
 
 ## Project Structure [#project-structure]
 
-<Files>
-  <Folder name="doculock">
-    <File name="package.json" />
-
-    <File name="next.config.js" />
-
-    <Folder name="app">
-      <File name="page.tsx" />
-
-      <File name="layout.tsx" />
-
-      <File name="providers.tsx" />
-
-      <Folder name="components">
-        <File name="FileUploader.tsx" />
-        <File name="FileVerifier.tsx" />
-        <File name="BatchVerifier.tsx" />
-        <File name="FraudSimulation.tsx" />
-        <File name="DocumentHistory.tsx" />
-      </Folder>
-    </Folder>
-
-    <Folder name="lib">
-      <File name="crypto.ts" />
-
-      <File name="doculock.ts" />
-
-      <File name="file.ts" />
-
-      <File name="config.ts" />
-
-      <File name="export.ts" />
-
-      <File name="pdfExport.ts" />
-
-      <File name="hashWorker.ts" />
-    </Folder>
-
-    <Folder name="public">
-      <Folder name="workers">
-        <File name="hashWorker.js" />
-      </Folder>
-    </Folder>
-  </Folder>
-</Files>
+```
+doculock/
+├── package.json
+├── next.config.js
+├── app/
+│   ├── page.tsx
+│   ├── layout.tsx
+│   ├── providers.tsx
+│   └── components/
+│       ├── FileUploader.tsx
+│       ├── FileVerifier.tsx
+│       ├── BatchVerifier.tsx
+│       ├── FraudSimulation.tsx
+│       └── DocumentHistory.tsx
+├── lib/
+│   ├── crypto.ts
+│   ├── doculock.ts
+│   ├── file.ts
+│   ├── config.ts
+│   ├── export.ts
+│   ├── pdfExport.ts
+│   └── hashWorker.ts
+└── public/
+    └── workers/
+        └── hashWorker.js
+```
 
 ## Technology Stack [#tech-stack]
 

@@ -5,7 +5,7 @@
     "tabs": [
       {
         "label": "Documentation",
-        "path": "",
+        "path": "documentation",
         "groups": [
           {
             "label": "Getting Started",
