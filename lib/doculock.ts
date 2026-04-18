@@ -167,12 +167,21 @@ export async function verifyDocument(
       return false;
     }
 
-    // Remove 0x prefix if present
-    const hashHex = fileHash.startsWith('0x') ? fileHash.slice(2) : fileHash;
+    // Remove 0x prefix if present and normalize
+    let hashHex = fileHash.startsWith('0x') ? fileHash.slice(2) : fileHash;
+    hashHex = hashHex.toLowerCase().trim();
 
+    console.log('[verifyDocument] ============================================');
     console.log('[verifyDocument] Hash to verify:', hashHex);
+    console.log('[verifyDocument] Hash length:', hashHex.length);
     console.log('[verifyDocument] Registry ID:', registryId);
     console.log('[verifyDocument] Package ID:', packageId);
+
+    // Validate hash format
+    if (!/^[a-f0-9]{64}$/.test(hashHex)) {
+      console.error('[verifyDocument] Invalid hash format:', hashHex);
+      return false;
+    }
 
     // First, get registry to check its state
     const registry = await getRegistryObject(suiClient);
@@ -202,11 +211,15 @@ export async function verifyDocument(
         eventHash = String(eventHash);
       }
 
+      // Normalize event hash
+      eventHash = eventHash.toLowerCase().trim();
+
       console.log('[verifyDocument] Event hash:', eventHash, 'Type:', typeof eventHash);
 
-      // Convert both to lowercase for comparison
-      if (eventHash && eventHash.toLowerCase() === hashHex.toLowerCase()) {
-        console.log('[verifyDocument] Hash found in events!');
+      // Compare hashes
+      if (eventHash && eventHash === hashHex) {
+        console.log('[verifyDocument] ✓ Hash found in events!');
+        console.log('[verifyDocument] ============================================');
         return true;
       }
     }
@@ -220,7 +233,7 @@ export async function verifyDocument(
       bytes.push(parseInt(hashHex.slice(i, i + 2), 16));
     }
 
-    console.log('[verifyDocument] Bytes:', bytes);
+    console.log('[verifyDocument] Bytes array length:', bytes.length);
 
     // Try getDynamicFieldObject
     const dynamicField = await suiClient.getDynamicFieldObject({
@@ -234,12 +247,17 @@ export async function verifyDocument(
     console.log('[verifyDocument] Dynamic field result:', dynamicField);
 
     if (!dynamicField.error) {
+      console.log('[verifyDocument] ✓ Hash found in dynamic field!');
+      console.log('[verifyDocument] ============================================');
       return true;
     }
 
+    console.log('[verifyDocument] Hash not found on blockchain');
+    console.log('[verifyDocument] ============================================');
     return false;
   } catch (error) {
-    console.error('Error verifying document:', error);
+    console.error('[verifyDocument] Error verifying document:', error);
+    console.log('[verifyDocument] ============================================');
     return false;
   }
 }
@@ -262,8 +280,9 @@ export async function getDocumentMetadata(
       return null;
     }
 
-    // Remove 0x prefix if present
-    const hashHex = fileHash.startsWith('0x') ? fileHash.slice(2) : fileHash;
+    // Remove 0x prefix if present and normalize
+    let hashHex = fileHash.startsWith('0x') ? fileHash.slice(2) : fileHash;
+    hashHex = hashHex.toLowerCase().trim();
 
     console.log('[getDocumentMetadata] Hash to lookup:', hashHex);
 
@@ -288,8 +307,11 @@ export async function getDocumentMetadata(
         eventHash = String(eventHash);
       }
 
-      // Convert both to lowercase for comparison
-      if (eventHash && eventHash.toLowerCase() === hashHex.toLowerCase()) {
+      // Normalize event hash
+      eventHash = eventHash.toLowerCase().trim();
+
+      // Compare hashes
+      if (eventHash && eventHash === hashHex) {
         console.log('[getDocumentMetadata] Found document in events!');
         console.log('[getDocumentMetadata] Timestamp raw value:', parsed.timestamp, 'Type:', typeof parsed.timestamp);
 
@@ -327,11 +349,15 @@ export async function getDocumentEvents(
   creatorAddress?: string,
 ): Promise<DocumentStoredEvent[]> {
   try {
+    console.log('[getDocumentEvents] Querying events with packageId:', doculockConfig.packageId);
     const events = await suiClient.queryEvents({
       query: {
         MoveEventType: `${doculockConfig.packageId}::doculock::DocumentStored`,
       },
     });
+
+    console.log('[getDocumentEvents] Total events found:', events.data.length);
+    console.log('[getDocumentEvents] First event:', events.data[0]);
 
     const filteredEvents = creatorAddress
       ? events.data.filter(event => {
@@ -363,5 +389,51 @@ export async function getDocumentEvents(
   } catch (error) {
     console.error('Error fetching document events:', error);
     return [];
+  }
+}
+
+/**
+ * Debug function to list all stored documents
+ * @param suiClient - Sui client instance
+ */
+export async function debugListAllDocuments(suiClient: SuiClient): Promise<void> {
+  try {
+    console.log('[debugListAllDocuments] ============================================');
+    console.log('[debugListAllDocuments] Package ID:', doculockConfig.packageId);
+    console.log('[debugListAllDocuments] Registry ID:', getRegistryId());
+
+    const events = await suiClient.queryEvents({
+      query: {
+        MoveEventType: `${doculockConfig.packageId}::doculock::DocumentStored`,
+      },
+    });
+
+    console.log('[debugListAllDocuments] Total documents found:', events.data.length);
+
+    for (let i = 0; i < events.data.length; i++) {
+      const event = events.data[i];
+      const parsed = event.parsedJson as any;
+      let eventHash = parsed.document_hash;
+
+      // Convert array of bytes to hex string if needed
+      if (Array.isArray(eventHash)) {
+        eventHash = bytesToHex(new Uint8Array(eventHash));
+      } else if (typeof eventHash !== 'string') {
+        eventHash = String(eventHash);
+      }
+
+      console.log('[debugListAllDocuments] Document', i + 1, ':');
+      console.log('  - File name:', parsed.file_name);
+      console.log('  - Hash:', eventHash);
+      console.log('  - Hash length:', eventHash?.length);
+      console.log('  - File size:', parsed.file_size);
+      console.log('  - MIME type:', parsed.mime_type);
+      console.log('  - Creator:', parsed.creator);
+      console.log('  - Timestamp:', parsed.timestamp);
+    }
+
+    console.log('[debugListAllDocuments] ============================================');
+  } catch (error) {
+    console.error('[debugListAllDocuments] Error:', error);
   }
 }

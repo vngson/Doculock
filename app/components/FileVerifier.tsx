@@ -30,7 +30,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
       file_size: number;
       mime_type: string;
       timestamp?: number;
-    };
+    } | null;
   } | null>(null);
 
   // Auto-verify when initialHash is provided
@@ -59,14 +59,23 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
   const handleVerifyWithHash = async (hashToVerify: string) => {
     if (!hashToVerify) return;
 
+    console.log('[FileVerifier] Verifying hash:', hashToVerify);
+    console.log('[FileVerifier] Hash length:', hashToVerify?.length);
+    console.log('[FileVerifier] Hash type:', typeof hashToVerify);
+
     setIsVerifying(true);
 
     try {
+      console.log('[FileVerifier] Calling verifyDocument...');
       const exists = await verifyDocument(suiClient, hashToVerify);
+      console.log('[FileVerifier] Verification result:', exists);
+
       let metadata;
 
       if (exists) {
+        console.log('[FileVerifier] Getting metadata...');
         metadata = await getDocumentMetadata(suiClient, hashToVerify);
+        console.log('[FileVerifier] Metadata:', metadata);
       }
 
       setResult({ exists, metadata });

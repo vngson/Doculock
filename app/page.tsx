@@ -7,12 +7,13 @@ import { FileUploader, type FileUploaderHandle } from './components/FileUploader
 import { FileVerifier, type FileVerifierHandle } from './components/FileVerifier';
 import { DocumentHistory } from './components/DocumentHistory';
 import { RegistryCreator } from './components/RegistryCreator';
+import { BatchVerifier } from './components/BatchVerifier';
 import { Toast, useToast } from './components/Toast';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { delay } from '@/lib/demo';
 
-type Tab = 'upload' | 'verify' | 'history';
+type Tab = 'upload' | 'verify' | 'history' | 'batch';
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('upload');
@@ -35,7 +36,7 @@ export default function Home() {
       const searchParams = new URLSearchParams(query || '');
       const hashParam = searchParams.get('hash');
 
-      if (['upload', 'verify', 'history'].includes(tabName)) {
+      if (['upload', 'verify', 'history', 'batch'].includes(tabName)) {
         setTab(tabName as Tab);
         setPreloadedHash(hashParam || '');
       }
@@ -53,7 +54,7 @@ export default function Home() {
   const handleTabChange = (newTab: Tab) => {
     setTab(newTab);
 
-    // Clear URL hash when switching to upload or history
+    // Clear URL hash when switching to upload, history, or batch
     if (newTab !== 'verify') {
       window.history.pushState(null, '', window.location.pathname);
       setPreloadedHash('');
@@ -189,6 +190,13 @@ export default function Home() {
           <span>📋</span>
           History
         </button>
+        <button
+          className={`tab ${tab === 'batch' ? 'tab--active' : ''}`}
+          onClick={() => handleTabChange('batch')}
+        >
+          <span>📁</span>
+          Batch
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -201,6 +209,7 @@ export default function Home() {
         )}
         {tab === 'verify' && <FileVerifier initialHash={preloadedHash} />}
         {tab === 'history' && <DocumentHistory />}
+        {tab === 'batch' && <BatchVerifier />}
       </div>
 
       {/* Toast Container */}

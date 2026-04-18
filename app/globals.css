@@ -112,6 +112,9 @@
   --text-dim: #64748B;
   --text-accent: var(--primary);
 
+  /* Wallet Button Text (connected state) */
+  --wallet-text: #FFFFFF;
+
   /* Status Colors */
   --success: #10B981;
   --success-bg: rgba(16, 185, 129, 0.1);
@@ -142,6 +145,9 @@
   --text-secondary: #475569;
   --text-dim: #94A3B8;
   --text-accent: var(--primary);
+
+  /* Wallet Button Text (connected state) */
+  --wallet-text: #000000;
 
   /* Status Colors */
   --success: #059669;
@@ -419,6 +425,7 @@ main {
   box-shadow: var(--glow-sm);
   width: 28px;
   height: 28px;
+  background: black;
 }
 
 /* Tablet */
@@ -482,10 +489,12 @@ main {
   .theme-switcher,
   .theme-switcher-button,
   .site-network,
-  .connect-button button[data-dapp-kit],
-  .AccountDropdownMenu_connectedAccount__div2ql0 {
-    height: 42px;
-    min-height: 42px;
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
+    height: 42px !important;
+    min-height: 42px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -501,6 +510,7 @@ main {
   .site-header-right > div > div > button,
   .theme-switcher,
   .theme-switcher-button,
+  .connect-button,
   .connect-button button[data-dapp-kit],
   .AccountDropdownMenu_connectedAccount__div2ql0 {
     height: 38px !important;
@@ -520,6 +530,7 @@ main {
   .site-header-right > div > div > button,
   .theme-switcher,
   .theme-switcher-button,
+  .connect-button,
   .connect-button button[data-dapp-kit],
   .AccountDropdownMenu_connectedAccount__div2ql0 {
     height: 38px !important;
@@ -539,6 +550,7 @@ main {
   .site-header-right > div > div > button,
   .theme-switcher,
   .theme-switcher-button,
+  .connect-button,
   .connect-button button[data-dapp-kit],
   .AccountDropdownMenu_connectedAccount__div2ql0 {
     height: 36px !important;
@@ -682,46 +694,83 @@ main {
 }
 
 /* ── ConnectButton override (dapp-kit) ── */
-.connect-button,
-.connect-button button[data-dapp-kit],
-.AccountDropdownMenu_connectedAccount__div2ql0 {
+
+/* Base styling for all ConnectButton states */
+[data-dapp-kit].Button_buttonVariants__x1s81q0,
+[data-dapp-kit] .Button_buttonVariants__x1s81q0 {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
   white-space: nowrap !important;
   line-height: 1.2 !important;
+  box-sizing: border-box !important;
+  border-radius: 12px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0 20px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+}
+
+/* Disconnected state styling (primary variant) */
+[data-dapp-kit].Button_buttonVariants_variant_primary__x1s81q1,
+[data-dapp-kit] .Button_buttonVariants_variant_primary__x1s81q1 {
+  border: 1.5px solid rgba(0, 192, 255, 0.3) !important;
+  background: var(--gradient) !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(0, 192, 255, 0.25) !important;
 }
 
 /* Connected state styling */
-.AccountDropdownMenu_connectedAccount__div2ql0 {
+.AccountDropdownMenu_connectedAccount__div2ql0,
+[data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
   border: 1.5px solid var(--border) !important;
-  border-radius: 12px !important;
   background: var(--surface-light) !important;
-  color: var(--text) !important;
-  transition: all 0.2s ease !important;
-  padding: 0 16px !important;
-  box-sizing: border-box !important;
+  color: var(--wallet-text) !important;
+  box-shadow: none !important;
 }
 
-.AccountDropdownMenu_connectedAccount__div2ql0:hover {
+/* Ensure all child elements have proper text color */
+.AccountDropdownMenu_connectedAccount__div2ql0 *,
+[data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 * {
+  color: var(--wallet-text) !important;
+}
+
+/* Connected state hover */
+.AccountDropdownMenu_connectedAccount__div2ql0:hover,
+[data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0:hover {
   border-color: var(--primary) !important;
   box-shadow: var(--glow-sm) !important;
 }
 
-/* Medium mobile - compact connect button */
+/* Disconnected state hover */
+[data-dapp-kit].Button_buttonVariants_variant_primary__x1s81q1:hover,
+[data-dapp-kit] .Button_buttonVariants_variant_primary__x1s81q1:hover {
+  box-shadow: var(--glow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Medium mobile - 461-529px */
 @media (min-width: 461px) and (max-width: 529px) {
-  .connect-button,
-  .connect-button button[data-dapp-kit],
-  .AccountDropdownMenu_connectedAccount__div2ql0 {
+  .site-network {
+    display: none !important;
+  }
+  .site-header-right > div:not(.site-network),
+  .site-header-right > div > div > button,
+  .theme-switcher,
+  .theme-switcher-button,
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
     gap: 5px !important;
     padding: 0 10px !important;
     font-size: 0.7rem !important;
-    height: 38px !important;
-    min-height: 38px !important;
-  }
-  .theme-switcher,
-  .theme-switcher-button {
-    padding: 0 10px !important;
     height: 38px !important;
     min-height: 38px !important;
   }
@@ -735,20 +784,22 @@ main {
   }
 }
 
-/* Small mobile - compact connect button */
+/* Small mobile - 431-460px */
 @media (max-width: 460px) {
-  .connect-button,
-  .connect-button button[data-dapp-kit],
-  .AccountDropdownMenu_connectedAccount__div2ql0 {
+  .site-network {
+    display: none !important;
+  }
+  .site-header-right > div:not(.site-network),
+  .site-header-right > div > div > button,
+  .theme-switcher,
+  .theme-switcher-button,
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
     gap: 5px !important;
     padding: 0 10px !important;
     font-size: 0.7rem !important;
-    height: 38px !important;
-    min-height: 38px !important;
-  }
-  .theme-switcher,
-  .theme-switcher-button {
-    padding: 0 10px !important;
     height: 38px !important;
     min-height: 38px !important;
   }
@@ -766,11 +817,19 @@ main {
   }
 }
 
-/* Very small mobile - even more compact */
+/* Very small mobile - 430px and below */
 @media (max-width: 430px) {
-  .connect-button,
-  .connect-button button[data-dapp-kit],
-  .AccountDropdownMenu_connectedAccount__div2ql0 {
+  .site-network {
+    display: none !important;
+  }
+  .site-header-right > div:not(.site-network),
+  .site-header-right > div > div > button,
+  .theme-switcher,
+  .theme-switcher-button,
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
     gap: 4px !important;
     padding: 0 8px !important;
     font-size: 0.65rem !important;

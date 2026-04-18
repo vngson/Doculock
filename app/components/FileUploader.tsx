@@ -41,6 +41,9 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
   const calculateHash = async (file: File) => {
     try {
       const hashHex = await calculateSHA256(file);
+      console.log('[FileUploader] Calculated hash:', hashHex);
+      console.log('[FileUploader] Hash length:', hashHex?.length);
+      console.log('[FileUploader] Hash type:', typeof hashHex);
       setHash(hashHex);
     } catch (err) {
       setError('Failed to calculate file hash');
