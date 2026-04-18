@@ -1,16 +1,22 @@
 {
-  "name": "Doculock Documentation",
+  "name": "DocuLock Documentation",
   "navigation": {
     "tabs": [
       {
         "label": "Documentation",
-        "path": "documentation",
+        "path": "",
         "groups": [
           {
             "label": "Getting Started",
             "pages": [
               { "file": "index" },
               { "file": "quickstart" }
+            ]
+          },
+          {
+            "label": "Guides",
+            "pages": [
+              { "file": "guides/setup" }
             ]
           }
         ]
