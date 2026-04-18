@@ -151,13 +151,16 @@ export function useToast() {
   const [toasts, setToasts] = useState<typeof toastQueue>([]);
 
   useEffect(() => {
-    const listener = (newToasts: typeof toastQueue) => {
-      setToasts(newToasts);
-    };
+  const listener = (newToasts: typeof toastQueue) => {
+    setToasts(newToasts);
+  };
 
-    toastListeners.add(listener);
-    return () => toastListeners.delete(listener);
-  }, []);
+  toastListeners.add(listener);
+
+  return () => {
+    toastListeners.delete(listener);
+  };
+}, []);
 
   return { toasts, showToast, removeToast };
 }
