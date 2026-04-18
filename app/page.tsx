@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit';
+import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { FileUploader, type FileUploaderHandle } from './components/FileUploader';
 import { FileVerifier, type FileVerifierHandle } from './components/FileVerifier';
 import { DocumentHistory } from './components/DocumentHistory';
@@ -12,6 +12,9 @@ import { Toast, useToast } from './components/Toast';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { delay } from '@/lib/demo';
+import { calculateSHA256, hexToBytes } from '@/lib/crypto';
+import { createStoreDocumentTx } from '@/lib/doculock';
+import { useSuiClient } from '@mysten/dapp-kit';
 
 type Tab = 'upload' | 'verify' | 'history' | 'batch';
 
@@ -24,6 +27,8 @@ export default function Home() {
   const uploadRef = useRef<FileUploaderHandle>(null);
   const verifyRef = useRef<FileVerifierHandle>(null);
   const account = useCurrentAccount();
+  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
+  const suiClient = useSuiClient();
 
   // Listen to hash changes for navigation
   useEffect(() => {
@@ -64,25 +69,78 @@ export default function Home() {
   async function runDemo() {
     setDemoRunning(true);
 
-    // Step 1: Upload tab - mock file upload
-    handleTabChange('upload');
-    setDemoStep('Creating sample document...');
-    await delay(800);
+    try {
+      // Step 1: Upload tab - create mock file
+      handleTabChange('upload');
+      setDemoStep('Creating sample document...');
+      await delay(500);
 
-    setDemoStep('Calculating SHA-256 hash...');
-    await delay(1000);
+      // Create mock file
+      const mockContent = 'DocuLock Demo Document\nTimestamp: ' + new Date().toISOString() + '\nThis is a sample document for demonstration.';
+      const mockFile = new File([mockContent], 'demo-document.txt', { type: 'text/plain' });
+      setDemoStep('Calculating SHA-256 hash...');
+      await delay(300);
 
-    // Step 2: Store on-chain (triggers SUI wallet)
-    setDemoStep('Storing hash on blockchain...');
-    await delay(1200);
+      // Calculate real hash
+      const hashHex = await calculateSHA256(mockFile);
+      setDemoStep('Hash calculated. Storing on blockchain...');
+      await delay(500);
 
-    // Step 3: Verify tab
-    handleTabChange('verify');
-    setDemoStep('Verifying on blockchain...');
-    await delay(800);
+      // Step 2: Store on-chain (triggers SUI wallet)
+      const hashBytes = hexToBytes(hashHex);
+      const txb = await createStoreDocumentTx(
+        hashBytes,
+        mockFile.name,
+        mockFile.size,
+        mockFile.type,
+      );
 
-    setDemoRunning(false);
-    setDemoStep('');
+      setDemoStep('Waiting for wallet signature...');
+      const result = await signAndExecute({ transaction: txb });
+      console.log('[runDemo] Transaction submitted:', result);
+
+      // Wait for confirmation
+      let retries = 0;
+      const maxRetries = 10;
+
+      while (retries < maxRetries) {
+        try {
+          const txDetails = await suiClient.getTransactionBlock({
+            digest: result.digest,
+            options: {
+              showEffects: true,
+            },
+          });
+
+          if (txDetails.effects?.status?.status === 'success') {
+            console.log('[runDemo] Transaction confirmed!');
+
+            // Step 3: Verify tab
+            handleTabChange('verify');
+            setPreloadedHash(hashHex);
+            setDemoStep('Verifying on blockchain...');
+            await delay(500);
+
+            setDemoRunning(false);
+            setDemoStep('');
+            return;
+          }
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) {
+            console.error('[runDemo] Max retries reached');
+            setDemoStep('Transaction timeout');
+            setDemoRunning(false);
+            return;
+          }
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    } catch (error: any) {
+      console.error('[runDemo] Error:', error);
+      setDemoStep('Demo failed: ' + error.message);
+      setDemoRunning(false);
+    }
   }
 
   return (
