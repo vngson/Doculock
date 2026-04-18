@@ -1,4 +1,178 @@
 ---
 title: "Setup Guide"
-description: "How to setup the project"
+description: "Complete guide to setting up DocuLock development environment and smart contract"
 ---
+
+# Setup Guide [#setup-guide]
+
+Get DocuLock up and running with smart contract deployment and configuration.
+
+Prerequisites [#prerequisites]
+
+Before you begin, ensure you have:
+
+- Node.js 18+ installed
+- Sui CLI installed and configured for testnet
+- Sui wallet browser extension
+- Testnet SUI tokens for gas fees
+
+<Callout type="info">
+Need help installing Sui CLI? Visit https://docs.sui.io/build/install
+</Callout>
+
+## Project Structure [#project-structure]
+
+A DocuLock project consists of a Next.js frontend and Move smart contract:
+
+<Files>
+  <Folder name="DocuLock">
+    <File name="package.json" />
+
+    <File name=".env.local.example" />
+
+    <File name=".env.local" />
+
+    <Folder name="app">
+      <File name="page.tsx" />
+
+      <File name="layout.tsx" />
+
+      <Folder name="components">
+        <File name="FileUploader.tsx" />
+
+        <File name="FileVerifier.tsx" />
+
+        <File name="DocumentHistory.tsx" />
+      </Folder>
+    </Folder>
+
+    <Folder name="lib">
+      <File name="doculock.ts" />
+
+      <File name="crypto.ts" />
+    </Folder>
+
+    <Folder name="contracts">
+      <Folder name="doculock">
+        <File name="sources" />
+
+        <File name="Move.toml" />
+
+        <File name="deploy-res.json" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+## Step 1: Install Dependencies [#install-dependencies]
+
+Install the frontend dependencies:
+
+```bash
+npm install
+```
+
+## Step 2: Deploy Smart Contract [#deploy-contract]
+
+Navigate to the contract directory and deploy to Sui testnet:
+
+<Tabs items="["Build", "Publish"]">
+  <Tab value="Build">
+```bash
+cd contracts/doculock
+sui move build
+```
+  </Tab>
+
+  <Tab value="Publish">
+```bash
+sui client publish --gas-budget 10000000
+```
+  </Tab>
+</Tabs>
+
+After publishing, you'll see output containing two important IDs:
+
+<Callout type="success">
+**Save these IDs** - you'll need them in the next step!
+
+```
+Transaction Digest: 8XfG...
+Package ID: 0x1234567890abcdef1234567890abcdef1234567890abcdef
+-- Created Objects --
+ObjectId: 0x9876543210fedcba9876543210fedcba9876543210fedcba
+Owner: Shared
+```
+</Callout>
+
+## Step 3: Configure Environment [#configure-environment]
+
+Create your environment file and add the contract addresses:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` with your deployed contract addresses:
+
+```env
+NEXT_PUBLIC_SUI_NETWORK=testnet
+NEXT_PUBLIC_SUI_RPC_URL=https://fullnode.testnet.sui.io
+NEXT_PUBLIC_DOCULOCK_PACKAGE_ID=0x[PASTE_PACKAGE_ID]
+NEXT_PUBLIC_DOCULOCK_REGISTRY_ID=0x[PASTE_REGISTRY_ID]
+```
+
+## Step 4: Start Development Server [#start-dev-server]
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 in your browser.
+
+## Architecture Overview [#architecture]
+
+DocuLock uses a simple but secure architecture:
+
+<Mermaid
+  chart="graph LR;
+A[User Browser] --> B[SHA-256 Hash];
+B --> C[Sui Transaction];
+C --> D[DocuLock Contract];
+D --> E[Document Registry];
+F[Verifier] --> B;
+F --> D;"
+/>
+
+Key security features:
+- Client-side hashing (files never leave unhashed)
+- Only hashes stored on-chain (privacy-preserving)
+- Immutable timestamp proof on blockchain
+
+## Troubleshooting [#troubleshooting]
+
+<Callout type="warning">
+**Common Issues**
+</Callout>
+
+**Registry not found**
+- Verify `NEXT_PUBLIC_DOCULOCK_REGISTRY_ID` matches deployment output
+- Check that you're connected to the correct network (testnet)
+
+**Package ID invalid**
+- Ensure `NEXT_PUBLIC_DOCULOCK_PACKAGE_ID` starts with `0x`
+- Confirm the contract was published successfully
+
+**Insufficient gas**
+- Get testnet SUI from https://faucet.testnet.sui.io
+- Increase gas budget if needed: `--gas-budget 20000000`
+
+## Next Steps [#next-steps]
+
+<Cards>
+  <Card title="Quickstart" description="Upload your first document and verify it." href="/quickstart" icon="Rocket" />
+
+  <Card title="API Reference" description="Complete smart contract API documentation." href="/docs/api" icon="Code" />
+
+  <Card title="Deployment" description="Deploy to mainnet for production use." href="/docs/deployment" icon="Upload" />
+</Cards>
