@@ -27,7 +27,25 @@ export function BatchVerifier() {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const exportButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleFileSelect = (selectedFiles: FileList | null) => {
+  const getMimeTypeFromExtension = (filename: string): string => {
+    const ext = filename.toLowerCase().split('.').pop();
+    const mimeTypes: Record<string, string> = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+      'pdf': 'application/pdf',
+      'txt': 'text/plain',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    };
+    return mimeTypes[ext || ''] || 'application/octet-stream';
+  };
+
+  const handleFileSelect = (selectedFiles: FileList | File[] | null) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
 
     const newFiles = Array.from(selectedFiles);
@@ -49,18 +67,16 @@ export function BatchVerifier() {
       for (const [filename, zipEntry] of Object.entries(contents.files)) {
         if (!zipEntry.dir) {
           const blob = await zipEntry.async('blob');
+          const mimeType = getMimeTypeFromExtension(filename);
           const extractedFile = new File([blob], filename, {
-            type: blob.type || 'application/octet-stream',
+            type: mimeType,
           });
           extractedFiles.push(extractedFile);
         }
       }
 
       if (extractedFiles.length > 0) {
-        handleFileSelect({
-          length: extractedFiles.length,
-          item: (i: number) => extractedFiles[i],
-        } as any);
+        handleFileSelect(extractedFiles);
       }
     } catch (error) {
       console.error('Error extracting ZIP:', error);
@@ -244,9 +260,8 @@ export function BatchVerifier() {
             style={{ width: '100%', justifyContent: 'center' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
             </svg>
             Select Files
           </button>
@@ -265,9 +280,7 @@ export function BatchVerifier() {
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
             </svg>
             Select Folder
           </button>
@@ -286,9 +299,9 @@ export function BatchVerifier() {
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
+              <path d="M21 8v13H3V8" />
+              <path d="M1 3h22v5H1z" />
+              <path d="M10 12h4" />
             </svg>
             Upload ZIP Archive
           </button>
@@ -388,6 +401,7 @@ export function BatchVerifier() {
             marginBottom: '16px',
           }}>
             {files.map((file, idx) => {
+              if (!file) return null;
               const result = results[idx];
               return (
                 <div
