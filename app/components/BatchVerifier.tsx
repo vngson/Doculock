@@ -12,13 +12,6 @@ import { formatFileSize, getFileIcon } from '@/lib/file';
 export interface BatchVerificationResultExtended extends BatchVerificationResult {
   id: string;
   processing: boolean;
-  existingFileWithSameName?: {
-    file_name: string;
-    file_size: number;
-    mime_type: string;
-    timestamp?: number;
-    document_hash: string;
-  } | null;
 }
 
 export function BatchVerifier() {

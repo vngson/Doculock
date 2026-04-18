@@ -3,15 +3,21 @@
  */
 
 import { Transaction } from '@mysten/sui/transactions';
-import { type SuiClient } from '@mysten/sui/client';
+import { SuiClient } from '@mysten/sui/client';
 import { doculockConfig, getRegistryId } from './config';
 import { bytesToHex } from './crypto';
+
+export function createSuiClient(): SuiClient {
+  return new SuiClient({
+    url: doculockConfig.rpcUrl,
+  });
+}
 
 // Document event type
 export interface DocumentStoredEvent {
   document_hash: string;
   creator: string;
-  timestamp: number;
+  timestamp: number | string;
   file_name: string;
   file_size: number;
   mime_type: string;
@@ -442,7 +448,7 @@ export async function getDocumentEvents(
         creator: parsed.creator,
         timestamp: parsed.timestamp,
         file_name: parsed.file_name,
-        file_size: parsed.file_size,
+        file_size: Number(parsed.file_size) || 0,
         mime_type: parsed.mime_type,
       };
     });

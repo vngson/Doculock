@@ -17,10 +17,10 @@ import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { createStoreDocumentTx } from '@/lib/doculock';
 import { useSuiClient } from '@mysten/dapp-kit';
 
-type Tab = 'upload' | 'verify' | 'history' | 'batch' | 'compare';
+type Tab = 'analytics'|'upload' | 'verify'  | 'batch' | 'compare' |  'history';
 
 export default function Home() {
-  const [tab, setTab] = useState<Tab>('upload');
+  const [tab, setTab] = useState<Tab>('analytics');
   const [preloadedHash, setPreloadedHash] = useState('');
   const [demoRunning, setDemoRunning] = useState(false);
   const [demoStep, setDemoStep] = useState('');
@@ -42,7 +42,7 @@ export default function Home() {
       const searchParams = new URLSearchParams(query || '');
       const hashParam = searchParams.get('hash');
 
-      if (['upload', 'verify', 'history', 'batch'].includes(tabName)) {
+      if (['upload', 'verify', 'history', 'batch', 'analytics'].includes(tabName)) {
         setTab(tabName as Tab);
         setPreloadedHash(hashParam || '');
       }
@@ -229,6 +229,13 @@ export default function Home() {
       {/* Tab Bar */}
       <div className="tab-bar">
         <button
+          className={`tab ${tab === 'analytics' ? 'tab--active' : ''}`}
+          onClick={() => handleTabChange('analytics')}
+        >
+          <span>📊</span>
+          Analytics
+        </button>
+        <button
           className={`tab ${tab === 'upload' ? 'tab--active' : ''}`}
           onClick={() => handleTabChange('upload')}
         >
@@ -241,13 +248,6 @@ export default function Home() {
         >
           <span>🔍</span>
           Verify
-        </button>
-        <button
-          className={`tab ${tab === 'history' ? 'tab--active' : ''}`}
-          onClick={() => handleTabChange('history')}
-        >
-          <span>📋</span>
-          History
         </button>
         <button
           className={`tab ${tab === 'batch' ? 'tab--active' : ''}`}
@@ -263,6 +263,13 @@ export default function Home() {
           <span>⚖️</span>
           Compare
         </button>
+        <button
+          className={`tab ${tab === 'history' ? 'tab--active' : ''}`}
+          onClick={() => handleTabChange('history')}
+        >
+          <span>📋</span>
+          History
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -277,6 +284,11 @@ export default function Home() {
         {tab === 'history' && <DocumentHistory />}
         {tab === 'batch' && <BatchVerifier />}
         {tab === 'compare' && <DocumentComparison />}
+        {tab === 'analytics' && (
+          <div className="analytics-iframe-wrapper">
+            <iframe src="/analytics" className="analytics-iframe" title="Analytics Dashboard" />
+          </div>
+        )}
       </div>
 
       {/* Toast Container */}

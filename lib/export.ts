@@ -13,7 +13,7 @@ export interface BatchVerificationResult {
     file_name: string;
     file_size: number;
     mime_type: string;
-    timestamp?: number;
+    timestamp?: number | string;
     document_hash: string;
   } | null;
 }
