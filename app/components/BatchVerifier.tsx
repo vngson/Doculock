@@ -5,7 +5,7 @@ import { useSuiClient } from '@mysten/dapp-kit';
 import JSZip from 'jszip';
 import { verifyDocument, getDocumentMetadata, findDocumentByName } from '@/lib/doculock';
 import { hashFilesSequential, HashResult } from '@/lib/hashWorker';
-import { exportToTSV, exportToCSV, exportToJSON, exportToHTML, generateSummary, BatchVerificationResult } from '@/lib/export';
+import { exportToXLS, exportToCSV, exportToJSON, exportToHTML, generateSummary, BatchVerificationResult } from '@/lib/export';
 import { exportToPDF } from '@/lib/pdfExport';
 import { formatFileSize, getFileIcon } from '@/lib/file';
 
@@ -202,7 +202,7 @@ export function BatchVerifier() {
     setProgress({ current: files.length, total: files.length, fileName: 'Complete' });
   };
 
-  const handleExport = (format: 'tsv' | 'csv' | 'pdf' | 'json' | 'html') => {
+  const handleExport = (format: 'xls' | 'csv' | 'pdf' | 'json' | 'html') => {
     const exportData: BatchVerificationResult[] = results.map(r => ({
       fileName: r.fileName,
       fileSize: r.fileSize,
@@ -224,8 +224,8 @@ const timestamp =
   `${String(now.getSeconds()).padStart(2, '0')}`;
 
     switch (format) {
-      case 'tsv':
-        exportToTSV(exportData, `verification-results-${timestamp}.tsv`);
+      case 'xls':
+        exportToXLS(exportData, `verification-results-${timestamp}.xls`);
         break;
       case 'csv':
         exportToCSV(exportData, `verification-results-${timestamp}.csv`);
@@ -744,7 +744,7 @@ const timestamp =
                       }}
                     >
                       <button
-                        onClick={() => handleExport('csv')}
+                        onClick={() => handleExport('xls')}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -768,7 +768,7 @@ const timestamp =
                         }}
                       >
                         <span style={{ fontSize: '1.1rem' }}>📊</span>
-                        Export as TSV
+                        Export as Excel
                       </button>
                       <button
                         onClick={() => handleExport('pdf')}

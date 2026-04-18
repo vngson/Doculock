@@ -34,6 +34,40 @@ function getStatus(result: BatchVerificationResult): string {
 }
 
 /**
+ * Get difference details for PDF export
+ * @param result - Verification result
+ * @returns Difference details string
+ */
+function getDifferenceDetails(result: BatchVerificationResult): string {
+  if (!result.existingFileWithSameName) return '';
+
+  const existing = result.existingFileWithSameName;
+  const diffs: string[] = [];
+
+  // Size difference
+  if (result.fileSize !== existing.file_size) {
+    diffs.push(`Size: ${formatFileSize(result.fileSize)} to ${formatFileSize(existing.file_size)}`);
+  }
+
+  // Hash difference
+  const currentBytes = result.hash?.match(/.{1,2}/g) || [];
+  const existingBytes = existing.document_hash?.match(/.{1,2}/g) || [];
+  const totalDiffs = currentBytes.filter((byte, i) => byte !== existingBytes[i]).length;
+
+  if (totalDiffs > 0) {
+    diffs.push(`Hash: ${totalDiffs}/${existingBytes.length} bytes differ`);
+  }
+
+  // Upload timestamp difference
+  if (existing.timestamp) {
+    const uploadDate = new Date(existing.timestamp);
+    diffs.push(`Uploaded: ${uploadDate.toLocaleString('vi-VN')}`);
+  }
+
+  return diffs.join('\n');
+}
+
+/**
  * Export results to PDF format
  */
 export function exportToPDF(
@@ -105,6 +139,7 @@ export function exportToPDF(
       fileInfo,
       verification,
       truncateHash(result.hash),
+      getDifferenceDetails(result),
       result.timestamp ? formatDate(result.timestamp) : 'N/A',
     ];
   });
@@ -112,7 +147,7 @@ export function exportToPDF(
   // Add table
   autoTable(doc, {
     startY: yPos,
-    head: [['File Info', 'Verification', 'Hash', 'Timestamp']],
+    head: [['File Info', 'Verification', 'Hash', 'Difference Details', 'Timestamp']],
     body: tableData,
     theme: 'grid',
     headStyles: {
@@ -132,10 +167,11 @@ export function exportToPDF(
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 80, minCellWidth: 70, valign: 'top' },
-      1: { cellWidth: 75, minCellWidth: 65, valign: 'top' },
-      2: { cellWidth: 65, font: 'courier', fontSize: 7, valign: 'middle' },
-      3: { cellWidth: 50, valign: 'middle' },
+      0: { cellWidth: 40, minCellWidth: 60, valign: 'top' },
+      1: { cellWidth: 40, minCellWidth: 60, valign: 'top' },
+      2: { cellWidth: 40, font: 'courier', fontSize: 7, valign: 'middle' },
+      3: { cellWidth: 100, fontSize: 7, valign: 'top' },
+      4: { cellWidth: 50, valign: 'middle' },
     },
     alternateRowStyles: {
       fillColor: [240, 248, 255],

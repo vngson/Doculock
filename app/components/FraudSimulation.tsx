@@ -54,7 +54,13 @@ export function FraudSimulation({
 
   const handleSimulate = (field: 'name' | 'size') => {
     setTamperField(field);
-    setTamperedHash(generateTamperedHash());
+    // For rename: hash stays same (content unchanged)
+    // For size change: hash changes (content modified)
+    if (field === 'name') {
+      setTamperedHash(originalHash); // Same hash = same content
+    } else {
+      setTamperedHash(generateTamperedHash()); // Different hash = modified content
+    }
     setSimulated(true);
   };
 
@@ -193,19 +199,32 @@ export function FraudSimulation({
             gap: '10px',
             marginBottom: '20px',
             padding: '12px',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: tamperField === 'name' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+            border: tamperField === 'name' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '8px',
-            color: '#EF4444',
+            color: tamperField === 'name' ? '#F59E0B' : '#EF4444',
             fontWeight: 600,
             fontSize: '0.9rem',
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="15" y1="9" x2="9" y2="15" />
-              <line x1="9" y1="9" x2="15" y2="15" />
-            </svg>
-            Fraud Detected! Document Modified
+            {tamperField === 'name' ? (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Different Name, Same Content
+              </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                Fraud Detected! Content Modified
+              </>
+            )}
           </div>
 
           {/* Hash Comparison */}
@@ -368,8 +387,8 @@ export function FraudSimulation({
             <div style={{
               marginTop: '12px',
               padding: '10px 14px',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
+              background: tamperField === 'name' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              border: tamperField === 'name' ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)',
               borderRadius: '6px',
             }}>
               <div style={{
@@ -377,12 +396,12 @@ export function FraudSimulation({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 marginBottom: '8px',
-                color: '#EF4444',
+                color: tamperField === 'name' ? '#10B981' : '#EF4444',
                 fontWeight: 600,
                 fontSize: '0.8rem',
               }}>
                 <span>Hash Difference: <span style={{ fontSize: '1.2rem', marginLeft: '4px' }}>{difference}%</span></span>
-                <span style={{ opacity: 0.7 }}>97% expected for 1 bit change</span>
+                <span style={{ opacity: 0.7 }}>{tamperField === 'name' ? '0% - Content unchanged' : '97% expected for 1 bit change'}</span>
               </div>
               <div style={{
                 display: 'flex',
@@ -392,14 +411,14 @@ export function FraudSimulation({
                 <div style={{
                   flex: 1,
                   height: '8px',
-                  background: 'rgba(239, 68, 68, 0.2)',
+                  background: tamperField === 'name' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
                   borderRadius: '4px',
                   overflow: 'hidden',
                 }}>
                   <div style={{
                     width: `${difference}%`,
                     height: '100%',
-                    background: '#EF4444',
+                    background: tamperField === 'name' ? '#10B981' : '#EF4444',
                     borderRadius: '4px',
                     transition: 'width 0.5s ease-out',
                   }} />
@@ -529,12 +548,25 @@ export function FraudSimulation({
               Why this matters
             </div>
             <p style={{ margin: 0 }}>
-              <strong style={{ color: 'var(--text)' }}>
-                SHA-256 is designed to be extremely sensitive.
-              </strong>{' '}
-              Even changing 1 bit of data (like renaming a file) causes the hash
-              to change completely. This makes it impossible for someone to modify
-              a document without the change being detected.
+              {tamperField === 'name' ? (
+                <>
+                  <strong style={{ color: 'var(--text)' }}>
+                    Hash is based on file content, not file name.
+                  </strong>{' '}
+                  Renaming a file doesn't change its hash because the content
+                  remains exactly the same. This is why renaming alone cannot
+                  bypass blockchain verification.
+                </>
+              ) : (
+                <>
+                  <strong style={{ color: 'var(--text)' }}>
+                    SHA-256 is designed to be extremely sensitive.
+                  </strong>{' '}
+                  Changing any bit of file content causes the hash to change
+                  completely (avalanche effect). This makes it impossible for someone to
+                  modify a document without the change being detected.
+                </>
+              )}
             </p>
           </div>
 

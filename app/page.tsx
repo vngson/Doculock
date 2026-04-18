@@ -78,7 +78,7 @@ export default function Home() {
 
       // Create mock file
       const mockContent = 'DocuLock Demo Document\nTimestamp: ' + new Date().toISOString() + '\nThis is a sample document for demonstration.';
-      const mockFile = new File([mockContent], 'demo-document.txt', { type: 'text/plain' });
+      const mockFile = new File([mockContent], `demo-document-${Date.now()}.txt`, { type: 'text/plain' });
       setDemoStep('Calculating SHA-256 hash...');
       await delay(300);
 
