@@ -1,11 +1,11 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
 if (!process.env.MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error('Please define MONGODB_URI environment variable inside .env.local');
 }
 
-if (!process.env.MONGODB_DB_NAME) {
-  throw new Error('Please define the MONGODB_DB_NAME environment variable inside .env.local');
+if (!process.env.MONGODB_DB) {
+  throw new Error('Please define MONGODB_DB environment variable inside .env.local');
 }
 
 const uri = process.env.MONGODB_URI;
@@ -14,7 +14,6 @@ const options = {};
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-// In development, use global variable to preserve connection across hot reloads
 declare global {
   var _mongoClientPromise: Promise<MongoClient>;
 }
@@ -32,25 +31,16 @@ if (process.env.NODE_ENV === 'development') {
 
 export default clientPromise;
 
-/**
- * Get database instance
- */
 export async function getDb(): Promise<Db> {
   const client = await clientPromise;
-  return client.db(process.env.MONGODB_DB_NAME);
+  return client.db(process.env.MONGODB_DB);
 }
 
-/**
- * Get documents collection
- */
 export async function getDocumentsCollection(): Promise<Collection> {
   const db = await getDb();
   return db.collection('documents');
 }
 
-/**
- * Document type
- */
 export interface StoredDocument {
   _id?: string;
   document_hash: string;
@@ -64,9 +54,6 @@ export interface StoredDocument {
   indexed_at?: Date;
 }
 
-/**
- * Analytics document type (for API responses)
- */
 export interface AnalyticsDocument {
   fileName: string;
   fileSize: number;
@@ -76,9 +63,6 @@ export interface AnalyticsDocument {
   hash: string;
 }
 
-/**
- * Convert StoredDocument to AnalyticsDocument
- */
 export function toAnalyticsDocument(doc: StoredDocument): AnalyticsDocument {
   return {
     fileName: doc.file_name,
