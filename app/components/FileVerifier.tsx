@@ -118,7 +118,10 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 file_name: existingFile.file_name,
                 file_size: existingFile.file_size,
                 mime_type: existingFile.mime_type,
-                timestamp: existingFile.timestamp,
+                timestamp:
+  typeof existingFile.timestamp === 'string'
+    ? Date.parse(existingFile.timestamp)
+    : existingFile.timestamp,
                 document_hash: existingFile.document_hash,
               },
             });

@@ -7,6 +7,22 @@ import { SuiClient } from '@mysten/sui/client';
 import { doculockConfig, getRegistryId } from './config';
 import { bytesToHex } from './crypto';
 
+// Simple in-memory cache for document events to ensure consistency
+// Cache expires after 30 seconds
+let cachedEvents: DocumentStoredEvent[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_TTL = 30000; // 30 seconds
+
+/**
+ * Invalidate the document events cache
+ * Call this after uploading a new document to ensure fresh data
+ */
+export function invalidateDocumentEventsCache(): void {
+  console.log('[getDocumentEvents] Cache invalidated');
+  cachedEvents = null;
+  cacheTimestamp = 0;
+}
+
 export function createSuiClient(): SuiClient {
   return new SuiClient({
     url: doculockConfig.rpcUrl,
@@ -483,6 +499,18 @@ export async function getDocumentEvents(
   creatorAddress?: string,
 ): Promise<DocumentStoredEvent[]> {
   try {
+    const now = Date.now();
+    const useCache = cachedEvents !== null && (now - cacheTimestamp) < CACHE_TTL;
+
+    if (useCache) {
+      console.log('[getDocumentEvents] Using cached events, count:', cachedEvents!.length);
+      const result = creatorAddress
+        ? cachedEvents!.filter(event => event.creator === creatorAddress)
+        : cachedEvents!;
+      console.log('[getDocumentEvents] Filtered events count:', result.length);
+      return result;
+    }
+
     console.log('[getDocumentEvents] Querying events with packageId:', doculockConfig.packageId);
     const events = await suiClient.queryEvents({
       query: {
@@ -500,15 +528,20 @@ export async function getDocumentEvents(
         })
       : events.data;
 
-    return filteredEvents.map(event => {
+    const result: DocumentStoredEvent[] = [];
+
+    for (const event of filteredEvents) {
       const parsed = event.parsedJson as any;
       let eventHash = parsed.document_hash;
 
       // IMPORTANT: Use transaction timestamp (timestampMs) instead of event timestamp
       // because SUI clock.timestamp_ms() is not Unix epoch, it's SUI internal timestamp
       // timestampMs is the actual Unix timestamp when the transaction was executed
-      const timestamp = event.timestampMs || parsed.timestamp;
-      console.log('[getDocumentEvents] Using timestampMs:', timestamp, 'for event:', parsed.file_name);
+      const timestamp = event.timestampMs;
+      if (!timestamp) {
+        console.log('[getDocumentEvents] WARNING: Skipping event without timestampMs:', parsed.file_name, 'parsed.timestamp:', parsed.timestamp);
+        continue;
+      }
 
       // Convert array of bytes to hex string if needed
       if (Array.isArray(eventHash)) {
@@ -517,15 +550,27 @@ export async function getDocumentEvents(
         eventHash = String(eventHash);
       }
 
-      return {
+      result.push({
         document_hash: eventHash,
         creator: parsed.creator,
         timestamp: timestamp, // Use actual Unix timestamp from timestampMs
         file_name: parsed.file_name,
         file_size: Number(parsed.file_size) || 0,
         mime_type: parsed.mime_type,
-      };
-    });
+      });
+    }
+
+    // Cache the result
+    cachedEvents = result;
+    cacheTimestamp = now;
+    console.log('[getDocumentEvents] Cached events, count:', result.length);
+
+    const finalResult = creatorAddress
+      ? result.filter(event => event.creator === creatorAddress)
+      : result;
+
+    console.log('[getDocumentEvents] Final result count:', finalResult.length);
+    return finalResult;
   } catch (error) {
     console.error('Error fetching document events:', error);
     return [];

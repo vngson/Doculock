@@ -8,7 +8,7 @@ import { QRModal } from './QRModal';
 import { FraudSimulation } from './FraudSimulation';
 import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { formatFileSize, getFileIcon } from '@/lib/file';
-import { createStoreDocumentTx, createBatchStoreDocumentsTx, DocumentInfo } from '@/lib/doculock';
+import { createStoreDocumentTx, createBatchStoreDocumentsTx, DocumentInfo, invalidateDocumentEventsCache } from '@/lib/doculock';
 import { doculockConfig } from '@/lib/config';
 
 export interface FileUploaderHandle {
@@ -135,6 +135,8 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
             }
 
             setSuccess(true);
+            // Invalidate cache to refresh analytics data
+            invalidateDocumentEventsCache();
             if (onDocumentStored) {
               onDocumentStored(hash);
             }
@@ -306,6 +308,9 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
 
               setBatchResults(resultsArray);
             }
+
+            // Invalidate cache to refresh analytics data
+            invalidateDocumentEventsCache();
 
             setSuccess(true);
           },

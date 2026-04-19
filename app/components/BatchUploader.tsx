@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useSignAndExecuteTransaction, useSuiClient } from '@mysten/dapp-kit';
 import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { formatFileSize, getFileIcon } from '@/lib/file';
-import { createBatchStoreDocumentsTx, DocumentInfo } from '@/lib/doculock';
+import { createBatchStoreDocumentsTx, DocumentInfo, invalidateDocumentEventsCache } from '@/lib/doculock';
 import { doculockConfig } from '@/lib/config';
 
 interface DocumentWithHash {
@@ -193,6 +193,9 @@ export function BatchUploader() {
 
               setResults(resultsArray);
             }
+
+            // Invalidate cache to refresh analytics data
+            invalidateDocumentEventsCache();
 
             setSuccess(true);
           },

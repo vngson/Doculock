@@ -52,6 +52,10 @@ export function NetworkCursor() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
+    // Re-declare with non-null assertion since we've already checked
+    const canvasEl: HTMLCanvasElement = canvas;
+    const ctxEl: CanvasRenderingContext2D = ctx;
+
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
@@ -77,8 +81,8 @@ export function NetworkCursor() {
     function resize() {
       S.w = window.innerWidth;
       S.h = window.innerHeight;
-      canvas.width = S.w;
-      canvas.height = S.h;
+      canvasEl.width = S.w;
+      canvasEl.height = S.h;
     }
 
     function initParticles() {
@@ -206,24 +210,24 @@ export function NetworkCursor() {
     }
 
     function draw() {
-      ctx.clearRect(0, 0, S.w, S.h);
+      ctxEl.clearRect(0, 0, S.w, S.h);
 
       // Draw trail
       S.trail.forEach((t, i) => {
         const next = S.trail[i + 1];
         if (next) {
-          ctx.beginPath();
-          ctx.moveTo(t.x, t.y);
-          ctx.lineTo(next.x, next.y);
-          ctx.strokeStyle = `rgba(0, 192, 255, ${t.alpha * 0.3})`;
-          ctx.lineWidth = 2;
-          ctx.stroke();
+          ctxEl.beginPath();
+          ctxEl.moveTo(t.x, t.y);
+          ctxEl.lineTo(next.x, next.y);
+          ctxEl.strokeStyle = `rgba(0, 192, 255, ${t.alpha * 0.3})`;
+          ctxEl.lineWidth = 2;
+          ctxEl.stroke();
         }
 
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 192, 255, ${t.alpha * 0.5})`;
-        ctx.fill();
+        ctxEl.beginPath();
+        ctxEl.arc(t.x, t.y, 2, 0, Math.PI * 2);
+        ctxEl.fillStyle = `rgba(0, 192, 255, ${t.alpha * 0.5})`;
+        ctxEl.fill();
       });
 
       // Draw connections
@@ -231,22 +235,22 @@ export function NetworkCursor() {
         const a = S.nodes[conn.a];
         const b = S.nodes[conn.b];
 
-        const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+        const gradient = ctxEl.createLinearGradient(a.x, a.y, b.x, b.y);
         gradient.addColorStop(0, `rgba(0, 192, 255, ${conn.alpha})`);
         gradient.addColorStop(1, `rgba(188, 140, 255, ${conn.alpha})`);
 
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        ctxEl.beginPath();
+        ctxEl.moveTo(a.x, a.y);
+        ctxEl.lineTo(b.x, b.y);
+        ctxEl.strokeStyle = gradient;
+        ctxEl.lineWidth = 1;
+        ctxEl.stroke();
       });
 
       // Draw nodes
       S.nodes.forEach(node => {
         const glowSize = node.type === 'cursor' ? node.size * 3 : node.size * 2;
-        const gradient = ctx.createRadialGradient(
+        const gradient = ctxEl.createRadialGradient(
           node.x, node.y, 0,
           node.x, node.y, glowSize
         );
@@ -254,21 +258,21 @@ export function NetworkCursor() {
         gradient.addColorStop(0, `rgba(${color}, ${node.alpha * 0.5})`);
         gradient.addColorStop(1, `rgba(${color}, 0)`);
 
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        ctxEl.beginPath();
+        ctxEl.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
+        ctxEl.fillStyle = gradient;
+        ctxEl.fill();
 
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-        ctx.fillStyle = node.type === 'cursor'
+        ctxEl.beginPath();
+        ctxEl.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+        ctxEl.fillStyle = node.type === 'cursor'
           ? `rgba(188, 140, 255, ${node.alpha})`
           : `rgba(0, 192, 255, ${node.alpha})`;
-        ctx.fill();
+        ctxEl.fill();
       });
 
       // Draw cursor glow
-      const cursorGradient = ctx.createRadialGradient(
+      const cursorGradient = ctxEl.createRadialGradient(
         S.mx, S.my, 0,
         S.mx, S.my, CONFIG.cursorRadius
       );
@@ -276,8 +280,8 @@ export function NetworkCursor() {
       cursorGradient.addColorStop(0.5, 'rgba(188, 140, 255, 0.05)');
       cursorGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
-      ctx.fillStyle = cursorGradient;
-      ctx.fillRect(0, 0, S.w, S.h);
+      ctxEl.fillStyle = cursorGradient;
+      ctxEl.fillRect(0, 0, S.w, S.h);
     }
 
     // Throttled animation at 30fps

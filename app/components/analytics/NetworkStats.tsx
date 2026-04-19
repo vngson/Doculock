@@ -26,7 +26,12 @@ const statColors = {
 };
 
 function NetworkStatsComponent() {
-  const { stats } = useAnalyticsData();
+  const { stats, loading } = useAnalyticsData();
+
+  // Don't render until data is loaded
+  if (loading || !stats) {
+    return null;
+  }
 
   const formatBytes = (bytes: number) => {
     if (!bytes || bytes === 0 || isNaN(bytes)) return { value: '0', unit: 'Bytes' };

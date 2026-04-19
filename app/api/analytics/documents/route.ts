@@ -32,7 +32,11 @@ export async function GET(request: NextRequest) {
       if (typeof timestamp === 'string') {
         timestamp = parseInt(timestamp, 10);
       }
-      return timestamp && !isNaN(timestamp) && timestamp > 0;
+      const isValid = timestamp && !isNaN(timestamp) && timestamp > 0;
+      if (!isValid) {
+        console.log('[Analytics Documents] Filtered out invalid timestamp event:', event.file_name, 'timestamp:', timestamp);
+      }
+      return isValid;
     });
 
     const sortedEvents = [...validEvents].sort((a, b) => {
