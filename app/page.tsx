@@ -19,7 +19,7 @@ import { useSuiClient } from '@mysten/dapp-kit';
 type Tab = 'analytics'|'upload' | 'verify'  |  'history';
 
 export default function Home() {
-  const [tab, setTab] = useState<Tab>('analytics');
+  const [tab, setTab] = useState<Tab>('upload');
   const [preloadedHash, setPreloadedHash] = useState('');
   const [demoRunning, setDemoRunning] = useState(false);
   const [demoStep, setDemoStep] = useState('');
