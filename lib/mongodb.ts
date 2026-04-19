@@ -1,38 +1,55 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
 if (!process.env.MONGODB_URI) {
-  throw new Error('Please define MONGODB_URI environment variable inside .env.local');
+  throw new Error('Please define MONGODB_URI environment variable');
 }
 
 if (!process.env.MONGODB_DB) {
-  throw new Error('Please define MONGODB_DB environment variable inside .env.local');
+  throw new Error('Please define MONGODB_DB environment variable');
 }
 
 const uri = process.env.MONGODB_URI;
-const options = {};
+const options = {
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+};
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+let client: MongoClient | null = null;
+let clientPromise: Promise<MongoClient> | null = null;
 
 declare global {
-  var _mongoClientPromise: Promise<MongoClient>;
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === 'development') {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
+function createClient(): Promise<MongoClient> {
   client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+  return client.connect();
 }
 
-export default clientPromise;
+export async function getClient(): Promise<MongoClient> {
+  if (clientPromise) {
+    return clientPromise;
+  }
+
+  if (typeof global !== 'undefined' && global._mongoClientPromise) {
+    clientPromise = global._mongoClientPromise;
+    return clientPromise;
+  }
+
+  clientPromise = createClient();
+
+  if (typeof global !== 'undefined') {
+    global._mongoClientPromise = clientPromise;
+  }
+
+  return clientPromise;
+}
+
+export default getClient();
 
 export async function getDb(): Promise<Db> {
-  const client = await clientPromise;
+  const client = await getClient();
   return client.db(process.env.MONGODB_DB);
 }
 

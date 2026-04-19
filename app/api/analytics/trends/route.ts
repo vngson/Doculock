@@ -11,6 +11,13 @@ export interface TrendDataPoint {
 
 export async function GET(request: NextRequest) {
   try {
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json(
+        { error: 'MONGODB_URI not configured' },
+        { status: 500 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get('days') || '30');
 
@@ -109,8 +116,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
+    console.error('Analytics trends error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch analytics trends' },
+      { error: 'Failed to fetch analytics trends', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

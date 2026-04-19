@@ -11,6 +11,13 @@ export interface AnalyticsStats {
 
 export async function GET() {
   try {
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json(
+        { error: 'MONGODB_URI not configured' },
+        { status: 500 }
+      );
+    }
+
     const collection = await getDocumentsCollection();
 
     const totalDocuments = await collection.countDocuments();
@@ -68,8 +75,9 @@ export async function GET() {
 
     return NextResponse.json(stats);
   } catch (error) {
+    console.error('Analytics stats error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch analytics stats' },
+      { error: 'Failed to fetch analytics stats', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
