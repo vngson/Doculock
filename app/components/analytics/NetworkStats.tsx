@@ -94,6 +94,5 @@ function NetworkStatsComponent() {
   );
 }
 
-// Use memo to prevent unnecessary re-renders
-export const NetworkStats = memo(NetworkStatsComponent);
-NetworkStats.displayName = 'NetworkStats';
+// Removed memo to ensure component updates with latest data
+export default NetworkStatsComponent;

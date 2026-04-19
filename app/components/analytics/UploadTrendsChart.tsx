@@ -14,6 +14,7 @@ interface TrendDataPoint {
 function UploadTrendsChartComponent() {
   const { trends } = useAnalyticsData();
 
+
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0';
     const k = 1024;
@@ -69,5 +70,5 @@ function UploadTrendsChartComponent() {
   );
 }
 
-export const UploadTrendsChart = memo(UploadTrendsChartComponent);
-UploadTrendsChart.displayName = 'UploadTrendsChart';
+// Removed memo to ensure component updates with latest data
+export default UploadTrendsChartComponent;

@@ -7,7 +7,6 @@ import { FileUploader, type FileUploaderHandle } from './components/FileUploader
 import { FileVerifier, type FileVerifierHandle } from './components/FileVerifier';
 import { DocumentHistory } from './components/DocumentHistory';
 import { RegistryCreator } from './components/RegistryCreator';
-import { BatchVerifier } from './components/BatchVerifier';
 import { DocumentComparison } from './components/DocumentComparison';
 import { Toast, useToast } from './components/Toast';
 import { AnimatedBackground } from './components/AnimatedBackground';
@@ -17,7 +16,7 @@ import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { createStoreDocumentTx } from '@/lib/doculock';
 import { useSuiClient } from '@mysten/dapp-kit';
 
-type Tab = 'analytics'|'upload' | 'verify'  | 'batch' | 'compare' |  'history';
+type Tab = 'analytics'|'upload' | 'verify'  | 'compare' |  'history';
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('analytics');
@@ -72,7 +71,7 @@ export default function Home() {
       const searchParams = new URLSearchParams(query || '');
       const hashParam = searchParams.get('hash');
 
-      if (['upload', 'verify', 'history', 'batch', 'analytics'].includes(tabName)) {
+      if (['upload', 'verify', 'history', 'analytics'].includes(tabName)) {
         setTab(tabName as Tab);
         setPreloadedHash(hashParam || '');
       }
@@ -279,20 +278,13 @@ export default function Home() {
           <span>🔍</span>
           Verify
         </button>
-        <button
-          className={`tab ${tab === 'batch' ? 'tab--active' : ''}`}
-          onClick={() => handleTabChange('batch')}
-        >
-          <span>📁</span>
-          Batch
-        </button>
-        <button
+        {/* <button
           className={`tab ${tab === 'compare' ? 'tab--active' : ''}`}
           onClick={() => handleTabChange('compare')}
         >
           <span>⚖️</span>
           Compare
-        </button>
+        </button> */}
         <button
           className={`tab ${tab === 'history' ? 'tab--active' : ''}`}
           onClick={() => handleTabChange('history')}
@@ -312,7 +304,6 @@ export default function Home() {
         )}
         {tab === 'verify' && <FileVerifier initialHash={preloadedHash} />}
         {tab === 'history' && <DocumentHistory />}
-        {tab === 'batch' && <BatchVerifier />}
         {tab === 'compare' && <DocumentComparison />}
         <div ref={analyticsWrapperRef} className="analytics-iframe-wrapper" style={{ display: tab === 'analytics' ? 'block' : 'none' }} />
       </div>

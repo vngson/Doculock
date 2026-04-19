@@ -59,11 +59,6 @@ function TopVerifiedDocsComponent() {
               tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
             />
             <Tooltip
-              formatter={(value: number) => [formatBytes(value), 'Size']}
-              labelFormatter={(label: string) => {
-                const item = chartData.find(d => d.name === label);
-                return item?.fullName || label;
-              }}
               contentStyle={{
                 backgroundColor: 'var(--surface)',
                 border: '1.5px solid var(--border)',
@@ -83,5 +78,5 @@ function TopVerifiedDocsComponent() {
   );
 }
 
-export const TopVerifiedDocs = memo(TopVerifiedDocsComponent);
-TopVerifiedDocs.displayName = 'TopVerifiedDocs';
+// Removed memo to ensure component updates with latest data
+export default TopVerifiedDocsComponent;

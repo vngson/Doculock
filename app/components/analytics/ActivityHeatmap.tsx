@@ -12,6 +12,7 @@ interface HeatmapData {
 function ActivityHeatmapComponent() {
   const { trends } = useAnalyticsData();
 
+
   // Memoize heatmap data calculation
   const data = useMemo(() => {
     const heatmapData: HeatmapData[] = [];
@@ -20,11 +21,13 @@ function ActivityHeatmapComponent() {
     const recentTrends = trends.slice(-7);
 
     recentTrends.forEach((dayData) => {
+      // Distribute day's total count across hours evenly
+      const hourlyAvg = dayData.count / 24;
       for (let hour = 0; hour < 24; hour++) {
         heatmapData.push({
           day: dayData.date,
           hour,
-          count: Math.floor(Math.random() * dayData.count),
+          count: Math.round(hourlyAvg),
         });
       }
     });
@@ -99,5 +102,5 @@ function ActivityHeatmapComponent() {
   );
 }
 
-export const ActivityHeatmap = memo(ActivityHeatmapComponent);
-ActivityHeatmap.displayName = 'ActivityHeatmap';
+// Removed memo to ensure component updates with latest data
+export default ActivityHeatmapComponent;

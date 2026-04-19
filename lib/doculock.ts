@@ -86,6 +86,74 @@ export async function createStoreDocumentTx(
   return txb;
 }
 
+// Document info for batch operations
+export interface DocumentInfo {
+  fileHash: Uint8Array;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+}
+
+/**
+ * Create a PTB to store multiple documents on-chain in a single transaction
+ * @param documents - Array of document info to store
+ * @returns Transaction ready to execute
+ */
+export async function createBatchStoreDocumentsTx(
+  documents: DocumentInfo[],
+): Promise<Transaction> {
+  console.log('[doculock] Creating batch store document transaction...');
+  console.log('[doculock] Package ID:', doculockConfig.packageId);
+  console.log('[doculock] Number of documents:', documents.length);
+
+  if (!doculockConfig.packageId) {
+    throw new Error('Package ID is not configured. Please set NEXT_PUBLIC_DOCULOCK_PACKAGE_ID in .env.local');
+  }
+
+  const registryId = getRegistryId();
+  if (!registryId) {
+    throw new Error('Registry ID is not configured. Please create registry and set NEXT_PUBLIC_DOCULOCK_REGISTRY_ID in .env.local');
+  }
+
+  console.log('[doculock] Registry ID:', registryId);
+
+  const txb = new Transaction();
+  const target = `${doculockConfig.packageId}::doculock::store_document`;
+
+  // Add Clock object once (will be shared across all calls)
+  const clock = txb.object('0x6');
+  const registry = txb.object(registryId);
+
+  // Add multiple store_document calls to the PTB
+  for (let i = 0; i < documents.length; i++) {
+    const doc = documents[i];
+    console.log(`[doculock] Adding document ${i + 1}/${documents.length}:`, doc.fileName);
+    console.log(`[doculock]   Hash length:`, doc.fileHash.length);
+    console.log(`[doculock]   File size:`, doc.fileSize);
+
+    txb.moveCall({
+      target,
+      arguments: [
+        registry,
+        clock,
+        txb.pure.vector('u8', Array.from(doc.fileHash)),
+        txb.pure.string(doc.fileName),
+        txb.pure.u64(doc.fileSize),
+        txb.pure.string(doc.mimeType),
+      ],
+    });
+  }
+
+  // Calculate gas budget based on number of documents
+  // Base gas: 10,000,000 MIST + 5,000,000 MIST per document
+  const gasBudget = 10_000_000 + (documents.length * 5_000_000);
+  txb.setGasBudget(gasBudget);
+
+  console.log(`[doculock] Batch transaction created with gas budget: ${gasBudget} MIST`);
+  console.log('[doculock] Batch transaction created successfully');
+  return txb;
+}
+
 /**
  * Create a transaction to create the document registry
  * @returns Transaction ready to execute
@@ -436,6 +504,12 @@ export async function getDocumentEvents(
       const parsed = event.parsedJson as any;
       let eventHash = parsed.document_hash;
 
+      // IMPORTANT: Use transaction timestamp (timestampMs) instead of event timestamp
+      // because SUI clock.timestamp_ms() is not Unix epoch, it's SUI internal timestamp
+      // timestampMs is the actual Unix timestamp when the transaction was executed
+      const timestamp = event.timestampMs || parsed.timestamp;
+      console.log('[getDocumentEvents] Using timestampMs:', timestamp, 'for event:', parsed.file_name);
+
       // Convert array of bytes to hex string if needed
       if (Array.isArray(eventHash)) {
         eventHash = bytesToHex(new Uint8Array(eventHash));
@@ -446,7 +520,7 @@ export async function getDocumentEvents(
       return {
         document_hash: eventHash,
         creator: parsed.creator,
-        timestamp: parsed.timestamp,
+        timestamp: timestamp, // Use actual Unix timestamp from timestampMs
         file_name: parsed.file_name,
         file_size: Number(parsed.file_size) || 0,
         mime_type: parsed.mime_type,

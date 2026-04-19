@@ -12,7 +12,16 @@ export interface AnalyticsStats {
 export async function GET(request: NextRequest) {
   try {
     const suiClient = createSuiClient();
-    const events = await getDocumentEvents(suiClient);
+    let events = await getDocumentEvents(suiClient);
+
+    // Retry if no events found (timing issue with SUI fullnode)
+    let retries = 0;
+    const maxRetries = 3;
+    while (events.length === 0 && retries < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      events = await getDocumentEvents(suiClient);
+      retries++;
+    }
 
     // Filter out events with invalid timestamps
     const validEvents = events.filter(event => {

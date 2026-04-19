@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 interface TrendDataPoint {
   date: string;
@@ -47,6 +47,7 @@ export function AnalyticsDataProvider({ children }: AnalyticsDataProviderProps) 
   const [topDocuments, setTopDocuments] = useState<TopDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasFetchedRef = useRef(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -85,7 +86,10 @@ export function AnalyticsDataProvider({ children }: AnalyticsDataProviderProps) 
   };
 
   useEffect(() => {
-    fetchData();
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchData();
+    }
   }, []);
 
   return (

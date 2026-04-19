@@ -1,21 +1,17 @@
 'use client';
 
-import { memo, Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { AnalyticsDataProvider, useAnalyticsData } from './AnalyticsDataContext';
-import { NetworkStats } from '../components/analytics/NetworkStats';
-import { UploadTrendsChart } from '../components/analytics/UploadTrendsChart';
-import { ActivityHeatmap } from '../components/analytics/ActivityHeatmap';
-import { TopVerifiedDocs } from '../components/analytics/TopVerifiedDocs';
+import NetworkStats from '../components/analytics/NetworkStats';
+import UploadTrendsChart from '../components/analytics/UploadTrendsChart';
+import ActivityHeatmap from '../components/analytics/ActivityHeatmap';
+import TopVerifiedDocs from '../components/analytics/TopVerifiedDocs';
 
 // Lazy load heavy components
-const GasUsageChart = lazy(() => import('../components/analytics/GasUsageChart').then(m => ({ default: m.GasUsageChart })));
+const GasUsageChart = lazy(() => import('../components/analytics/GasUsageChart').then(m => ({ default: m.default })));
 
-// Memoized components to prevent unnecessary re-renders
-const MemoizedNetworkStats = memo(NetworkStats);
-const MemoizedUploadTrendsChart = memo(UploadTrendsChart);
-const MemoizedActivityHeatmap = memo(ActivityHeatmap);
-const MemoizedTopVerifiedDocs = memo(TopVerifiedDocs);
-const MemoizedGasUsageChart = memo(GasUsageChart);
+// Components removed memo to ensure they update with latest data
+// Note: Removed memo to fix issue where components showed stale data
 
 function AnalyticsContent() {
   const { stats, trends, loading, error, refresh } = useAnalyticsData();
@@ -80,16 +76,16 @@ function AnalyticsContent() {
 
       <div className="analytics-content">
         <div className="stats-section">
-          <MemoizedNetworkStats />
+          <NetworkStats />
         </div>
 
         <div className="charts-grid charts-grid--1">
-          <MemoizedUploadTrendsChart />
+          <UploadTrendsChart />
           <Suspense fallback={<div className="chart-card chart-card--loading"><div className="chart-content chart-content--loading" /></div>}>
-            <MemoizedGasUsageChart />
+            <GasUsageChart />
           </Suspense>
-          <MemoizedActivityHeatmap />
-          <MemoizedTopVerifiedDocs />
+          <ActivityHeatmap />
+          <TopVerifiedDocs />
         </div>
 
         <div className="info-card">

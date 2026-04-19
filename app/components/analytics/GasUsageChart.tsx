@@ -15,6 +15,7 @@ interface TrendDataPoint {
 function GasUsageChartComponent() {
   const { trends } = useAnalyticsData();
 
+
   // Memoize gas data calculation to avoid recalculation on re-renders
   const gasData = useMemo(() => {
     return trends.map((item: TrendDataPoint) => ({
@@ -45,8 +46,6 @@ function GasUsageChartComponent() {
               fontSize={12}
             />
             <Tooltip
-              labelFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              formatter={(value: number) => [`${value.toFixed(4)} MIST`, 'Estimated Gas']}
               contentStyle={{
                 backgroundColor: 'var(--surface)',
                 border: '1.5px solid var(--border)',
@@ -68,5 +67,5 @@ function GasUsageChartComponent() {
   );
 }
 
-export const GasUsageChart = memo(GasUsageChartComponent);
-GasUsageChart.displayName = 'GasUsageChart';
+// Removed memo to ensure component updates with latest data
+export default GasUsageChartComponent;
