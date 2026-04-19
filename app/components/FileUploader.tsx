@@ -134,6 +134,19 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
               }
             }
 
+            // Sync to MongoDB after successful transaction
+            try {
+              console.log('[FileUploader] Syncing to MongoDB...');
+              const syncResponse = await fetch('/api/indexer/sync', {
+                method: 'POST',
+              });
+              const syncResult = await syncResponse.json();
+              console.log('[FileUploader] Sync result:', syncResult);
+            } catch (syncError) {
+              console.error('[FileUploader] Sync error:', syncError);
+              // Don't fail the upload if sync fails
+            }
+
             setSuccess(true);
             // Invalidate cache to refresh analytics data
             invalidateDocumentEventsCache();
@@ -260,6 +273,19 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 }
                 await new Promise(resolve => setTimeout(resolve, 2000));
               }
+            }
+
+            // Sync to MongoDB after successful transaction
+            try {
+              console.log('[FileUploader] Syncing to MongoDB...');
+              const syncResponse = await fetch('/api/indexer/sync', {
+                method: 'POST',
+              });
+              const syncResult = await syncResponse.json();
+              console.log('[FileUploader] Sync result:', syncResult);
+            } catch (syncError) {
+              console.error('[FileUploader] Sync error:', syncError);
+              // Don't fail the upload if sync fails
             }
 
             // Parse events to get results for each document

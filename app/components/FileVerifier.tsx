@@ -112,16 +112,43 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
           if (existingFile) {
             console.log('[FileVerifier] Found existing file with same name!');
             console.log('[FileVerifier] Existing file hash:', existingFile.document_hash);
+            console.log('[FileVerifier] Existing file timestamp:', existingFile.timestamp, 'Type:', typeof existingFile.timestamp);
+            const ts = existingFile.timestamp;
+            let normalizedTimestamp: number | undefined;
+
+            if (ts == null) {
+              normalizedTimestamp = undefined;
+            } else if (typeof ts === 'string') {
+              // Try parsing the string as a number
+              const parsedNum = parseInt(ts, 10);
+              if (!isNaN(parsedNum) && parsedNum > 1000000000000) {
+                normalizedTimestamp = parsedNum;
+              } else if (!isNaN(parsedNum) && parsedNum > 1000000000) {
+                normalizedTimestamp = parsedNum * 1000;
+              } else {
+                // Try parsing as ISO string
+                const parsed = Date.parse(ts);
+                if (!isNaN(parsed)) {
+                  normalizedTimestamp = parsed;
+                }
+              }
+            } else if (typeof ts === 'number') {
+              // Check if it's in seconds or milliseconds
+              if (ts > 1000000000000) {
+                normalizedTimestamp = ts;
+              } else if (ts > 1000000000) {
+                normalizedTimestamp = ts * 1000;
+              }
+            }
+
+            console.log('[FileVerifier] Normalized timestamp:', normalizedTimestamp);
             setResult({
               exists: false,
               existingFileWithSameName: {
                 file_name: existingFile.file_name,
                 file_size: existingFile.file_size,
                 mime_type: existingFile.mime_type,
-                timestamp:
-  typeof existingFile.timestamp === 'string'
-    ? Date.parse(existingFile.timestamp)
-    : existingFile.timestamp,
+                timestamp: normalizedTimestamp,
                 document_hash: existingFile.document_hash,
               },
             });
@@ -282,11 +309,36 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
         } else {
           const existingFile = await findDocumentByName(suiClient, file.name);
           if (existingFile) {
+            const ts = existingFile.timestamp;
+            let normalizedTimestamp: number | undefined;
+
+            if (ts == null) {
+              normalizedTimestamp = undefined;
+            } else if (typeof ts === 'string') {
+              const parsedNum = parseInt(ts, 10);
+              if (!isNaN(parsedNum) && parsedNum > 1000000000000) {
+                normalizedTimestamp = parsedNum;
+              } else if (!isNaN(parsedNum) && parsedNum > 1000000000) {
+                normalizedTimestamp = parsedNum * 1000;
+              } else {
+                const parsed = Date.parse(ts);
+                if (!isNaN(parsed)) {
+                  normalizedTimestamp = parsed;
+                }
+              }
+            } else if (typeof ts === 'number') {
+              if (ts > 1000000000000) {
+                normalizedTimestamp = ts;
+              } else if (ts > 1000000000) {
+                normalizedTimestamp = ts * 1000;
+              }
+            }
+
             existingFileWithSameName = {
               file_name: existingFile.file_name,
               file_size: existingFile.file_size,
               mime_type: existingFile.mime_type,
-              timestamp: existingFile.timestamp,
+              timestamp: normalizedTimestamp,
               document_hash: existingFile.document_hash,
             };
           }
@@ -596,27 +648,64 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 <span className="vf-diff-value">{result.existingFileWithSameName.mime_type}</span>
                 <span className="vf-diff-icon">✓</span>
               </div>
-              {result.existingFileWithSameName.timestamp && (
-                <div className="vf-diff-row vf-diff-row--ok">
-                  <span className="vf-diff-label">Uploaded</span>
-                  <span className="vf-diff-value" style={{ fontSize: '0.8rem' }}>
-                    {(() => {
-                      const date = new Date(result.existingFileWithSameName.timestamp);
-                      const isValid = !isNaN(date.getTime());
-                      return isValid
-                        ? date.toLocaleString('vi-VN', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : 'N/A';
-                    })()}
-                  </span>
-                  <span className="vf-diff-icon">✓</span>
-                </div>
-              )}
+              <div className="vf-diff-row">
+                <span className="vf-diff-label">Uploaded</span>
+                <span className="vf-diff-value" style={{ fontSize: '0.8rem' }}>
+                  {(() => {
+                    const ts = result.existingFileWithSameName.timestamp;
+                    console.log('[FileVerifier] Timestamp value:', ts, 'Type:', typeof ts);
+
+                    if (ts == null) {
+                      return 'N/A';
+                    }
+
+                    let date: Date;
+                    if (typeof ts === 'string') {
+                      // Try parsing the string as a number (in case it's a stringified timestamp)
+                      const parsedNum = parseInt(ts, 10);
+                      if (!isNaN(parsedNum) && parsedNum > 1000000000000) {
+                        // It's a timestamp in milliseconds as a string
+                        date = new Date(parsedNum);
+                      } else if (!isNaN(parsedNum) && parsedNum > 1000000000) {
+                        // It's a timestamp in seconds as a string, convert to milliseconds
+                        date = new Date(parsedNum * 1000);
+                      } else {
+                        // Try parsing as an ISO string or date string
+                        date = new Date(ts);
+                      }
+                    } else if (typeof ts === 'number') {
+                      // Check if it's in seconds or milliseconds
+                      if (ts > 1000000000000) {
+                        // Timestamp in milliseconds
+                        date = new Date(ts);
+                      } else if (ts > 1000000000) {
+                        // Timestamp in seconds, convert to milliseconds
+                        date = new Date(ts * 1000);
+                      } else {
+                        // Invalid timestamp
+                        return 'N/A';
+                      }
+                    } else {
+                      return 'N/A';
+                    }
+
+                    const isValid = !isNaN(date.getTime());
+                    console.log('[FileVerifier] Parsed date:', date, 'Valid:', isValid);
+                    return isValid
+                      ? date.toLocaleString('vi-VN', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : 'N/A';
+                  })()}
+                </span>
+                <span className="vf-diff-icon" style={{ color: result.existingFileWithSameName.timestamp ? '#10B981' : '#F59E0B' }}>
+                  {result.existingFileWithSameName.timestamp ? '✓' : '?'}
+                </span>
+              </div>
             </div>
           </>
         ) : (
@@ -1173,20 +1262,29 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                                 </span>
                               )}
                             </div>
-                            {result.existingFileWithSameName.timestamp && (
-                              <div>
-                                <strong>Uploaded:</strong> {(() => {
-                                  const date = new Date(result.existingFileWithSameName.timestamp);
-                                  return date.toLocaleString('vi-VN', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  });
-                                })()}
-                              </div>
-                            )}
+                            <div>
+                              <strong>Uploaded:</strong> {(() => {
+                                const ts = result.existingFileWithSameName.timestamp;
+                                let date: Date;
+                                if (typeof ts === 'string') {
+                                  date = new Date(ts);
+                                } else if (typeof ts === 'number') {
+                                  date = new Date(ts);
+                                } else {
+                                  return 'N/A';
+                                }
+                                const isValid = !isNaN(date.getTime());
+                                return isValid
+                                  ? date.toLocaleString('vi-VN', {
+                                      day: '2-digit',
+                                      month: '2-digit',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })
+                                  : 'N/A';
+                              })()}
+                            </div>
                           </div>
                         </div>
                       );

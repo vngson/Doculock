@@ -145,6 +145,19 @@ export function BatchUploader() {
               }
             }
 
+            // Sync to MongoDB after successful transaction
+            try {
+              console.log('[BatchUploader] Syncing to MongoDB...');
+              const syncResponse = await fetch('/api/indexer/sync', {
+                method: 'POST',
+              });
+              const syncResult = await syncResponse.json();
+              console.log('[BatchUploader] Sync result:', syncResult);
+            } catch (syncError) {
+              console.error('[BatchUploader] Sync error:', syncError);
+              // Don't fail the upload if sync fails
+            }
+
             // Parse events to get results for each document
             if (txDetails?.events) {
               const resultsArray: { fileName: string; status: 'success' | 'error'; message: string }[] = [];
