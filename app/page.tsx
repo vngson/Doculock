@@ -16,7 +16,7 @@ import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { createStoreDocumentTx } from '@/lib/doculock';
 import { useSuiClient } from '@mysten/dapp-kit';
 
-type Tab = 'analytics'|'upload' | 'verify'  | 'compare' |  'history';
+type Tab = 'analytics'|'upload' | 'verify'  |  'history';
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('analytics');
@@ -304,7 +304,6 @@ export default function Home() {
         )}
         {tab === 'verify' && <FileVerifier initialHash={preloadedHash} />}
         {tab === 'history' && <DocumentHistory />}
-        {tab === 'compare' && <DocumentComparison />}
         <div ref={analyticsWrapperRef} className="analytics-iframe-wrapper" style={{ display: tab === 'analytics' ? 'block' : 'none' }} />
       </div>
 

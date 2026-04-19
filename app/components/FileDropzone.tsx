@@ -52,7 +52,7 @@ export function FileDropzone({
   const handleFile = (file: File) => {
     const validation = validateFile(file);
     if (!validation.valid) {
-      showToast(validation.error, 'error');
+      showToast(validation.error ?? 'Invalid file', 'error');
       return;
     }
 

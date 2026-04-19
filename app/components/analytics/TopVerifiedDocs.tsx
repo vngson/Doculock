@@ -3,6 +3,7 @@
 import { memo, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
+import { ChartSkeleton } from './Skeleton';
 
 interface TopDocument {
   fileName: string;
@@ -16,7 +17,12 @@ interface TopDocument {
 const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#f43f5e', '#84cc16', '#6366f1', '#14b8a6'];
 
 function TopVerifiedDocsComponent() {
-  const { topDocuments } = useAnalyticsData();
+  const { topDocuments, loading } = useAnalyticsData();
+
+  // Show skeleton while loading
+  if (loading || topDocuments.length === 0) {
+    return <ChartSkeleton />;
+  }
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0';

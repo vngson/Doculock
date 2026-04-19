@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSuiClient, getDocumentEvents } from '@/lib/doculock';
+import { getDocumentsCollection } from '@/lib/mongodb';
 
 export interface TrendDataPoint {
   date: string;
+  dateMs: number;
   count: number;
   totalSize: number;
   uniqueUsers: number;
@@ -13,80 +14,101 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get('days') || '30');
 
-    const suiClient = createSuiClient();
-    let events = await getDocumentEvents(suiClient);
-
-    // Retry if no events found (timing issue with SUI fullnode)
-    let retries = 0;
-    const maxRetries = 3;
-    while (events.length === 0 && retries < maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      events = await getDocumentEvents(suiClient);
-      retries++;
+    if (days < 1 || days > 365) {
+      return NextResponse.json({ error: 'Days must be between 1 and 365' }, { status: 400 });
     }
 
-    const now = Date.now();
+    const collection = await getDocumentsCollection();
+
+    const vietnamTimezone = 'Asia/Ho_Chi_Minh';
+    const timezoneOffsetMs = 7 * 60 * 60 * 1000;
+
+    const now = new Date();
+    const nowMs = now.getTime();
+
+    const vietnamNow = new Date(nowMs + timezoneOffsetMs);
+    const vietnamDayStart = new Date(
+      vietnamNow.getFullYear(),
+      vietnamNow.getMonth(),
+      vietnamNow.getDate(),
+      0, 0, 0, 0
+    );
+    const vietnamDayStartMs = vietnamDayStart.getTime() - timezoneOffsetMs;
+
     const dayMs = 24 * 60 * 60 * 1000;
+    const startDate = vietnamDayStartMs - (days - 1) * dayMs;
+
+    const aggregation = await collection
+      .aggregate([
+        {
+          $match: {
+            timestamp: { $gte: startDate },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: { $toDate: '$timestamp' },
+                timezone: vietnamTimezone,
+              },
+            },
+            count: { $sum: 1 },
+            totalSize: { $sum: '$file_size' },
+            uniqueUsers: { $addToSet: '$creator' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: '$_id',
+            count: 1,
+            totalSize: 1,
+            uniqueUsers: { $size: '$uniqueUsers' },
+          },
+        },
+        { $sort: { date: 1 } },
+      ])
+      .toArray();
 
     const dailyData = new Map<string, TrendDataPoint>();
 
     for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now - i * dayMs);
-      // Use local date instead of UTC to match user's timezone
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const dayMsOffset = i * dayMs;
+      const targetDateMs = vietnamDayStartMs - dayMsOffset;
+      const targetDate = new Date(targetDateMs + timezoneOffsetMs);
+
+      const year = targetDate.getFullYear();
+      const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const day = String(targetDate.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
+
       dailyData.set(dateStr, {
         date: dateStr,
+        dateMs: targetDateMs,
         count: 0,
         totalSize: 0,
         uniqueUsers: 0,
       });
     }
 
-    const dailyUsers = new Map<string, Set<string>>();
-
-    events.forEach(event => {
-      // Convert timestamp to number if it's a string, or use as-is if already number
-      let timestamp = event.timestamp;
-      if (typeof timestamp === 'string') {
-        timestamp = parseInt(timestamp, 10);
-      }
-
-      // Skip invalid timestamps
-      if (!timestamp || isNaN(timestamp) || timestamp < 0) {
-        return;
-      }
-
-      const eventDate = new Date(timestamp);
-      // Use local date instead of UTC to match user's timezone
-      const year = eventDate.getFullYear();
-      const month = String(eventDate.getMonth() + 1).padStart(2, '0');
-      const day = String(eventDate.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-
-      if (dailyData.has(dateStr)) {
-        const data = dailyData.get(dateStr)!;
-        data.count += 1;
-        data.totalSize += event.file_size;
-
-        if (!dailyUsers.has(dateStr)) {
-          dailyUsers.set(dateStr, new Set());
-        }
-        dailyUsers.get(dateStr)!.add(event.creator);
+    aggregation.forEach((item: any) => {
+      if (dailyData.has(item.date)) {
+        dailyData.set(item.date, {
+          date: item.date,
+          dateMs: dailyData.get(item.date)!.dateMs,
+          count: item.count,
+          totalSize: item.totalSize,
+          uniqueUsers: item.uniqueUsers,
+        });
       }
     });
 
-    dailyUsers.forEach((users, date) => {
-      if (dailyData.has(date)) {
-        dailyData.get(date)!.uniqueUsers = users.size;
-      }
-    });
+    const result = Array.from(dailyData.values());
 
-    return NextResponse.json(Array.from(dailyData.values()));
+    return NextResponse.json(result);
   } catch (error) {
-    console.error('[Analytics Trends] Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch analytics trends' },
       { status: 500 }

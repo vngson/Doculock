@@ -1,0 +1,295 @@
+---
+title: Document Verification
+description: Verify document authenticity using blockchain technology
+---
+
+# Document Verification
+
+DocuLock provides instant, tamper-proof document verification using cryptographic hashes stored on the Sui blockchain. This ensures the integrity and authenticity of any document.
+
+<Callout type="info">
+  Verification uses SHA-256 hashing, which provides 256-bit security and is widely adopted in cryptographic applications.
+</Callout>
+
+## How Verification Works [#how-verification-works]
+
+### The Cryptographic Process
+
+```
+Original Document
+    ↓
+Calculate SHA-256 Hash (256-bit)
+    ↓
+Store Hash on Sui Blockchain
+    ↓
+Generate Verification Link
+```
+
+When verifying:
+
+```
+Document to Verify
+    ↓
+Calculate SHA-256 Hash
+    ↓
+Query Blockchain for Original Hash
+    ↓
+Compare Hashes
+    ↓
+Match? → Authentic ✅
+No Match → Modified/Corrupted ❌
+</Code>
+
+### Hash Properties
+
+- **Deterministic**: Same file always produces same hash
+- **Avalanche Effect**: Single bit change → completely different hash
+- **Preimage Resistance**: Impossible to reverse hash to find original
+- **Collision Resistance**: Practically impossible to find two files with same hash
+
+## Verifying Documents [#verifying-documents]
+
+### Single Document Verification
+
+1. Navigate to the **Verify** tab
+2. Click **"Select File"** or drag and drop
+3. DocuLock automatically:
+   - Calculates SHA-256 hash
+   - Queries Sui blockchain
+   - Compares with stored hash
+4. View verification result
+
+### Verification Results
+
+<Tabs items={["Verified", "Not Found", "Modified"]}>
+  <Tab value="Verified">
+    ```json
+    {
+      "status": "verified",
+      "message": "Document is authentic",
+      "storedAt": "2024-01-15T10:30:00Z",
+      "storedBy": "0x1234...abcd",
+      "txDigest": "0xabcd...1234"
+    }
+    ```
+    The document hash exists on blockchain and matches exactly.
+  </Tab>
+
+  <Tab value="Not Found">
+    ```json
+    {
+      "status": "not_found",
+      "message": "Hash not found on blockchain",
+      "hash": "a1b2c3d4..."
+    }
+    ```
+    The document hash is not stored. This could mean:
+    - Document was never uploaded to DocuLock
+    - Document was uploaded to a different network (mainnet vs testnet)
+    - Querying wrong package ID
+  </Tab>
+
+  <Tab value="Modified">
+    ```json
+    {
+      "status": "modified",
+      "message": "Document has been modified",
+      "storedHash": "a1b2c3d4...",
+      "currentHash": "e5f6g7h8..."
+    }
+    ```
+    The hashes don't match. The document has been altered since original storage.
+  </Tab>
+</Tabs>
+
+## QR Code Verification [#qr-code-verification]
+
+Share verification via QR codes for mobile-friendly verification:
+
+### Generating QR Codes
+
+1. After successful document storage, click **"Generate QR"**
+2. QR code contains:
+   - Document hash
+   - Verification URL
+   - Timestamp metadata
+
+### Scanning QR Codes
+
+1. Use any QR code scanner app
+2. Scan the QR code
+3. Opens DocuLock verification page
+4. Automatically verifies document
+
+<Callout type="success">
+  QR codes enable anyone with a smartphone to verify document authenticity without any special software!
+</Callout>
+
+## Document Comparison [#document-comparison]
+
+Compare two documents to detect differences:
+
+### Comparison Process
+
+1. Upload original document
+2. Upload document to compare
+3. DocuLock calculates hashes for both
+4. Displays:
+   - Whether hashes match
+   - Difference in file size (if applicable)
+   - Verification status of each
+
+### Use Cases
+
+- Verify file integrity after download
+- Check if document was modified
+- Compare different versions
+- Detect tampering
+
+## Fraud Detection Simulation [#fraud-detection]
+
+Test the security of document verification:
+
+### How It Works
+
+1. Store a document on blockchain
+2. Click **"Test Fraud Detection"**
+3. DocuLock modifies a single byte
+4. Recalculates hash (now different)
+5. Verification fails - proving security
+
+<Callout type="warning">
+  This simulation demonstrates how even a single bit change makes verification fail, proving the security of SHA-256 hashing.
+</Callout>
+
+### Running Simulation
+
+After storing a document:
+
+1. Look for **"Test Fraud Detection"** button
+2. Click to begin simulation
+3. View results showing:
+   - Original hash
+   - Modified hash
+   - Verification failure
+
+## Security Considerations [#security-considerations]
+
+### Client-Side Hashing
+
+All hash calculations happen in your browser:
+
+- Document never leaves your device
+- Hash calculated locally
+- Only hash is sent to blockchain
+- Privacy guaranteed by design
+
+### Immutable Records
+
+Once stored:
+
+- Hash cannot be modified
+- Transaction cannot be reversed
+- Record exists permanently on Sui
+- Verifiable by anyone, anywhere
+
+### Cryptographic Proof
+
+The verification provides mathematical proof:
+
+- Hash collision probability: 2⁻²⁵⁶
+- Practically impossible to forge
+- Accepted in legal contexts
+- Provides digital evidence
+
+## Use Cases [#use-cases]
+
+### Legal Documents
+
+- Prove contract existence
+- Timestamp agreements
+- Legal admissibility
+- Dispute resolution
+
+### Intellectual Property
+
+- Establish creation date
+- Priority claims
+- Copyright proof
+- Patent evidence
+
+### Financial Records
+
+- Audit trails
+- Invoice verification
+- Receipt proof
+- Compliance records
+
+### Academic Credentials
+
+- Certificate verification
+- Degree authentication
+- Transcript proof
+- Document integrity
+
+## API Access [#api-access]
+
+Verify documents programmatically via API:
+
+```bash
+curl -X POST https://doculock.io/api/verify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "hash": "a1b2c3d4e5f6..."
+  }'
+```
+
+<Callout type="info">
+  See [API Documentation](/api/rest-api) for complete API reference.
+</Callout>
+
+## Best Practices [#best-practices]
+
+### For Uploaders
+
+1. **Always verify after upload** - Confirm hash matches
+2. **Keep original files** - Store copies locally
+3. **Document verification** - Record transaction IDs
+4. **Use QR codes** - For easy sharing
+
+### For Verifiers
+
+1. **Check network** - Verify correct blockchain (testnet/mainnet)
+2. **Verify full hash** - Don't rely on partial matches
+3. **Check timestamp** - Confirm expected storage time
+4. **Document results** - Keep verification records
+
+### Troubleshooting [#troubleshooting]
+
+### Verification Fails
+
+If verification shows "modified":
+
+- Document was changed after storage
+- File corruption occurred
+- Wrong file selected
+
+### Hash Not Found
+
+If hash not found on blockchain:
+
+- Document not uploaded to DocuLock
+- Wrong network (check testnet vs mainnet)
+- Different package ID
+
+### Slow Verification
+
+If verification takes time:
+
+- Network congestion on Sui
+- RPC endpoint latency
+- Try refreshing the page
+
+<Callout type="info">
+  Need help? Check our [troubleshooting guide](/guides/troubleshooting) or join our community on Discord.
+</Callout>

@@ -1,0 +1,122 @@
+---
+title: Quick Start
+description: Get started with DocuLock in 5 minutes
+---
+
+# Quick Start Guide
+
+Get started with DocuLock in 5 minutes. This guide will walk you through setting up your wallet and verifying your first document on the Sui blockchain.
+
+<Callout type="info">
+  DocuLock runs on the Sui Testnet. You'll need SUI test tokens which can be obtained from the [Sui Faucet](https://faucet.testnet.sui.io/).
+</Callout>
+
+## Prerequisites [#prerequisites]
+
+Before you begin, ensure you have:
+
+- A Sui-compatible wallet (Sui Wallet, Suiet, or other supported wallets)
+- SUI testnet tokens
+- A document to verify (PDF, image, text file, etc.)
+
+## Step 1: Connect Your Wallet [#step-1-connect-wallet]
+
+1. Open the DocuLock application
+2. Click the **"Connect Wallet"** button in the top-right corner
+3. Select your preferred wallet from the list
+4. Approve the connection in your wallet extension
+
+<Callout type="warning">
+  Make sure your wallet is set to the **Sui Testnet**. DocuLock currently operates on testnet for testing purposes.
+</Callout>
+
+## Step 2: Create a Document Registry [#step-2-create-registry]
+
+Before uploading documents, you need to create a document registry:
+
+1. Navigate to the **Upload** tab
+2. If you don't have a registry, you'll see a "Create Registry" option
+3. Click **"Create Registry"**
+4. Sign the transaction in your wallet
+5. Wait for the transaction to confirm
+
+<Callout type="success">
+  You only need to create a registry once! All your documents will be stored in this registry.
+</Callout>
+
+## Step 3: Upload Your Document [#step-3-upload-document]
+
+1. Click the **"Select File"** button or drag and drop your document
+2. Supported file types include:
+   - PDF documents
+   - Images (PNG, JPG, GIF, etc.)
+   - Text files
+   - Office documents
+3. DocuLock will automatically calculate the SHA-256 hash of your document
+4. Review the hash displayed on screen
+
+## Step 4: Store on Blockchain [#step-4-store-blockchain]
+
+1. Click **"Store on Blockchain"**
+2. Review the transaction details in your wallet
+3. Sign and approve the transaction
+4. Wait for confirmation (typically 2-5 seconds)
+5. Your document hash is now permanently stored on Sui!
+
+## Step 5: Verify Your Document [#step-5-verify-document]
+
+After storing, you can verify your document anytime:
+
+### Method 1: Using the Verify Tab
+
+1. Navigate to the **Verify** tab
+2. Select the same document
+3. DocuLock will calculate the hash and check against the blockchain
+4. If the hash matches, your document is verified as authentic!
+
+### Method 2: Using QR Code
+
+1. After successful storage, click **"Generate QR"**
+2. Scan the QR code with your mobile device
+3. The verification link will open and verify the document automatically
+
+## What's Next? [#whats-next]
+
+Now that you've verified your first document, explore more features:
+
+<Cards>
+  <Card title="Batch Upload" description="Store multiple documents efficiently with PTB" href="/features/batch-processing" icon="Package" />
+
+  <Card title="Analytics Dashboard" description="View insights and statistics about your documents" href="/features/analytics" icon="BarChart" />
+
+  <Card title="API Documentation" description="Integrate DocuLock into your applications" href="/api/rest-api" icon="Code" />
+</Cards>
+
+## Troubleshooting [#troubleshooting]
+
+### Transaction Failed
+
+If your transaction fails:
+
+- Ensure you have sufficient SUI tokens in your wallet
+- Check that you're connected to Sui Testnet
+- Verify your network connection
+
+### Hash Not Found
+
+If verification shows "hash not found":
+
+- Confirm the document hasn't been modified
+- Check that you're querying the correct network (testnet)
+- Ensure the original transaction was successful
+
+## Security Tips [#security-tips]
+
+- Your document content never leaves your device
+- Only the cryptographic hash is stored on blockchain
+- Keep your private keys secure
+- Always verify documents after uploading
+
+<Callout type="info">
+  Remember: DocuLock only stores hashes, not file contents. Your privacy is protected by design.
+</Callout>

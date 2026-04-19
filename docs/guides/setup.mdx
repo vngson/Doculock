@@ -1,0 +1,564 @@
+---
+title: Setup Guide
+description: Complete setup instructions for DocuLock
+---
+
+# Setup Guide
+
+Complete guide to setting up DocuLock for development, testing, and production deployment.
+
+<Callout type="info">
+  This guide covers both self-hosted deployment and cloud-hosted options.
+</Callout>
+
+## Prerequisites [#prerequisites]
+
+### Required Software
+
+- **Node.js**: 18.x or higher
+- **npm**: 9.x or higher (or yarn/pnpm)
+- **Git**: Latest version
+- **MongoDB**: Atlas or self-hosted (4.4+)
+
+### Required Accounts
+
+- **Sui Wallet**: For blockchain interactions
+- **MongoDB Atlas**: For data storage (or self-hosted)
+- **GitHub**: For source code (optional)
+
+### Network Requirements
+
+- **Outbound access**: To Sui RPC nodes
+- **MongoDB connection**: To Atlas or self-hosted instance
+- **Port availability**: 3000 (default) or custom
+
+## Local Development Setup [#local-development]
+
+### Step 1: Clone Repository
+
+```bash
+git clone https://github.com/doculock/doculock.git
+cd doculock
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+Or using yarn/pnpm:
+
+```bash
+yarn install
+# or
+pnpm install
+```
+
+### Step 3: Configure Environment Variables
+
+Create `.env.local` file:
+
+```bash
+# MongoDB Configuration
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/doculock
+MONGODB_DB_NAME=doculock
+
+# Sui Network Configuration
+NEXT_PUBLIC_SUI_RPC_URL=https://fullnode.testnet.sui.io
+NEXT_PUBLIC_SUI_NETWORK=testnet
+
+# DocuLock Contract
+NEXT_PUBLIC_DOCULOCK_PACKAGE_ID=0x...
+
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+
+# Optional: Analytics
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+```
+
+<Callout type="warning">
+  Never commit `.env.local` to version control. Add it to `.gitignore`.
+</Callout>
+
+### Step 4: Initialize Indexer
+
+```bash
+npm run init-indexer
+```
+
+This will:
+- Connect to MongoDB
+- Create required indexes
+- Sync blockchain events
+- Display sync statistics
+
+### Step 5: Start Development Server
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`
+
+## MongoDB Setup [#mongodb-setup]
+
+### Option 1: MongoDB Atlas (Recommended)
+
+1. **Create Account**
+   - Visit https://www.mongodb.com/cloud/atlas
+   - Sign up for free tier
+   - Create a new cluster
+
+2. **Configure Cluster**
+   - Choose free tier (M0)
+   - Select closest region
+   - Wait for cluster deployment
+
+3. **Set Up Database**
+   - Create database: `doculock`
+   - Create collection: `documents`
+   - Configure IP whitelist: `0.0.0.0/0` (for development)
+
+4. **Get Connection String**
+   - Click "Connect"
+   - Choose "Connect your application"
+   - Copy connection string
+   - Add to `.env.local`
+
+<Callout type="success">
+  Atlas free tier provides 512MB storage, sufficient for development and small deployments.
+</Callout>
+
+### Option 2: Self-Hosted MongoDB
+
+```bash
+# Using Docker
+docker run -d \
+  --name mongodb \
+  -p 27017:27017 \
+  -e MONGO_INITDB_DATABASE=doculock \
+  mongo:latest
+```
+
+Connection string:
+
+```
+mongodb://localhost:27017/doculock
+```
+
+### Create Indexes
+
+Indexer automatically creates indexes, but you can manually create:
+
+```javascript
+// Connect to MongoDB
+use doculock
+
+// Create indexes
+db.documents.createIndex({ document_hash: 1 }, { unique: true })
+db.documents.createIndex({ creator: 1 })
+db.documents.createIndex({ timestamp: -1 })
+db.documents.createIndex({ creator: 1, timestamp: -1 })
+db.documents.createIndex({ file_name: "text" })
+db.documents.createIndex({ tx_digest: 1 })
+```
+
+## Sui Network Setup [#sui-network-setup]
+
+### Testnet Setup
+
+For development:
+
+```bash
+NEXT_PUBLIC_SUI_RPC_URL=https://fullnode.testnet.sui.io
+NEXT_PUBLIC_SUI_NETWORK=testnet
+```
+
+Get testnet SUI from faucet:
+- https://faucet.testnet.sui.io
+
+### Mainnet Setup
+
+For production:
+
+```bash
+NEXT_PUBLIC_SUI_RPC_URL=https://fullnode.mainnet.sui.io
+NEXT_PUBLIC_SUI_NETWORK=mainnet
+```
+
+<Callout type="warning">
+  Mainnet uses real SUI tokens. Ensure proper testing on testnet first.
+</Callout>
+
+### Custom RPC
+
+Use a custom RPC node:
+
+```bash
+NEXT_PUBLIC_SUI_RPC_URL=https://your-custom-rpc-url.com
+```
+
+## Contract Deployment [#contract-deployment]
+
+### Prerequisites
+
+- Sui CLI installed
+- Sui wallet with testnet SUI
+- DocuLock Move source code
+
+### Deploy Contract
+
+```bash
+# Install Sui CLI
+cargo install --locked --git https://github.com/MystenLabs/sui.git sui
+
+# Publish contract
+sui client publish --gas-budget 10000000
+```
+
+### Update Environment
+
+After deployment, update `.env.local`:
+
+```bash
+NEXT_PUBLIC_DOCULOCK_PACKAGE_ID=0x<package-id-from-publish>
+```
+
+## Production Deployment [#production-deployment]
+
+### Vercel Deployment
+
+1. **Connect Repository**
+   - Visit https://vercel.com
+   - Click "New Project"
+   - Import DocuLock repository
+
+2. **Configure Environment Variables**
+   - Add all `.env.local` variables
+   - Use production values (MongoDB Atlas, mainnet RPC)
+
+3. **Deploy**
+   - Click "Deploy"
+   - Wait for build completion
+   - Access at provided URL
+
+<Callout type="success">
+  Vercel provides automatic HTTPS, CDN, and CI/CD integration.
+</Callout>
+
+### Docker Deployment
+
+Create `Dockerfile`:
+
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
+
+Build and run:
+
+```bash
+docker build -t doculock .
+docker run -p 3000:3000 \
+  -e MONGODB_URI=... \
+  -e NEXT_PUBLIC_DOCULOCK_PACKAGE_ID=... \
+  doculock
+```
+
+### Kubernetes Deployment
+
+Create `deployment.yaml`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doculock
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: doculock
+  template:
+    metadata:
+      labels:
+        app: doculock
+    spec:
+      containers:
+      - name: doculock
+        image: doculock:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: doculock-secrets
+              key: mongodb-uri
+```
+
+## Configuration Options [#configuration-options]
+
+### Application Config
+
+Edit `lib/config.ts`:
+
+```typescript
+export const doculockConfig = {
+  supportedFileTypes: [
+    'application/pdf',
+    'image/*',
+    'text/*',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ],
+  maxFileSize: 50 * 1024 * 1024, // 50MB
+  network: 'testnet', // or 'mainnet'
+  enableAnalytics: true
+};
+```
+
+### Indexer Config
+
+Edit indexer settings:
+
+```typescript
+export const indexerConfig = {
+  syncInterval: 60000, // 1 minute
+  batchSize: 100,
+  maxRetries: 3,
+  enableCaching: true,
+  cacheTTL: 300 // 5 minutes
+};
+```
+
+## Monitoring and Logging [#monitoring-logging]
+
+### Application Logs
+
+```bash
+# Development
+npm run dev
+
+# Production
+PM2 logs doculock
+```
+
+### Database Monitoring
+
+Monitor MongoDB Atlas:
+
+- Access Atlas dashboard
+- View metrics tab
+- Monitor query performance
+- Check storage usage
+
+### Blockchain Monitoring
+
+Monitor Sui network:
+
+- Check RPC status
+- Monitor gas prices
+- Track transaction confirmations
+- View contract events
+
+## Security Best Practices [#security-best-practices]
+
+### Environment Variables
+
+- Never commit `.env.local`
+- Use strong passwords for MongoDB
+- Rotate API keys regularly
+- Use different keys for environments
+
+### Network Security
+
+- Enable HTTPS in production
+- Configure CORS properly
+- Use firewall rules
+- Implement rate limiting
+
+### Data Protection
+
+- Encrypt sensitive data
+- Use secure MongoDB connection
+- Implement access controls
+- Regular security audits
+
+<Callout type="warning">
+  Production deployments require proper security measures. Consult security team for review.
+</Callout>
+
+## Troubleshooting [#troubleshooting]
+
+### Connection Issues
+
+**MongoDB Connection Failed**
+
+```
+Error: MONGODB_URI not defined
+```
+
+Solution:
+- Verify `.env.local` exists
+- Check connection string format
+- Ensure IP whitelist includes your address
+
+**Sui RPC Connection Failed**
+
+```
+Error: Failed to connect to Sui RPC
+```
+
+Solution:
+- Verify RPC URL is correct
+- Check network connectivity
+- Try different RPC endpoint
+
+### Build Issues
+
+**TypeScript Errors**
+
+```
+Type error: Cannot find module...
+```
+
+Solution:
+- Run `npm install`
+- Clear node_modules and reinstall
+- Check TypeScript version
+
+**Build Fails**
+
+```
+Build failed with errors
+```
+
+Solution:
+- Check for syntax errors
+- Verify all dependencies installed
+- Clear cache: `rm -rf .next`
+
+### Runtime Issues
+
+**Indexer Not Syncing**
+
+```
+No documents in analytics
+```
+
+Solution:
+- Run `npm run init-indexer`
+- Check MongoDB connection
+- Verify Sui network access
+- Check contract package ID
+
+**Transactions Failing**
+
+```
+Transaction failed on blockchain
+```
+
+Solution:
+- Verify wallet has SUI tokens
+- Check network (testnet vs mainnet)
+- Confirm contract address correct
+- Check gas limit
+
+## Performance Optimization [#performance-optimization]
+
+### Database Optimization
+
+```bash
+# Ensure indexes are created
+db.documents.getIndexes()
+
+# Analyze query performance
+db.documents.find({ creator: "0x..." }).explain("executionStats")
+```
+
+### Caching Strategy
+
+Implement caching:
+
+```typescript
+// Next.js revalidation
+export const revalidate = 300; // 5 minutes
+
+// In-memory cache
+import NodeCache from 'node-cache';
+const cache = new NodeCache({ stdTTL: 300 });
+```
+
+### Frontend Optimization
+
+- Enable image optimization
+- Use code splitting
+- Implement lazy loading
+- Optimize bundle size
+
+## Testing [#testing]
+
+### Unit Tests
+
+```bash
+npm run test
+```
+
+### Integration Tests
+
+```bash
+npm run test:integration
+```
+
+### E2E Tests
+
+```bash
+npm run test:e2e
+```
+
+### Manual Testing Checklist
+
+- [ ] Document upload works
+- [ ] Hash calculation correct
+- [ ] Blockchain storage successful
+- [ ] Verification works
+- [ ] Batch processing works
+- [ ] Analytics displays data
+- [ ] Export generates files
+- [ ] All API endpoints respond
+
+## Next Steps [#next-steps]
+
+After setup:
+
+1. **Test thoroughly** - Run all test suites
+2. **Configure monitoring** - Set up alerts
+3. **Deploy to staging** - Test in staging environment
+4. **Plan production** - Review deployment strategy
+5. **Monitor performance** - Track metrics
+
+<Cards>
+  <Card title="Quick Start" description="Get started in 5 minutes" href="/quickstart" icon="Zap" />
+
+  <Card title="API Documentation" description="REST API reference" href="/api/rest-api" icon="Code" />
+
+  <Card title="Analytics Guide" description="Monitor your documents" href="/features/analytics" icon="BarChart" />
+</Cards>
+
+<Callout type="info">
+  Need help? Join our Discord community or create a GitHub issue.
+</Callout>

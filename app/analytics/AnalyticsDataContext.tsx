@@ -3,7 +3,8 @@
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 interface TrendDataPoint {
-  date: string;
+  date: string;      // UTC date string YYYY-MM-DD
+  dateMs: number;    // Timestamp in milliseconds
   count: number;
   totalSize: number;
   uniqueUsers: number;
@@ -35,6 +36,9 @@ interface AnalyticsData {
   refresh: () => Promise<void>;
 }
 
+// Export types for use in components
+export type { TrendDataPoint, AnalyticsStats, TopDocument, AnalyticsData };
+
 const AnalyticsDataContext = createContext<AnalyticsData | undefined>(undefined);
 
 interface AnalyticsDataProviderProps {
@@ -46,11 +50,16 @@ export function AnalyticsDataProvider({ children }: AnalyticsDataProviderProps) 
   const [trends, setTrends] = useState<TrendDataPoint[]>([]);
   const [topDocuments, setTopDocuments] = useState<TopDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasFetchedRef = useRef(false);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isRefresh = false) => {
+    if (!isRefresh) {
+      setLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
     setError(null);
 
     try {
@@ -82,6 +91,7 @@ export function AnalyticsDataProvider({ children }: AnalyticsDataProviderProps) 
       setTopDocuments([]);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -92,9 +102,12 @@ export function AnalyticsDataProvider({ children }: AnalyticsDataProviderProps) 
     }
   }, []);
 
+  // Expose combined loading state
+  const isLoading = loading || isRefreshing;
+
   return (
     <AnalyticsDataContext.Provider
-      value={{ stats, trends, topDocuments, loading, error, refresh: fetchData }}
+      value={{ stats, trends, topDocuments, loading: isLoading, error, refresh: () => fetchData(true) }}
     >
       {children}
     </AnalyticsDataContext.Provider>

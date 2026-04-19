@@ -1,0 +1,414 @@
+---
+title: Export & Reporting
+description: Generate reports and export verification data
+---
+
+# Export & Reporting
+
+Generate comprehensive reports and export verification data in multiple formats. Create audit trails, maintain records, and share verification results with stakeholders.
+
+<Callout type="info">
+  Export options are available after batch verification or from the document history view.
+</Callout>
+
+## Export Formats [#export-formats]
+
+### PDF Reports
+
+Professional, printable PDF reports containing:
+
+- **Summary Statistics**
+  - Total documents processed
+  - Success/failure counts
+  - Average file size
+  - Processing duration
+
+- **Detailed Table**
+  - Document names
+  - SHA-256 hashes
+  - File sizes
+  - Verification status
+  - Timestamps
+  - Transaction IDs
+
+- **Visual Elements**
+  - Company/logo header
+  - Status indicators
+  - Timestamp formatting
+  - Page numbers
+
+<Callout type="success">
+  PDF reports are ideal for audits, compliance, and legal documentation.
+</Callout>
+
+### CSV Data
+
+Spreadsheet-compatible CSV format:
+
+```csv
+FileName,FileSize,Hash,Status,Timestamp,TxDigest
+document1.pdf,1024000,a1b2c3d4...,verified,2024-01-15T10:30:00Z,0xabcd...
+document2.png,2048000,e5f6g7h8...,verified,2024-01-15T10:31:00Z,0xefgh...
+```
+
+Features:
+- **Universal compatibility** - Works in Excel, Google Sheets, etc.
+- **Raw data** - No formatting complications
+- **Easy processing** - Import into databases
+- **Compact size** - Minimal file size
+
+### JSON Export
+
+Machine-readable JSON format:
+
+```json
+{
+  "metadata": {
+    "exportDate": "2024-01-15T10:30:00Z",
+    "totalDocuments": 20,
+    "successCount": 18,
+    "failedCount": 2
+  },
+  "documents": [
+    {
+      "fileName": "document.pdf",
+      "fileSize": 1024000,
+      "hash": "a1b2c3d4...",
+      "status": "verified",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "txDigest": "0xabcd...",
+      "creator": "0x1234..."
+    }
+  ]
+}
+</Code>
+
+Use cases:
+- **API integration** - System-to-system transfers
+- **Data processing** - Custom scripts
+- **Archiving** - Long-term storage
+- **Analysis** - Data mining
+
+## Generating Exports [#generating-exports]
+
+### After Batch Verification
+
+1. Complete batch upload/verification
+2. Click **"Export Results"** button
+3. Select export format
+4. File downloads automatically
+
+### From Document History
+
+1. Navigate to **History** tab
+2. Apply filters (optional)
+3. Click **"Export"** button
+4. Choose format and date range
+5. Download generated file
+
+### API Export
+
+```bash
+POST /api/export
+Content-Type: application/json
+
+{
+  "format": "pdf",
+  "startDate": "2024-01-01",
+  "endDate": "2024-01-31",
+  "creator": "0x1234..."
+}
+```
+
+## Report Customization [#report-customization]
+
+### Header Customization
+
+Add custom branding:
+
+```typescript
+{
+  title: "Document Verification Report",
+  subtitle: "Audit Trail - January 2024",
+  logo: "/company-logo.png",
+  companyName: "Acme Corporation",
+  reportId: "RPT-2024-0115"
+}
+```
+
+### Content Filters
+
+Select what to include:
+
+- **Document details** - Full file information
+- **Hash values** - Complete SHA-256
+- **Transaction data** - Blockchain metadata
+- **Verification status** - Current state
+- **Timestamps** - Date/time information
+
+### Date Range
+
+Specify reporting period:
+
+```typescript
+{
+  startDate: "2024-01-01T00:00:00Z",
+  endDate: "2024-01-31T23:59:59Z",
+  timeZone: "UTC"
+}
+</Code>
+
+## Report Sections [#report-sections]
+
+### Executive Summary
+
+High-level overview:
+
+```
+┌─────────────────────────────────────┐
+│ Document Verification Report         │
+│ Generated: 2024-01-15               │
+├─────────────────────────────────────┤
+│ Total Documents:    147              │
+│ Verified:           142              │
+│ Failed:             5                │
+│ Success Rate:       96.6%            │
+│ Total Storage:      245.8 MB         │
+│ Processing Time:    45 minutes       │
+└─────────────────────────────────────┘
+```
+
+### Detailed Breakdown
+
+Per-document information:
+
+```
+┌──────────────────────────────────────────────────────┐
+│ Document #1                                          │
+│ ──────────────────────────────────────────────────── │
+│ Name:       contract_2024.pdf                        │
+│ Size:       1.2 MB                                   │
+│ Hash:       a1b2c3d4e5f6789012345678901234...        │
+│ Status:     ✓ Verified                               │
+│ Stored:     2024-01-15 10:30:00 UTC                  │
+│ Tx Digest:  0xabcd1234efgh5678ijlk9012mnop3456...    │
+│ Verified:   2024-01-15 10:35:00 UTC                  │
+└──────────────────────────────────────────────────────┘
+```
+
+### Error Summary
+
+Failed document details:
+
+```
+┌──────────────────────────────────────────────────────┐
+│ Failed Documents: 2                                  │
+│ ──────────────────────────────────────────────────── │
+│ 1. corrupted_file.pdf                                │
+│    Reason: Hash calculation failed                    │
+│    Error: File may be corrupted                      │
+│                                                        │
+│ 2. unknown_type.bin                                  │
+│    Reason: Unsupported file type                     │
+│    Error: Binary files not supported                 │
+└──────────────────────────────────────────────────────┘
+```
+
+## Use Cases [#use-cases]
+
+### Compliance Audits
+
+Generate reports for regulatory compliance:
+
+- **SOX compliance** - Internal controls
+- **GDPR** - Data integrity records
+- **HIPAA** - Healthcare document trails
+- **ISO 27001** - Information security
+
+### Legal Documentation
+
+Support legal proceedings:
+
+- **Evidence chains** - Document provenance
+- **Timestamp proofs** - Temporal evidence
+- **Audit trails** - Activity records
+- **Court submissions** - Formal reports
+
+### Business Intelligence
+
+Analyze document verification patterns:
+
+- **Usage trends** - Upload frequency
+- **User activity** - Engagement metrics
+- **Cost tracking** - Gas usage
+- **Performance analysis** - Processing times
+
+### Client Reporting
+
+Share verification results with clients:
+
+- **Monthly summaries** - Regular updates
+- **Project reports** - Milestone tracking
+- **Status updates** - Real-time info
+- **Compliance proof** - Regulatory evidence
+
+## Scheduled Reports [#scheduled-reports]
+
+### Automated Generation
+
+Set up recurring exports:
+
+```typescript
+{
+  schedule: "monthly",
+  dayOfMonth: 1,
+  format: "pdf",
+  recipients: ["audit@company.com"],
+  include: {
+    summary: true,
+    details: true,
+    errors: true
+  }
+}
+```
+
+Features:
+- **Automated delivery** - Email attachments
+- **Custom schedules** - Daily, weekly, monthly
+- **Format selection** - PDF, CSV, JSON
+- **Recipient lists** - Multiple addresses
+
+## Data Retention [#data-retention]
+
+### Export Archiving
+
+Best practices for stored reports:
+
+- **Cloud storage** - Secure backup
+- **Version control** - Track changes
+- **Access controls** - Restricted viewing
+- **Encryption** - At rest
+
+### Compliance Requirements
+
+Industry-specific retention:
+
+| Industry | Retention Period | Notes |
+|----------|-----------------|-------|
+| **Finance** | 7 years | SEC compliance |
+| **Healthcare** | 6 years | HIPAA requirements |
+| **Legal** | Permanent | Case documents |
+| **Government** | Varies | Agency-specific |
+
+## Security Considerations [#security-considerations]
+
+### Data Protection
+
+When exporting:
+
+- **Redact sensitive info** - Remove private data
+- **Use secure transfer** - Encrypted channels
+- **Access controls** - Authorized recipients only
+- **Secure storage** - Encrypted at rest
+
+### Hash Privacy
+
+Consider hash exposure:
+
+- **Hashes are public** - Visible on blockchain
+- **No content exposure** - File remains private
+- **Reverse protection** - Can't recover content
+- **Collision resistance** - Secure hashing
+
+<Callout type="warning">
+  Exports contain public blockchain data. Ensure recipients are authorized.
+</Callout>
+
+## Troubleshooting [#troubleshooting]
+
+### Export Fails
+
+If export generation fails:
+
+1. Check data availability
+2. Verify date ranges
+3. Reduce result set
+4. Check API status
+
+### File Too Large
+
+If export file is too large:
+
+1. Narrow date range
+2. Apply filters
+3. Use CSV instead of PDF
+4. Split into batches
+
+### Missing Data
+
+If export has missing documents:
+
+1. Verify sync status
+2. Check indexer health
+3. Confirm blockchain events
+4. Re-run export
+
+## API Reference [#api-reference]
+
+### Export Endpoint
+
+```bash
+POST /api/export
+
+Request:
+{
+  "format": "pdf",
+  "filters": {
+    "startDate": "2024-01-01",
+    "endDate": "2024-01-31",
+    "creator": "0x1234...",
+    "status": "verified"
+  },
+  "options": {
+    "includeErrors": true,
+    "includeHashes": true,
+    "groupedBy": "date"
+  }
+}
+
+Response:
+{
+  "success": true,
+  "downloadUrl": "https://...",
+  "fileName": "report-2024-01-15.pdf",
+  "fileSize": 245760,
+  "expiresAt": "2024-01-16T00:00:00Z"
+}
+</Code>
+
+## Best Practices [#best-practices]
+
+### For Compliance Officers
+
+1. **Regular exports** - Monthly minimum
+2. **Verify integrity** - Check hash consistency
+3. **Secure storage** - Encrypted backups
+4. **Access logs** - Track report access
+
+### For IT Teams
+
+1. **Automate schedules** - Reduce manual work
+2. **Monitor exports** - Track generation
+3. **Backup reports** - Redundant storage
+4. **Update processes** - As regulations change
+
+### For Legal Teams
+
+1. **Maintain chains** - Document provenance
+2. **Timestamp accuracy** - UTC standardization
+3. **Complete records** - Include all metadata
+4. **Verified integrity** - Hash consistency
+
+<Callout type="info">
+  Need help with export configurations? Contact our support team.
+</Callout>

@@ -2,18 +2,16 @@
 
 import { memo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
-
-interface TrendDataPoint {
-  date: string;
-  count: number;
-  totalSize: number;
-  uniqueUsers: number;
-}
+import { useAnalyticsData, TrendDataPoint } from '../../analytics/AnalyticsDataContext';
+import { ChartSkeleton } from './Skeleton';
 
 function UploadTrendsChartComponent() {
-  const { trends } = useAnalyticsData();
+  const { trends, loading } = useAnalyticsData();
 
+  // Show skeleton while loading
+  if (loading || trends.length === 0) {
+    return <ChartSkeleton />;
+  }
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0';
@@ -21,6 +19,24 @@ function UploadTrendsChartComponent() {
     const sizes = ['', 'K', 'M', 'G'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + sizes[i];
+  };
+
+  // Format date - date string is already in local timezone (YYYY-MM-DD)
+  const formatDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const formatFullDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -41,13 +57,13 @@ function UploadTrendsChartComponent() {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="date"
-              tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              tickFormatter={formatDate}
               stroke="var(--text-secondary)"
               fontSize={12}
             />
             <YAxis stroke="var(--text-secondary)" fontSize={12} />
             <Tooltip
-              labelFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              labelFormatter={(label) => typeof label === 'string' ? formatFullDate(label) : ''}
               contentStyle={{
                 backgroundColor: 'var(--surface)',
                 border: '1.5px solid var(--border)',

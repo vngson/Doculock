@@ -1,0 +1,387 @@
+---
+title: Analytics Dashboard
+description: Real-time insights and statistics for document verification
+---
+
+# Analytics Dashboard
+
+The DocuLock Analytics Dashboard provides real-time insights into document verification activity on the platform. View statistics, trends, and patterns to understand platform usage and network activity.
+
+<Callout type="info">
+  Analytics data is fetched from MongoDB indexer for optimal performance, ensuring accurate and up-to-date information.
+</Callout>
+
+## Overview [#overview]
+
+The dashboard displays key metrics:
+
+- **Total Documents**: Number of documents stored on blockchain
+- **Unique Users**: Count of distinct wallet addresses
+- **Total Storage**: Combined size of all documents
+- **Recent Activity**: Uploads in the last 24 hours
+
+## Dashboard Components [#dashboard-components]
+
+### Network Stats
+
+Displays high-level platform statistics:
+
+```json
+{
+  "totalDocuments": 1247,
+  "uniqueUsers": 89,
+  "totalFileSize": "2.4 GB",
+  "avgFileSize": "2.1 MB",
+  "recentUploads": 23
+}
+```
+
+Features:
+- Real-time updates
+- Formatted file sizes
+- Color-coded metrics
+- Hover tooltips
+
+### Upload Trends Chart
+
+Visualizes document uploads over time:
+
+- **Line chart** showing daily uploads
+- **Configurable time range** (7, 30, 90 days)
+- **Peak detection** for activity spikes
+- **Trend indicators** showing growth/decline
+
+<Callout type="success">
+  Trend analysis helps identify usage patterns and plan capacity.
+</Callout>
+
+### Activity Heatmap
+
+Shows upload activity by day and time:
+
+- **Calendar view** with color intensity
+- **Darker colors** = more uploads
+- **Time-based patterns** (peak hours, days)
+- **Hover details** for specific days
+
+Use cases:
+- Identify peak usage times
+- Schedule maintenance
+- Understand user behavior
+- Resource planning
+
+### Top Verified Documents
+
+Lists most frequently verified documents:
+
+```typescript
+[
+  {
+    fileName: "contract_2024.pdf",
+    verificationCount: 42,
+    storedAt: "2024-01-15",
+    fileSize: "1.2 MB"
+  },
+  // ... more documents
+]
+```
+
+Features:
+- Sort by verification count
+- Quick access to documents
+- Usage tracking
+- Popular content identification
+
+### Gas Usage Chart
+
+Shows gas consumption trends:
+
+- **Bar chart** for daily gas usage
+- **Cost per transaction**
+- **Total spend over time**
+- **Average gas price**
+
+<Tabs items={["Gas Optimization", "Cost Tracking", "Network Insights"]}>
+  <Tab value="Gas Optimization">
+    Track gas usage patterns to:
+    - Identify cost-efficient upload times
+    - Batch documents for lower per-file cost
+    - Monitor network congestion
+    - Optimize transaction timing
+  </Tab>
+
+  <Tab value="Cost Tracking">
+    Monitor expenses:
+    - Daily gas spend
+    - Cost per document
+    - Total platform costs
+    - Budget tracking
+  </Tab>
+
+  <Tab value="Network Insights">
+    Understand network behavior:
+    - Peak congestion times
+    - Gas price volatility
+    - Network utilization
+    - Transaction throughput
+  </Tab>
+</Tabs>
+
+## Real-Time Updates [#real-time-updates]
+
+### Refresh Mechanism
+
+- Manual refresh button
+- Auto-refresh option
+- Last updated timestamp
+- Data source indicator
+
+<Callout type="info">
+  Click "Refresh" to get the latest analytics data from the indexer.
+</Callout>
+
+### Resync Function
+
+Rebuild the analytics index:
+
+1. Click **"Resync"** button
+2. Confirm the action
+3. Clear and rebuild index
+4. View sync progress
+
+<Callout type="warning">
+  Resyncing clears the current index and rebuilds it from blockchain. Use only if data appears incorrect.
+</Callout>
+
+## Debug Information [#debug-information]
+
+### Debug Mode
+
+Access raw analytics data:
+
+1. Click **"Debug"** button
+2. Data logged to browser console
+3. Press F12 to view
+4. Inspect JSON structure
+
+Use for:
+- Troubleshooting data issues
+- API testing
+- Data inspection
+- Development
+
+### Debug Data Structure
+
+```typescript
+{
+  stats: {
+    totalDocuments: number,
+    uniqueUsers: number,
+    totalFileSize: number,
+    avgFileSize: number,
+    topMimeTypes: Array
+  },
+  trends: [
+    {
+      date: string,
+      uploads: number,
+      uniqueUsers: number
+    }
+  ],
+  heatmap: {
+    day: number,
+    hour: number,
+    count: number
+  }
+}
+</Code>
+
+## API Integration [#api-integration]
+
+### Statistics Endpoint
+
+```bash
+GET /api/analytics/stats
+
+Response:
+{
+  "totalDocuments": 1247,
+  "uniqueUsers": 89,
+  "totalFileSize": 2589982748,
+  "avgFileSize": 2076962,
+  "topMimeTypes": [
+    { "type": "application/pdf", "count": 542 },
+    { "type": "image/jpeg", "count": 321 }
+  ]
+}
+```
+
+### Trends Endpoint
+
+```bash
+GET /api/analytics/trends?days=30
+
+Response:
+[
+  {
+    "date": "2024-01-15",
+    "uploads": 23,
+    "uniqueUsers": 5
+  }
+]
+</Code>
+
+### Documents Endpoint
+
+```bash
+GET /api/analytics/documents?limit=10
+
+Response:
+[
+  {
+    "documentHash": "a1b2c3...",
+    "fileName": "document.pdf",
+    "fileSize": 1024000,
+    "timestamp": "2024-01-15T10:30:00Z",
+    "creator": "0x1234..."
+  }
+]
+</Code>
+
+## Performance Optimization [#performance-optimization]
+
+### Caching Strategy
+
+- **API response caching** - 5-minute TTL
+- **Client-side caching** - Browser storage
+- **Invalidation** - On new document events
+- **Refresh interval** - Configurable
+
+### Indexing Strategy
+
+MongoDB indexes for fast queries:
+
+- `idx_timestamp` - Sort by date
+- `idx_creator` - Filter by user
+- `idx_file_size` - Size queries
+- `idx_timestamp_creator` - Compound index
+
+<Callout type="success">
+  Proper indexing ensures sub-100ms query times even with thousands of documents.
+</Callout>
+
+## Custom Views [#custom-views]
+
+### User-Specific Analytics
+
+Filter by creator:
+
+```bash
+GET /api/analytics/stats?creator=0x1234...
+```
+
+Shows:
+- Documents uploaded by user
+- Total storage used
+- Upload history
+- Verification stats
+
+### Time-Range Selection
+
+Customize analysis period:
+
+```bash
+GET /api/analytics/trends?days=90
+```
+
+Options:
+- 7 days - Recent activity
+- 30 days - Monthly view
+- 90 days - Quarterly view
+- 365 days - Yearly analysis
+
+## Exporting Analytics [#exporting-analytics]
+
+### Export Options
+
+- **CSV Export** - Spreadsheet format
+- **JSON Export** - Developer format
+- **PDF Reports** - Printable format
+
+### Export Data
+
+```bash
+GET /api/analytics/export?format=csv&days=30
+```
+
+Includes:
+- All statistics
+- Trend data
+- User breakdown
+- Time-series data
+
+## Troubleshooting [#troubleshooting]
+
+### Data Not Updating
+
+If analytics seem stale:
+
+1. Click **"Refresh"** button
+2. Check indexer status
+3. Verify MongoDB connection
+4. Try **"Resync"** as last resort
+
+### Empty Dashboard
+
+If no data appears:
+
+1. Verify indexer is running
+2. Check blockchain events
+3. Confirm MongoDB has data
+4. Check API endpoints
+
+### Slow Loading
+
+If dashboard is slow:
+
+1. Check network connection
+2. Verify indexer performance
+3. Check MongoDB indexes
+4. Consider pagination
+
+<Callout type="info">
+  See [Indexer Documentation](/indexer) for troubleshooting indexer-specific issues.
+</Callout>
+
+## Best Practices [#best-practices]
+
+### For Dashboard Users
+
+1. **Regular monitoring** - Check daily
+2. **Track trends** - Identify patterns
+3. **Export reports** - Keep records
+4. **Set alerts** - Monitor thresholds
+
+### For Developers
+
+1. **Cache responses** - Reduce load
+2. **Use pagination** - Large datasets
+3. **Filter queries** - Reduce data
+4. **Monitor performance** - API metrics
+
+## Future Enhancements [#future-enhancements]
+
+Planned features:
+
+- [ ] Real-time websocket updates
+- [ ] Custom dashboard builder
+- [ ] Alert notifications
+- [ ] Comparison analytics
+- [ ] Cost forecasting
+- [ ] User behavior tracking
+- [ ] Geographic distribution
+- [ ] Device analytics
+
+<Callout type="success">
+  Have suggestions? Join our community and share your ideas!
+</Callout>

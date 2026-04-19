@@ -1,0 +1,215 @@
+---
+title: Indexer
+description: MongoDB indexer for fast blockchain event queries
+---
+
+# DocuLock Indexer Documentation
+
+## Overview
+
+The DocuLock indexer syncs document events from the Sui blockchain to MongoDB for fast, scalable queries with pagination and advanced filtering.
+
+## Architecture
+
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│   Sui Blockchain│─────▶│   Indexer       │─────▶│   MongoDB       │
+│                 │      │   Service       │      │   Atlas         │
+└─────────────────┘      └─────────────────┘      └─────────────────┘
+                                  │
+                                  ▼
+                           ┌─────────────────┐
+                           │   Next.js API   │
+                           │   (Fast queries)│
+                           └─────────────────┘
+```
+
+## Benefits
+
+| Feature | Direct Blockchain Query | MongoDB Indexer |
+|---------|-----------------------|-----------------|
+| **Query Speed** | Slow (2-5s) | Fast (<100ms) |
+| **Pagination** | Limited | Unlimited |
+| **Filtering** | Client-side (slow) | Server-side (fast) |
+| **Scalability** | Poor with 100+ docs | Excellent |
+| **Full-text Search** | No | Yes |
+| **Sorting** | Limited | Multi-column |
+
+## Setup
+
+### 1. Configure MongoDB
+
+Add to `.env.local`:
+```bash
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?appName=DoculockCluster
+MONGODB_DB_NAME=doculock
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Initialize Indexer
+
+```bash
+npm run init-indexer
+```
+
+This will:
+- Create MongoDB indexes
+- Sync all existing blockchain events
+- Display sync statistics
+
+## Usage
+
+### Sync Events
+
+```bash
+npm run init-indexer
+```
+
+Or via API:
+```bash
+curl -X POST http://localhost:3000/api/indexer/sync
+```
+
+### Check Sync Status
+
+```bash
+curl http://localhost:3000/api/indexer/sync
+```
+
+### Query Documents
+
+```bash
+# Get all documents (default: page 1, limit 20)
+curl http://localhost:3000/api/documents
+
+# Pagination
+curl http://localhost:3000/api/documents?page=2&limit=10
+
+# Filter by creator
+curl http://localhost:3000/api/documents?creator=0x1234...
+
+# Search by filename
+curl http://localhost:3000/api/documents?search=resume
+
+# Sort
+curl http://localhost:3000/api/documents?sort=file_size&order=asc
+```
+
+## API Endpoints
+
+### `/api/documents`
+
+Query documents with pagination and filtering.
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `limit`: Items per page, 1-100 (default: 20)
+- `creator`: Filter by wallet address
+- `search`: Full-text search on filename
+- `sort`: Sort by `timestamp`|`file_name`|`file_size` (default: timestamp)
+- `order`: Sort order `asc`|`desc` (default: desc)
+
+**Response:**
+```json
+{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 100,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+```
+
+### `/api/analytics/documents`
+
+Get top documents for analytics.
+
+**Query Parameters:**
+- `limit`: Number of documents (default: 10, max: 100)
+
+### `/api/analytics/stats`
+
+Get analytics statistics:
+- Total documents
+- Unique users
+- Total file size
+- Average file size
+- Top MIME types
+
+### `/api/analytics/trends`
+
+Get daily trends.
+
+**Query Parameters:**
+- `days`: Number of days (default: 30, max: 365)
+
+### `/api/indexer/sync`
+
+Trigger blockchain sync or get sync status.
+
+## MongoDB Indexes
+
+The following indexes are created for optimal performance:
+
+- `idx_document_hash` - Unique index on document hash
+- `idx_creator` - Filter by user
+- `idx_timestamp` - Sort by timestamp (descending)
+- `idx_creator_timestamp` - Compound index for user queries
+- `idx_file_name_text` - Full-text search
+- `idx_tx_digest` - Transaction deduplication
+
+## Troubleshooting
+
+### Connection Issues
+
+```
+Error: Please define the MONGODB_URI environment variable
+```
+
+Check `.env.local` has `MONGODB_URI` and `MONGODB_DB_NAME`.
+
+### Sync Not Working
+
+Check Sui network configuration in `.env.local`:
+```bash
+NEXT_PUBLIC_SUI_RPC_URL=https://fullnode.testnet.sui.io
+NEXT_PUBLIC_DOCULOCK_PACKAGE_ID=0x...
+```
+
+### Query Returns Empty Data
+
+Run sync again:
+```bash
+npm run init-indexer
+```
+
+Check MongoDB:
+```bash
+# Connect to MongoDB Atlas
+# Navigate to doculock DB
+# Check documents collection count
+```
+
+## Performance Tips
+
+1. **Cache API responses** - Use Next.js revalidation
+2. **Use pagination** - Don't fetch all documents at once
+3. **Filter by creator** - Uses compound index for fast results
+4. **Limit search queries** - Full-text search can be expensive
+
+## Future Enhancements
+
+- [ ] Real-time event subscription (webhooks)
+- [ ] Background sync cron job
+- [ ] Advanced analytics queries
+- [ ] Document versioning tracking
+- [ ] Bulk operations API

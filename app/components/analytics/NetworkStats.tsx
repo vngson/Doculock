@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
+import { StatsSkeleton } from './Skeleton';
 
 interface AnalyticsStats {
   totalDocuments: number;
@@ -21,15 +22,19 @@ const statIcons = {
 const statColors = {
   documents: 'var(--primary)',
   users: 'var(--secondary)',
-  storage: '#10b981',
-  avgSize: '#f59e0b',
+  storage: '#10B981',
+  avgSize: '#F59E0B',
 };
 
 function NetworkStatsComponent() {
   const { stats, loading } = useAnalyticsData();
 
-  // Don't render until data is loaded
-  if (loading || !stats) {
+  // Show skeleton while loading
+  if (loading) {
+    return <StatsSkeleton />;
+  }
+
+  if (!stats) {
     return null;
   }
 
@@ -43,20 +48,20 @@ function NetworkStatsComponent() {
     return { value: value.toString(), unit };
   };
 
-  const totalStorageFormatted = stats ? formatBytes(stats.totalFileSize) : { value: '0', unit: 'Bytes' };
-  const avgFileSizeFormatted = stats ? formatBytes(stats.avgFileSize) : { value: '0', unit: 'Bytes' };
+  const totalStorageFormatted = formatBytes(stats.totalFileSize);
+  const avgFileSizeFormatted = formatBytes(stats.avgFileSize);
 
   const statItems = [
     {
       label: 'Total Documents',
-      value: (stats?.totalDocuments || 0).toString(),
+      value: stats.totalDocuments.toString(),
       subtitle: 'Verified on-chain',
       icon: statIcons.documents,
       color: statColors.documents,
     },
     {
       label: 'Unique Users',
-      value: (stats?.uniqueUsers || 0).toString(),
+      value: stats.uniqueUsers.toString(),
       subtitle: 'Active addresses',
       icon: statIcons.users,
       color: statColors.users,

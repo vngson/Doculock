@@ -1,0 +1,574 @@
+---
+title: REST API
+description: Complete API reference for DocuLock
+---
+
+# REST API
+
+Complete reference for the DocuLock REST API. Integrate document verification functionality into your applications.
+
+<Callout type="info">
+  The API is available at `https://doculock.io/api` for mainnet and `https://testnet.doculock.io/api` for testnet.
+</Callout>
+
+## Authentication [#authentication]
+
+### API Keys
+
+For production usage, include your API key in the request headers:
+
+```bash
+curl -H "X-API-Key: your-api-key" \
+  https://doculock.io/api/documents
+</Code>
+
+<Callout type="warning">
+  Never expose your API keys in client-side code. Use environment variables and server-side proxy for sensitive operations.
+</Callout>
+
+### Rate Limiting
+
+| Tier | Requests/Minute | Requests/Hour |
+|------|----------------|---------------|
+| **Free** | 60 | 1000 |
+| **Pro** | 600 | 10000 |
+| **Enterprise** | Unlimited | Unlimited |
+
+Headers included with rate limit responses:
+
+```
+X-RateLimit-Limit: 600
+X-RateLimit-Remaining: 599
+X-RateLimit-Reset: 1640995200
+```
+
+## Endpoints [#endpoints]
+
+### Documents
+
+#### GET /api/documents
+
+Query documents with pagination and filtering.
+
+```bash
+curl "https://doculock.io/api/documents?page=1&limit=20"
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | integer | 1 | Page number (≥1) |
+| `limit` | integer | 20 | Items per page (1-100) |
+| `creator` | string | - | Filter by wallet address |
+| `search` | string | - | Full-text search on filename |
+| `sort` | string | timestamp | Sort field: timestamp, file_name, file_size |
+| `order` | string | desc | Sort order: asc, desc |
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "documentHash": "a1b2c3d4...",
+      "fileName": "document.pdf",
+      "fileSize": 1024000,
+      "mimeType": "application/pdf",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "creator": "0x1234...",
+      "txDigest": "0xabcd..."
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 100,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+</Code>
+
+### Analytics
+
+#### GET /api/analytics/stats
+
+Get analytics statistics.
+
+```bash
+curl "https://doculock.io/api/analytics/stats"
+```
+
+**Response:**
+
+```json
+{
+  "totalDocuments": 1247,
+  "uniqueUsers": 89,
+  "totalFileSize": 2589982748,
+  "avgFileSize": 2076962,
+  "topMimeTypes": [
+    { "type": "application/pdf", "count": 542 },
+    { "type": "image/jpeg", "count": 321 }
+  ]
+}
+```
+
+#### GET /api/analytics/trends
+
+Get daily upload trends.
+
+```bash
+curl "https://doculock.io/api/analytics/trends?days=30"
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `days` | integer | 30 | Number of days (1-365) |
+
+**Response:**
+
+```json
+[
+  {
+    "date": "2024-01-15",
+    "uploads": 23,
+    "uniqueUsers": 5,
+    "totalSize": 47185920
+  }
+]
+```
+
+#### GET /api/analytics/documents
+
+Get top documents by verification count.
+
+```bash
+curl "https://doculock.io/api/analytics/documents?limit=10"
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 10 | Number of documents (1-100) |
+
+### Indexer
+
+#### POST /api/indexer/sync
+
+Trigger blockchain event sync.
+
+```bash
+curl -X POST "https://doculock.io/api/indexer/sync"
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "syncedCount": 42,
+  "lastSyncedAt": "2024-01-15T10:30:00Z"
+}
+```
+
+#### POST /api/indexer/resync
+
+Clear and rebuild the entire index.
+
+<Callout type="warning">
+  This operation clears all indexed data and rebuilds from scratch. Use with caution.
+</Callout>
+
+```bash
+curl -X POST "https://doculock.io/api/indexer/resync"
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "syncedCount": 1247,
+  "duration": "45s"
+}
+</Code>
+
+#### GET /api/indexer/status
+
+Get indexer status and statistics.
+
+```bash
+curl "https://doculock.io/api/indexer/status"
+```
+
+**Response:**
+
+```json
+{
+  "status": "running",
+  "lastSyncAt": "2024-01-15T10:30:00Z",
+  "totalIndexed": 1247,
+  "lastBlockHeight": 12345678
+}
+```
+
+### Verification
+
+#### POST /api/verify
+
+Verify a document hash on the blockchain.
+
+```bash
+curl -X POST "https://doculock.io/api/verify" \
+  -H "Content-Type: application/json" \
+  -d '{ "hash": "a1b2c3d4e5f6..." }'
+```
+
+**Request Body:**
+
+```json
+{
+  "hash": "a1b2c3d4e5f6789012345678901234...",
+  "network": "testnet"
+}
+</Code>
+
+**Response:**
+
+```json
+{
+  "verified": true,
+  "document": {
+    "documentHash": "a1b2c3d4...",
+    "fileName": "document.pdf",
+    "fileSize": 1024000,
+    "timestamp": "2024-01-15T10:30:00Z",
+    "creator": "0x1234...",
+    "txDigest": "0xabcd..."
+  }
+}
+```
+
+### Export
+
+#### POST /api/export
+
+Generate and download reports.
+
+```bash
+curl -X POST "https://doculock.io/api/export" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "format": "pdf",
+    "startDate": "2024-01-01",
+    "endDate": "2024-01-31"
+  }'
+```
+
+**Request Body:**
+
+```json
+{
+  "format": "pdf",
+  "filters": {
+    "startDate": "2024-01-01T00:00:00Z",
+    "endDate": "2024-01-31T23:59:59Z",
+    "creator": "0x1234..."
+  },
+  "options": {
+    "includeErrors": true,
+    "includeHashes": true
+  }
+}
+</Code>
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "downloadUrl": "https://doculock.io/exports/report-xyz.pdf",
+  "fileName": "report-2024-01-15.pdf",
+  "fileSize": 245760,
+  "expiresAt": "2024-01-16T00:00:00Z"
+}
+```
+
+## Error Responses [#error-responses]
+
+All error responses follow this format:
+
+```json
+{
+  "error": "Error type",
+  "message": "Human-readable error message",
+  "code": "ERROR_CODE",
+  "details": {
+    "field": "Additional context"
+  }
+}
+```
+
+### Common Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `INVALID_REQUEST` | 400 | Malformed request parameters |
+| `UNAUTHORIZED` | 401 | Missing or invalid API key |
+| `FORBIDDEN` | 403 | Insufficient permissions |
+| `NOT_FOUND` | 404 | Resource not found |
+| `RATE_LIMITED` | 429 | Too many requests |
+| `SERVER_ERROR` | 500 | Internal server error |
+| `BLOCKCHAIN_ERROR` | 502 | Blockchain transaction failed |
+| `INDEXER_ERROR` | 503 | Indexer unavailable |
+
+## Response Headers [#response-headers]
+
+Standard headers included in all responses:
+
+```
+Content-Type: application/json
+X-Request-ID: req_abc123...
+X-RateLimit-Limit: 600
+X-RateLimit-Remaining: 599
+X-RateLimit-Reset: 1640995200
+X-API-Version: 1.0.0
+```
+
+## Webhooks [#webhooks]
+
+### Setting Up Webhooks
+
+Configure webhooks to receive notifications:
+
+```bash
+POST /api/webhooks
+
+{
+  "url": "https://your-site.com/webhooks/doculock",
+  "events": ["document.verified", "document.stored"],
+  "secret": "your-webhook-secret"
+}
+</Code>
+
+### Webhook Events
+
+| Event | Description | Payload |
+|-------|-------------|---------|
+| `document.stored` | Document stored on blockchain | Document details |
+| `document.verified` | Document verified | Verification result |
+| `batch.completed` | Batch processing finished | Summary stats |
+| `error.occurred` | Error during processing | Error details |
+
+### Verifying Webhooks
+
+Use the secret to verify signature:
+
+```typescript
+import crypto from 'crypto';
+
+const verifySignature = (payload, signature, secret) => {
+  const hmac = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(hmac)
+  );
+};
+```
+
+## SDK Examples [#sdk-examples]
+
+### JavaScript/TypeScript
+
+```typescript
+import { DocuLockClient } from '@doculock/sdk';
+
+const client = new DocuLockClient({
+  apiKey: process.env.DOCULOCK_API_KEY,
+  network: 'testnet'
+});
+
+// Get documents
+const documents = await client.documents.list({
+  page: 1,
+  limit: 20
+});
+
+// Verify document
+const verification = await client.verification.verify({
+  hash: 'a1b2c3d4...'
+});
+
+// Get analytics
+const stats = await client.analytics.getStats();
+```
+
+### Python
+
+```python
+from doculock import DocuLockClient
+
+client = DocuLockClient(
+    api_key="your-api-key",
+    network="testnet"
+)
+
+# Get documents
+documents = client.documents.list(
+    page=1,
+    limit=20
+)
+
+# Verify document
+verification = client.verification.verify(
+    hash="a1b2c3d4..."
+)
+
+# Get analytics
+stats = client.analytics.get_stats()
+```
+
+### Go
+
+```go
+package main
+
+import (
+    "github.com/doculock/sdk-go"
+)
+
+func main() {
+    client := doculock.NewClient(&doculock.Config{
+        APIKey:  "your-api-key",
+        Network: "testnet",
+    })
+
+    // Get documents
+    docs, err := client.Documents.List(&doculock.ListOptions{
+        Page:  1,
+        Limit: 20,
+    })
+
+    // Verify document
+    verified, err := client.Verification.Verify("a1b2c3d4...")
+}
+```
+
+## Testing [#testing]
+
+### Test Environment
+
+Use the testnet for development:
+
+```typescript
+const client = new DocuLockClient({
+  apiKey: 'test-api-key',
+  network: 'testnet' // Use testnet for testing
+});
+```
+
+### Mock Responses
+
+For local development, use mock mode:
+
+```typescript
+const client = new DocuLockClient({
+  apiKey: 'test-api-key',
+  mockMode: true,
+  mocks: {
+    documents: [...]
+  }
+});
+```
+
+## Best Practices [#best-practices]
+
+### Error Handling
+
+```typescript
+try {
+  const result = await client.verification.verify(hash);
+} catch (error) {
+  if (error.code === 'NOT_FOUND') {
+    // Handle not found
+  } else if (error.code === 'RATE_LIMITED') {
+    // Implement retry logic
+  } else {
+    // Log and report
+  }
+}
+```
+
+### Caching
+
+```typescript
+import NodeCache from 'node-cache';
+
+const cache = new NodeCache({ stdTTL: 300 }); // 5 minutes
+
+const getStats = async () => {
+  const cached = cache.get('stats');
+  if (cached) return cached;
+
+  const stats = await client.analytics.getStats();
+  cache.set('stats', stats);
+  return stats;
+};
+</Code>
+
+### Pagination
+
+```typescript
+const getAllDocuments = async () => {
+  let allDocs = [];
+  let page = 1;
+
+  while (true) {
+    const result = await client.documents.list({ page, limit: 100 });
+    allDocs = [...allDocs, ...result.data];
+
+    if (!result.pagination.hasNextPage) break;
+    page++;
+  }
+
+  return allDocs;
+};
+```
+
+## Changelog [#changelog]
+
+### Version 1.0.0 (Current)
+
+- Initial stable release
+- Full CRUD operations
+- Analytics endpoints
+- Webhook support
+- Batch operations
+
+### Version 0.9.0 (Beta)
+
+- Beta release
+- Core verification
+- Basic analytics
+- Document listing
+
+<Callout type="info">
+  Breaking changes will be announced at least 30 days in advance. Always use a specific API version in production.
+</Callout>
+
+## Support [#support]
+
+- **Documentation**: https://docs.doculock.io
+- **API Status**: https://status.doculock.io
+- **GitHub Issues**: https://github.com/doculock/doculock/issues
+- **Discord**: https://discord.gg/doculock
+- **Email**: api@doculock.io

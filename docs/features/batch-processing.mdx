@@ -1,0 +1,433 @@
+---
+title: Batch Processing
+description: Upload and verify multiple documents efficiently
+---
+
+# Batch Processing
+
+Process multiple documents at once with DocuLock's batch upload and verification capabilities. Upload entire folders or ZIP archives and process hundreds of documents efficiently using Programmable Transaction Blocks (PTB).
+
+<Callout type="success">
+  Batch processing uses Sui's Programmable Transaction Blocks (PTB) to store multiple documents in a single atomic transaction.
+</Callout>
+
+## Overview [#overview]
+
+Batch processing enables:
+
+- **Multi-file Upload**: Select individual files, entire folders, or ZIP archives
+- **Parallel Hashing**: Web Workers enable concurrent hash calculation
+- **Progress Tracking**: Real-time progress bar for each file
+- **Atomic Transactions**: All documents stored together or not at all
+- **Cost Efficiency**: Lower gas cost per document
+
+## Getting Started [#getting-started]
+
+### Access Batch Upload
+
+1. Navigate to the **Upload** tab
+2. Click **"Batch"** mode toggle
+3. Select multiple files using file picker
+
+<Callout type="info">
+  You can switch between Single and Batch mode at any time using the toggle buttons.
+</Callout>
+
+## Upload Process [#upload-process]
+
+### Step 1: Select Files
+
+Options for selecting files:
+
+<Tabs items={["File Picker", "Drag & Drop", "ZIP Archive"]}>
+  <Tab value="File Picker">
+    1. Click **"Select Multiple Files"**
+    2. Use system file dialog
+    3. Select multiple files (Ctrl/Cmd + click)
+    4. Click "Open" to confirm
+
+    Supports:
+    - Multi-selection
+    - File type filtering
+    - Size validation
+    - Error handling
+  </Tab>
+
+  <Tab value="Drag & Drop">
+    1. Drag files from file explorer
+    2. Drop into upload area
+    3. Files are added to queue
+    4. Hashing begins automatically
+
+    Features:
+    - Visual feedback
+    - Batch support
+    - Type validation
+    - Size limits
+  </Tab>
+
+  <Tab value="ZIP Archive">
+    1. Select ZIP file containing documents
+    2. System extracts contents
+    3. Adds files to upload queue
+    4. Processes individually
+
+    Benefits:
+    - Organized uploads
+    - Metadata preservation
+    - Folder structure
+    - Easy transport
+  </Tab>
+</Tabs>
+
+### Step 2: Hash Calculation
+
+Automatic parallel hashing:
+
+```
+File Queue
+    ↓
+Web Workers (Parallel)
+    ↓
+Calculate SHA-256 Hashes
+    ↓
+Progress Tracking
+```
+
+Features:
+- **Concurrent processing** - Multiple files hashed simultaneously
+- **Progress updates** - Real-time status for each file
+- **Error handling** - Individual failures don't stop others
+- **Memory management** - Efficient large file handling
+
+### Step 3: Review and Confirm
+
+Review before storing:
+
+- **Total files** - Count of documents
+- **Ready to store** - Valid documents
+- **Hash errors** - Failed calculations
+- **File list** - All files with details
+
+### Step 4: Store with PTB
+
+Execute batch transaction:
+
+```typescript
+// Programmable Transaction Block
+{
+  kind: "moveCall",
+  target: "package::module::function",
+  arguments: [
+    // Document 1
+    { hash: bytes, name: "file1.pdf", size: 1024, type: "application/pdf" },
+    // Document 2
+    { hash: bytes, name: "file2.png", size: 2048, type: "image/png" },
+    // ... more documents
+  ]
+}
+```
+
+<Callout type="warning">
+  All documents in the batch succeed or fail together. This atomic property ensures consistency.
+</Callout>
+
+## PTB Benefits [#ptb-benefits]
+
+### Transaction Efficiency
+
+| Feature | Individual Uploads | Batch Upload (PTB) |
+|---------|-------------------|-------------------|
+| **Transactions** | N transactions | 1 transaction |
+| **Gas Cost** | N × base cost | ~30% lower total |
+| **Signatures** | N signatures | 1 signature |
+| **Confirmation** | N confirmations | 1 confirmation |
+
+### Atomicity
+
+- **All succeed or none** - Consistent state
+- **Rollback on failure** - No partial uploads
+- **Single point of failure** - Easier error handling
+- **Deterministic outcome** - Clear success/failure
+
+### Gas Optimization
+
+- **Shared overhead** - Fixed cost split among documents
+- **Batch discount** - Per-document savings
+- **Predictable cost** - Estimate before submission
+- **Cost tracking** - Per-file breakdown
+
+## Progress Tracking [#progress-tracking]
+
+### Real-Time Updates
+
+Track progress throughout:
+
+```typescript
+{
+  current: 15,
+  total: 20,
+  fileName: "Hashing: document15.pdf"
+}
+```
+
+Visual indicators:
+- **Progress bar** - Overall completion
+- **File status** - Per-file indicators
+- **Percentage** - Numeric completion
+- **Time remaining** - Estimated completion
+
+### Status Indicators
+
+Each file shows status:
+
+<Tabs items={["Hashing", "Ready", "Stored", "Error"]}>
+  <Tab value="Hashing">
+    ```
+    📄 document.pdf
+    Status: Hashing...
+    Progress: [████░░░░] 40%
+    ```
+    Spinner animation indicates active processing.
+  </Tab>
+
+  <Tab value="Ready">
+    ```
+    📄 document.pdf
+    Hash: a1b2c3d4...
+    Status: Ready ✓
+    ```
+    Hash calculated, ready to store.
+  </Tab>
+
+  <Tab value="Stored">
+    ```
+    📄 document.pdf
+    Hash: a1b2c3d4...
+    Status: Stored ✓
+    ```
+    Successfully stored on blockchain.
+  </Tab>
+
+  <Tab value="Error">
+    ```
+    📄 document.pdf
+    Status: Hash Error ✗
+    ```
+    Failed to calculate hash or store.
+  </Tab>
+</Tabs>
+
+### Results Summary
+
+After completion:
+
+```typescript
+{
+  successCount: 18,
+  failedCount: 2,
+  totalDocuments: 20,
+  txDigest: "0xabcd...",
+  gasUsed: "0.0123 SUI"
+}
+</Code>
+
+## Error Handling [#error-handling]
+
+### Individual File Errors
+
+Features:
+
+- **Skip and continue** - Other files unaffected
+- **Error logging** - Detailed failure reasons
+- **Retry capability** - Upload failed files separately
+- **Partial success** - Store successful documents
+
+### Common Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| **Hash Error** | File corruption | Re-select file |
+| **Size Limit** | File too large | Split or compress |
+| **Type Error** | Unsupported format | Convert file |
+| **Tx Failed** | Network/insufficient gas | Check wallet, retry |
+
+### Transaction Failures
+
+If PTB transaction fails:
+
+1. Review error message
+2. Check wallet balance
+3. Verify network status
+4. Retry batch upload
+
+<Callout type="info">
+  Use the "Debug" button to view detailed error information in the browser console.
+</Callout>
+
+## Limits and Constraints [#limits-and-constraints]
+
+### Batch Size
+
+Recommended limits:
+- **Documents per batch**: Up to 50
+- **Total batch size**: Under 100 MB
+- **Individual files**: Up to 50 MB
+
+<Callout type="warning">
+  Large batches may exceed transaction size limits. Split very large uploads into multiple batches.
+</Callout>
+
+### File Type Limits
+
+Supported types:
+- PDF documents
+- Images (PNG, JPG, GIF, WebP)
+- Text files (TXT, MD, JSON)
+- Office documents (DOCX, XLSX)
+
+Unsupported types:
+- Executables (EXE, APP)
+- Archives (except ZIP for extraction)
+- Encrypted files
+- Binary blobs
+
+## Best Practices [#best-practices]
+
+### For Large Uploads
+
+1. **Split batches** - Groups of 20-30 files
+2. **Organize files** - By type or priority
+3. **Check sizes** - Before upload
+4. **Monitor progress** - Watch for errors
+
+### For Cost Efficiency
+
+1. **Batch similar files** - Optimize gas
+2. **Avoid tiny batches** - Minimum 3-5 files
+3. **Time uploads** - Low gas periods
+4. **Estimate costs** - Before submitting
+
+### For Reliability
+
+1. **Verify hashes** - After storage
+2. **Keep records** - Transaction IDs
+3. **Test uploads** - Small batches first
+4. **Monitor network** - Congestion periods
+
+## API Usage [#api-usage]
+
+### Batch Upload Endpoint
+
+```bash
+POST /api/documents/batch
+
+Body:
+{
+  "documents": [
+    {
+      "fileHash": "a1b2c3...",
+      "fileName": "doc1.pdf",
+      "fileSize": 1024000,
+      "mimeType": "application/pdf"
+    }
+    // ... more documents
+  ]
+}
+
+Response:
+{
+  "success": true,
+  "txDigest": "0xabcd...",
+  "results": [
+    { "fileName": "doc1.pdf", "status": "stored" }
+  ]
+}
+```
+
+### Query Batch Results
+
+```bash
+GET /api/documents?creator=0x1234...
+
+Response includes all documents from batch:
+{
+  "data": [...],
+  "pagination": {
+    "total": 20,
+    "page": 1
+  }
+}
+</Code>
+
+## Performance Tips [#performance-tips]
+
+### Optimizing Hashing
+
+1. **Use Web Workers** - Parallel processing
+2. **Limit file size** - Faster hashing
+3. **Queue management** - Process in chunks
+4. **Memory cleanup** - Free resources
+
+### Optimizing Transactions
+
+1. **Batch size** - Sweet spot 10-30 docs
+2. **Gas estimation** - Check before submit
+3. **Network timing** - Low congestion
+4. **Wallet connection** - Stable connection
+
+## Troubleshooting [#troubleshooting]
+
+### Slow Hashing
+
+If hashing is slow:
+
+1. Check browser performance
+2. Reduce file sizes
+3. Close other tabs
+4. Update browser
+
+### Transaction Timeout
+
+If transaction times out:
+
+1. Check network status
+2. Verify gas limit
+3. Reduce batch size
+4. Retry with smaller batch
+
+### Partial Failures
+
+If some files fail:
+
+1. Review error messages
+2. Check failed files individually
+3. Retry failed files
+4. Verify file integrity
+
+## Use Cases [#use-cases]
+
+### Document Archives
+
+- **Legal firms** - Upload case documents
+- **Academic institutions** - Certificate batches
+- **Government** - Public records
+- **Enterprises** - Document archives
+
+### Regular Backups
+
+- **Daily uploads** - Incremental backups
+- **Scheduled batches** - Automated processing
+- **Verification** - Confirm storage
+- **Audit trails** - Maintain records
+
+### Migration Projects
+
+- **Existing documents** - Bulk upload
+- **Platform migration** - Transfer storage
+- **Data verification** - Confirm integrity
+- **Legacy systems** - Modernize storage
+
+<Callout type="success">
+  Batch processing makes document verification scalable for any volume.
+</Callout>

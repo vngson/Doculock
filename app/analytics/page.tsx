@@ -6,6 +6,7 @@ import NetworkStats from '../components/analytics/NetworkStats';
 import UploadTrendsChart from '../components/analytics/UploadTrendsChart';
 import ActivityHeatmap from '../components/analytics/ActivityHeatmap';
 import TopVerifiedDocs from '../components/analytics/TopVerifiedDocs';
+import { ChartSkeleton, StatsSkeleton, HeatmapSkeleton } from '../components/analytics/Skeleton';
 
 // Lazy load heavy components
 const GasUsageChart = lazy(() => import('../components/analytics/GasUsageChart').then(m => ({ default: m.default })));
@@ -15,21 +16,6 @@ const GasUsageChart = lazy(() => import('../components/analytics/GasUsageChart')
 
 function AnalyticsContent() {
   const { stats, trends, loading, error, refresh } = useAnalyticsData();
-
-  if (loading) {
-    return (
-      <div className="analytics-loading-overlay">
-        <div className="analytics-loading-text">
-          Loading Analytics
-          <div className="analytics-loading-dots">
-            <div className="analytics-loading-dot" />
-            <div className="analytics-loading-dot" />
-            <div className="analytics-loading-dot" />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -51,41 +37,43 @@ function AnalyticsContent() {
         <div>
           <h1 className="analytics-title">Dashboard Analytics</h1>
           <p className="analytics-subtitle">
-            Data-driven insights for document verification on the blockchain
+            Data-driven insights for document verification on blockchain
           </p>
         </div>
         <button
           className="hp-refresh"
           onClick={refresh}
+          disabled={loading}
           title="Refresh analytics"
           style={{
             padding: '8px 16px',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
             borderRadius: '8px',
-            cursor: 'pointer',
+            cursor: loading ? 'not-allowed' : 'pointer',
             fontSize: '0.85rem',
             fontWeight: 600,
             color: 'var(--text)',
             transition: 'all 0.2s ease',
+            opacity: loading ? 0.6 : 1,
           }}
         >
-          Refresh
+          {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
 
       <div className="analytics-content">
         <div className="stats-section">
-          <NetworkStats />
+          {loading ? <StatsSkeleton /> : <NetworkStats />}
         </div>
 
         <div className="charts-grid charts-grid--1">
-          <UploadTrendsChart />
+          {loading ? <ChartSkeleton /> : <UploadTrendsChart />}
           <Suspense fallback={<div className="chart-card chart-card--loading"><div className="chart-content chart-content--loading" /></div>}>
             <GasUsageChart />
           </Suspense>
-          <ActivityHeatmap />
-          <TopVerifiedDocs />
+          {loading ? <HeatmapSkeleton /> : <ActivityHeatmap />}
+          {loading ? <ChartSkeleton /> : <TopVerifiedDocs />}
         </div>
 
         <div className="info-card">
@@ -93,13 +81,13 @@ function AnalyticsContent() {
           <div className="info-card-content">
             <h3 className="info-card-title">About This Dashboard</h3>
             <p className="info-card-text">
-              Real-time insights into document verification activity on the DocuLock platform.
-              Data is fetched directly from the Sui blockchain events system, ensuring accuracy
-              and transparency.
+              Real-time insights into document verification activity on DocuLock platform.
+              Data is fetched from MongoDB indexer for optimal performance, ensuring accuracy
+              and transparency. All timestamps are in Vietnam timezone (UTC+7).
             </p>
             <p className="info-card-note">
-              <strong>Note:</strong> Gas usage estimates are based on average transaction costs
-              of ~0.003 MIST per document storage. Actual costs may vary based on network conditions.
+              <strong>Note:</strong> Data is automatically synced from Sui blockchain
+              for fast, scalable queries. Click Refresh to get the latest data.
             </p>
           </div>
         </div>

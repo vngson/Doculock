@@ -1,0 +1,48 @@
+{
+  "name": "DocuLock",
+  "description": "Blockchain-based document verification platform built on Sui network",
+  "navigation": {
+    "tabs": [
+      {
+        "label": "Documentation",
+        "path": "documentation",
+        "groups": [
+          {
+            "label": "Getting Started",
+            "pages": [
+              { "file": "index" },
+              { "file": "quickstart" }
+            ]
+          },
+          {
+            "label": "Features",
+            "pages": [
+              { "file": "features/verification" },
+              { "file": "features/analytics" },
+              { "file": "features/batch-processing" },
+              { "file": "features/export-reporting" }
+            ]
+          },
+          {
+            "label": "Guides",
+            "pages": [
+              { "file": "guides/setup" }
+            ]
+          },
+          {
+            "label": "API Reference",
+            "pages": [
+              { "file": "api/rest-api" }
+            ]
+          },
+          {
+            "label": "Technical",
+            "pages": [
+              { "file": "indexer" }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

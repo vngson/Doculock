@@ -1,7 +1,8 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { useAnalyticsData } from '../../analytics/AnalyticsDataContext';
+import { useAnalyticsData, TrendDataPoint } from '../../analytics/AnalyticsDataContext';
+import { HeatmapSkeleton } from './Skeleton';
 
 interface HeatmapData {
   day: string;
@@ -10,26 +11,42 @@ interface HeatmapData {
 }
 
 function ActivityHeatmapComponent() {
-  const { trends } = useAnalyticsData();
+  const { trends, loading } = useAnalyticsData();
 
+  // Show skeleton while loading
+  if (loading || trends.length === 0) {
+    return <HeatmapSkeleton />;
+  }
 
   // Memoize heatmap data calculation
   const data = useMemo(() => {
     const heatmapData: HeatmapData[] = [];
 
-    // Use last 7 days of trends data
+    // Use last 7 days of trends data (most recent first)
     const recentTrends = trends.slice(-7);
 
-    recentTrends.forEach((dayData) => {
-      // Distribute day's total count across hours evenly
-      const hourlyAvg = dayData.count / 24;
-      for (let hour = 0; hour < 24; hour++) {
+    // Create hourly data for each day
+    recentTrends.forEach((dayData: TrendDataPoint) => {
+      // Distribute day's total count across hours based on typical upload patterns
+      // More uploads during business hours (9-18), fewer at night
+      const hourlyPattern = [
+        0.02, 0.01, 0.01, 0.01,  // 0-3: Very low
+        0.01, 0.02, 0.03, 0.05,  // 4-7: Waking up
+        0.08, 0.10, 0.12, 0.13,  // 8-11: Morning peak
+        0.12, 0.11, 0.10, 0.09,  // 12-15: Afternoon
+        0.10, 0.09, 0.08, 0.07,  // 16-19: Evening
+        0.05, 0.03, 0.02, 0.02,  // 20-23: Late night
+      ];
+
+      // Calculate count for each hour
+      hourlyPattern.forEach((factor, hour) => {
+        const count = Math.max(0, Math.round(dayData.count * factor));
         heatmapData.push({
           day: dayData.date,
           hour,
-          count: Math.round(hourlyAvg),
+          count,
         });
-      }
+      });
     });
 
     return heatmapData;
@@ -37,13 +54,23 @@ function ActivityHeatmapComponent() {
 
   const getColor = (count: number) => {
     if (count === 0) return 'bg-gray-100';
-    if (count < 2) return 'bg-blue-100';
-    if (count < 5) return 'bg-blue-200';
-    if (count < 10) return 'bg-blue-300';
+    if (count < 1) return 'bg-blue-100';
+    if (count < 2) return 'bg-blue-200';
+    if (count < 4) return 'bg-blue-300';
     return 'bg-blue-500';
   };
 
   const days = [...new Set(data.map(d => d.day))].sort();
+
+  // Format date for display - date string is already in local timezone
+  const formatDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString('vi-VN', {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
@@ -72,16 +99,17 @@ function ActivityHeatmapComponent() {
           {days.map(day => (
             <div key={day} className="heatmap-row">
               <div className="heatmap-day-label">
-                {new Date(day).toLocaleDateString('vi-VN')}
+                {formatDate(day)}
               </div>
               <div className="heatmap-cells">
                 {hours.map(hour => {
                   const cellData = data.find(d => d.day === day && d.hour === hour);
+                  const count = cellData?.count || 0;
                   return (
                     <div
                       key={`${day}-${hour}`}
-                      className={`heatmap-cell ${getColor(cellData?.count || 0)}`}
-                      title={`${new Date(day).toLocaleDateString('vi-VN')} ${hour.toString().padStart(2, '0')}:00 - ${cellData?.count || 0} uploads`}
+                      className={`heatmap-cell ${getColor(count)}`}
+                      title={`${formatDate(day)} ${hour.toString().padStart(2, '0')}:00 - ${count} uploads`}
                     />
                   );
                 })}
