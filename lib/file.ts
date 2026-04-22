@@ -2,7 +2,9 @@
  * File handling utilities
  */
 
+import React from 'react';
 import { doculockConfig, SupportedFileType } from './config';
+import { FileText, Image, FileSpreadsheet, FileType, Folder } from 'lucide-react';
 
 /**
  * Format file size to human-readable string
@@ -21,24 +23,22 @@ export function formatFileSize(bytes: number): string {
 
 /**
  * Get file icon based on MIME type
- * @param mimeType - MIME type of the file
- * @returns Emoji icon
  */
-export function getFileIcon(mimeType: string): string {
-  const icons: Record<string, string> = {
-    'application/pdf': '📄',
-    'image/jpeg': '🖼️',
-    'image/png': '🖼️',
-    'image/gif': '🖼️',
-    'image/webp': '🖼️',
-    'text/plain': '📝',
-    'application/msword': '📝',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
-    'application/vnd.ms-excel': '📊',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '📊',
-  };
-
-  return icons[mimeType] || '📁';
+export function getFileIcon(mimeType: string): React.ReactNode {
+  if (mimeType.startsWith('image/')) return React.createElement(Image, { size: 18 });
+  switch (mimeType) {
+    case 'application/pdf':
+      return React.createElement(FileText, { size: 18 });
+    case 'text/plain':
+    case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return React.createElement(FileType, { size: 18 });
+    case 'application/vnd.ms-excel':
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return React.createElement(FileSpreadsheet, { size: 18 });
+    default:
+      return React.createElement(Folder, { size: 18 });
+  }
 }
 
 /**

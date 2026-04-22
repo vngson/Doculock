@@ -1,15 +1,26 @@
-'use client';
+"use client";
 
-import { Suspense, lazy } from 'react';
-import { AnalyticsDataProvider, useAnalyticsData } from './AnalyticsDataContext';
-import NetworkStats from '../components/analytics/NetworkStats';
-import UploadTrendsChart from '../components/analytics/UploadTrendsChart';
-import ActivityHeatmap from '../components/analytics/ActivityHeatmap';
-import TopVerifiedDocs from '../components/analytics/TopVerifiedDocs';
-import { ChartSkeleton, StatsSkeleton, HeatmapSkeleton } from '../components/analytics/Skeleton';
+import { Suspense, lazy } from "react";
+import {
+  AnalyticsDataProvider,
+  useAnalyticsData,
+} from "./AnalyticsDataContext";
+import NetworkStats from "../components/analytics/NetworkStats";
+import UploadTrendsChart from "../components/analytics/UploadTrendsChart";
+import ActivityHeatmap from "../components/analytics/ActivityHeatmap";
+import TopVerifiedDocs from "../components/analytics/TopVerifiedDocs";
+import {
+  ChartSkeleton,
+  StatsSkeleton,
+  HeatmapSkeleton,
+} from "../components/analytics/Skeleton";
 
 // Lazy load heavy components
-const GasUsageChart = lazy(() => import('../components/analytics/GasUsageChart').then(m => ({ default: m.default })));
+const GasUsageChart = lazy(() =>
+  import("../components/analytics/GasUsageChart").then((m) => ({
+    default: m.default,
+  })),
+);
 
 // Components removed memo to ensure they update with latest data
 // Note: Removed memo to fix issue where components showed stale data
@@ -23,7 +34,11 @@ function AnalyticsContent() {
         <div className="hp-empty">
           <p>Error loading analytics</p>
           <span>{error}</span>
-          <button className="tf-submit" onClick={refresh} style={{ marginTop: '16px' }}>
+          <button
+            className="tf-submit"
+            onClick={refresh}
+            style={{ marginTop: "16px" }}
+          >
             Retry
           </button>
         </div>
@@ -46,19 +61,19 @@ function AnalyticsContent() {
           disabled={loading}
           title="Refresh analytics"
           style={{
-            padding: '8px 16px',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '0.85rem',
+            padding: "8px 16px",
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "8px",
+            cursor: loading ? "not-allowed" : "pointer",
+            fontSize: "0.85rem",
             fontWeight: 600,
-            color: 'var(--text)',
-            transition: 'all 0.2s ease',
+            color: "var(--text)",
+            transition: "all 0.2s ease",
             opacity: loading ? 0.6 : 1,
           }}
         >
-          {loading ? 'Loading...' : 'Refresh'}
+          {loading ? "Loading..." : "Refresh"}
         </button>
       </div>
 
@@ -69,14 +84,20 @@ function AnalyticsContent() {
 
         <div className="charts-grid charts-grid--1">
           {loading ? <ChartSkeleton /> : <UploadTrendsChart />}
-          <Suspense fallback={<div className="chart-card chart-card--loading"><div className="chart-content chart-content--loading" /></div>}>
+          <Suspense
+            fallback={
+              <div className="chart-card chart-card--loading">
+                <div className="chart-content chart-content--loading" />
+              </div>
+            }
+          >
             <GasUsageChart />
           </Suspense>
           {loading ? <HeatmapSkeleton /> : <ActivityHeatmap />}
           {loading ? <ChartSkeleton /> : <TopVerifiedDocs />}
         </div>
 
-        <div className="info-card">
+        {/* <div className="info-card">
           <div className="info-card-icon">📊</div>
           <div className="info-card-content">
             <h3 className="info-card-title">About This Dashboard</h3>
@@ -90,7 +111,7 @@ function AnalyticsContent() {
               for fast, scalable queries. Click Refresh to get the latest data.
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

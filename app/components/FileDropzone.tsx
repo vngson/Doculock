@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { validateFile } from '@/lib/file';
 import { showToast } from './Toast';
+import { FileText } from 'lucide-react';
 
 interface FileDropzoneProps {
   onFileSelect: (file: File) => void;
@@ -62,7 +63,11 @@ export function FileDropzone({
   return (
     <div
       className={`fz-dropzone ${isDragging ? 'fz-dropzone--dragover' : ''}`}
+      role="button"
+      tabIndex={0}
+      aria-label="Drop file here or click to select"
       onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click(); } }}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -74,7 +79,7 @@ export function FileDropzone({
         accept={accept}
         onChange={handleFileChange}
       />
-      <div className="fz-icon">📄</div>
+      <div className="fz-icon"><FileText size={32} /></div>
       <div className="fz-title">Drop your file here</div>
       <div className="fz-subtitle">
         or click to browse (max {maxSize ? `${maxSize / 1024 / 1024}MB` : '100MB'})

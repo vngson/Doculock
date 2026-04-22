@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSignAndExecuteTransaction, useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import { createRegistryTx } from '@/lib/doculock';
 import { saveRegistryId, getRegistryId } from '@/lib/config';
+import { CheckCircle, XCircle, Loader, AlertTriangle } from 'lucide-react';
 
 // Helper function to retry fetching transaction details with backoff
 async function retryTransactionFetch(
@@ -14,7 +15,6 @@ async function retryTransactionFetch(
 ): Promise<any> {
   for (let i = 0; i < maxRetries; i++) {
     try {
-      console.log(`[RegistryCreator] Fetching transaction details (attempt ${i + 1}/${maxRetries})...`);
       const txDetails = await suiClient.getTransactionBlock({
         digest,
         options: {
@@ -23,7 +23,6 @@ async function retryTransactionFetch(
       });
       return txDetails;
     } catch (err: any) {
-      console.log(`[RegistryCreator] Fetch attempt ${i + 1} failed:`, err.message);
       if (i === maxRetries - 1) throw err;
       await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
     }
@@ -48,58 +47,38 @@ export function RegistryCreator() {
     setError('');
 
     try {
-      console.log('[RegistryCreator] Starting to create registry...');
-      console.log('[RegistryCreator] Connected account:', account.address);
-
       const txb = await createRegistryTx();
-      console.log('[RegistryCreator] Transaction block created:', txb);
-
-      console.log('[RegistryCreator] Signing and executing transaction...');
 
       const result = await signAndExecute(
         { transaction: txb },
         {
           onSuccess: async (result) => {
-            console.log('[RegistryCreator] Transaction successful:', result);
-            console.log('[RegistryCreator] Full result:', JSON.stringify(result, null, 2));
-
             if (result.digest) {
-              console.log('[RegistryCreator] Transaction digest:', result.digest);
-
               try {
                 const txDetails = await retryTransactionFetch(suiClient, result.digest);
-
-                console.log('[RegistryCreator] Transaction details:', txDetails);
-                console.log('[RegistryCreator] Object changes:', txDetails.objectChanges);
 
                 const created = txDetails.objectChanges?.find(
                   (change: any) => change.type === 'created'
                 ) as any;
-                console.log('[RegistryCreator] Created object:', created);
 
                 if (created && created.objectId) {
-                  console.log('[RegistryCreator] Registry ID:', created.objectId);
                   setRegistryId(created.objectId);
                   saveRegistryId(created.objectId);
                   setState('ready');
                 } else {
-                  console.error('[RegistryCreator] No object ID found in created object');
-                  setError('Registry created but no ID found. Check console for details.');
+                  setError('Registry created but no ID found.');
                   setState('error');
                 }
               } catch (err: any) {
-                console.error('[RegistryCreator] Error fetching transaction details:', err);
                 setError(`Transaction successful but failed to fetch registry ID: ${err.message}`);
                 setState('error');
               }
             } else {
-              console.error('[RegistryCreator] No transaction digest found');
               setError('Transaction failed: No digest returned.');
               setState('error');
             }
           },
           onError: (error) => {
-            console.error('[RegistryCreator] Transaction error:', error);
             setError(`Transaction failed: ${error.message || 'Unknown error'}`);
             setState('error');
           },
@@ -107,7 +86,6 @@ export function RegistryCreator() {
       );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('[RegistryCreator] Error creating registry:', err);
       setError(`Failed to create registry: ${errorMessage}`);
       setState('error');
     }
@@ -151,7 +129,7 @@ export function RegistryCreator() {
           padding: '20px',
         }}>
           <div className="tf-spinner" style={{ width: 32, height: 32 }} />
-          <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <div style={{ color: '#333', fontSize: '0.9rem' }}>
             Checking registry status...
           </div>
         </div>
@@ -163,10 +141,10 @@ export function RegistryCreator() {
     <div className="tf-card">
       <div className="tf-header">
         <div className="tf-icon">
-          {state === 'ready' ? '✅' :
-           state === 'creating' ? '🏗️' :
-           state === 'error' ? '❌' :
-           '🏗️'}
+          {state === 'ready' ? <CheckCircle size={20} /> :
+           state === 'creating' ? <Loader size={20} className="spin" /> :
+           state === 'error' ? <XCircle size={20} /> :
+           <Loader size={20} className="spin" />}
         </div>
         <div>
           <div className="tf-title">
@@ -187,7 +165,7 @@ export function RegistryCreator() {
       {state === 'no-wallet' && (
         <>
           <p style={{
-            color: 'var(--text-secondary)',
+            color: '#333',
             fontSize: '0.9rem',
             lineHeight: '1.6',
             marginBottom: '20px',
@@ -198,17 +176,18 @@ export function RegistryCreator() {
 
           <div style={{
             padding: '14px 18px',
-            background: 'var(--warning-bg)',
-            border: '1.5px solid rgba(245, 158, 11, 0.3)',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--warning)',
+            background: '#FFF3CD',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            color: '#856404',
             fontSize: '0.9rem',
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
-            <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+            <AlertTriangle size={18} />
             Please connect your wallet using the Connect button in the header.
           </div>
         </>
@@ -217,10 +196,11 @@ export function RegistryCreator() {
       {state === 'creating' && (
         <div style={{
           padding: '20px',
-          background: 'rgba(0, 192, 255, 0.1)',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid rgba(0, 192, 255, 0.3)',
+          background: '#C1F5C9',
+          borderRadius: '12px',
+          border: '2px solid #000',
           marginBottom: '20px',
+          boxShadow: '3px 3px 0px 0px #000',
         }}>
           <div style={{
             display: 'flex',
@@ -230,7 +210,7 @@ export function RegistryCreator() {
           }}>
             <div className="tf-spinner" style={{ width: 20, height: 20 }} />
             <div style={{
-              color: 'var(--primary)',
+              color: '#000',
               fontWeight: 600,
               fontSize: '0.95rem',
             }}>
@@ -238,7 +218,7 @@ export function RegistryCreator() {
             </div>
           </div>
           <p style={{
-            color: 'var(--text-secondary)',
+            color: '#333',
             fontSize: '0.85rem',
             lineHeight: '1.6',
             margin: 0,
@@ -282,17 +262,18 @@ export function RegistryCreator() {
         <>
           <div style={{
             padding: '16px',
-            background: 'rgba(34, 197, 94, 0.1)',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
+            background: '#C1F5C9',
+            borderRadius: '12px',
+            border: '2px solid #000',
             marginBottom: '20px',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
               marginBottom: '12px',
-              color: '#22c55e',
+              color: '#2ECC71',
               fontWeight: 600,
               fontSize: '0.95rem',
             }}>
@@ -302,7 +283,7 @@ export function RegistryCreator() {
               Registry is active and ready to use
             </div>
             <p style={{
-              color: 'var(--text-secondary)',
+              color: '#333',
               fontSize: '0.85rem',
               lineHeight: '1.6',
               margin: 0,
@@ -314,13 +295,14 @@ export function RegistryCreator() {
           {registryId && (
             <div style={{
               padding: '14px 16px',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: 'var(--radius-sm)',
-              fontFamily: 'var(--font-mono)',
+              background: '#F5F5F5',
+              borderRadius: '12px',
+              fontFamily: 'monospace',
               fontSize: '0.8rem',
               wordBreak: 'break-all',
               marginBottom: '20px',
-              border: '1px solid rgba(34, 197, 94, 0.2)',
+              border: '2px solid #000',
+              boxShadow: '3px 3px 0px 0px #000',
             }}>
               <div style={{
                 fontSize: '0.7rem',
@@ -328,7 +310,7 @@ export function RegistryCreator() {
                 marginBottom: '6px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: '#22c55e',
+                color: '#2ECC71',
               }}>
                 Registry ID
               </div>
@@ -342,10 +324,10 @@ export function RegistryCreator() {
             style={{
               width: '100%',
               justifyContent: 'center',
-              background: 'var(--gradient)',
-              color: 'white',
-              border: 'none',
-              boxShadow: '0 0 20px rgba(0, 192, 255, 0.25)',
+              background: '#D2FF00',
+              color: '#000',
+              border: '2px solid #000',
+              boxShadow: '3px 3px 0px 0px #000',
             }}
           >
             Reset Registry (Demo Only)

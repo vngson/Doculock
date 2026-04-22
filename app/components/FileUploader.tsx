@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { FileText, Package } from 'lucide-react';
 import { useSignAndExecuteTransaction, useSuiClient } from '@mysten/dapp-kit';
 import { FileDropzone } from './FileDropzone';
 import { HashDisplay } from './HashDisplay';
@@ -39,6 +40,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
   const [error, setError] = useState<string>('');
   const [showQR, setShowQR] = useState(false);
   const [showFraudTest, setShowFraudTest] = useState(false);
+  const [txDigest, setTxDigest] = useState('');
 
   // Batch mode states
   const [batchDocuments, setBatchDocuments] = useState<DocumentWithHash[]>([]);
@@ -49,6 +51,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
     setSuccess(false);
+    setTxDigest('');
     setError('');
     calculateHash(file);
   };
@@ -56,9 +59,6 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
   const calculateHash = async (file: File) => {
     try {
       const hashHex = await calculateSHA256(file);
-      console.log('[FileUploader] Calculated hash:', hashHex);
-      console.log('[FileUploader] Hash length:', hashHex?.length);
-      console.log('[FileUploader] Hash type:', typeof hashHex);
       setHash(hashHex);
     } catch (err) {
       setError('Failed to calculate file hash');
@@ -73,10 +73,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
     setError('');
 
     try {
-      console.log('[FileUploader] Hash to store:', hash);
       const hashBytes = hexToBytes(hash);
-      console.log('[FileUploader] Hash bytes length:', hashBytes.length);
-      console.log('[FileUploader] Hash bytes (first 8):', Array.from(hashBytes).slice(0, 8));
 
       const txb = await createStoreDocumentTx(
         hashBytes,
@@ -89,11 +86,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
         { transaction: txb },
         {
           onSuccess: async (result) => {
-            console.log('[FileUploader] Transaction submitted:', result);
-            console.log('[FileUploader] Transaction digest:', result.digest);
-
             // Wait for transaction to be confirmed
-            console.log('[FileUploader] Waiting for transaction confirmation...');
             let txDetails;
             let retries = 0;
             const maxRetries = 10;
@@ -107,24 +100,18 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                     showEffects: true,
                   },
                 });
-                console.log('[FileUploader] Transaction details:', txDetails);
-                console.log('[FileUploader] Transaction status:', txDetails.effects?.status);
 
                 // Check if transaction was successful
                 if (txDetails.effects?.status?.status === 'success') {
-                  console.log('[FileUploader] Transaction confirmed successfully!');
                   break;
                 } else {
-                  console.error('[FileUploader] Transaction failed:', txDetails.effects?.status);
                   setError('Transaction failed on blockchain');
                   setIsStoring(false);
                   return;
                 }
               } catch (err: any) {
                 retries++;
-                console.log(`[FileUploader] Retry ${retries}/${maxRetries}: Transaction not found yet...`);
                 if (retries >= maxRetries) {
-                  console.error('[FileUploader] Max retries reached');
                   setError('Transaction confirmation timeout. Please verify on blockchain.');
                   setIsStoring(false);
                   return;
@@ -136,18 +123,13 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
 
             // Sync to MongoDB after successful transaction
             try {
-              console.log('[FileUploader] Syncing to MongoDB...');
-              const syncResponse = await fetch('/api/indexer/sync', {
-                method: 'POST',
-              });
-              const syncResult = await syncResponse.json();
-              console.log('[FileUploader] Sync result:', syncResult);
+              await fetch('/api/indexer/sync', { method: 'POST' });
             } catch (syncError) {
-              console.error('[FileUploader] Sync error:', syncError);
               // Don't fail the upload if sync fails
             }
 
             setSuccess(true);
+            setTxDigest(result.digest);
             // Invalidate cache to refresh analytics data
             invalidateDocumentEventsCache();
             if (onDocumentStored) {
@@ -220,8 +202,6 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
     setBatchResults([]);
 
     try {
-      console.log('[FileUploader] Preparing batch store for', validDocuments.length, 'documents');
-
       // Prepare document info for batch transaction
       const documentInfos: DocumentInfo[] = validDocuments.map(doc => ({
         fileHash: doc.hashBytes,
@@ -238,8 +218,6 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
         { transaction: txb },
         {
           onSuccess: async (result) => {
-            console.log('[FileUploader] Transaction submitted:', result);
-
             // Wait for transaction to be confirmed
             let txDetails;
             let retries = 0;
@@ -257,7 +235,6 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 });
 
                 if (txDetails.effects?.status?.status === 'success') {
-                  console.log('[FileUploader] Transaction confirmed successfully!');
                   break;
                 } else {
                   setError('Transaction failed on blockchain');
@@ -277,14 +254,8 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
 
             // Sync to MongoDB after successful transaction
             try {
-              console.log('[FileUploader] Syncing to MongoDB...');
-              const syncResponse = await fetch('/api/indexer/sync', {
-                method: 'POST',
-              });
-              const syncResult = await syncResponse.json();
-              console.log('[FileUploader] Sync result:', syncResult);
+              await fetch('/api/indexer/sync', { method: 'POST' });
             } catch (syncError) {
-              console.error('[FileUploader] Sync error:', syncError);
               // Don't fail the upload if sync fails
             }
 
@@ -339,6 +310,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
             invalidateDocumentEventsCache();
 
             setSuccess(true);
+            setTxDigest(result.digest);
           },
           onError: (error) => {
             setError(`Failed to store documents: ${error.message || 'Unknown error'}`);
@@ -374,7 +346,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
     <>
       <div className="tf-card">
         <div className="tf-header">
-          <div className="tf-icon">{uploadMode === 'single' ? '📄' : '📦'}</div>
+          <div className="tf-icon">{uploadMode === 'single' ? <FileText size={20} /> : <Package size={20} />}</div>
           <div style={{ flex: 1 }}>
             <div className="tf-title">{uploadMode === 'single' ? 'Upload Document' : 'Batch Upload'}</div>
             <div className="tf-subtitle">
@@ -391,8 +363,8 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
               style={{
                 padding: '6px 12px',
                 fontSize: '0.8rem',
-                background: uploadMode === 'single' ? 'rgba(0, 192, 255, 0.2)' : 'transparent',
-                borderColor: uploadMode === 'single' ? 'var(--primary)' : 'var(--border)',
+                background: uploadMode === 'single' ? '#C1F5C9' : 'transparent',
+                borderColor: uploadMode === 'single' ? '#000' : '#000',
               }}
             >
               Single
@@ -406,8 +378,8 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
               style={{
                 padding: '6px 12px',
                 fontSize: '0.8rem',
-                background: uploadMode === 'batch' ? 'rgba(0, 192, 255, 0.2)' : 'transparent',
-                borderColor: uploadMode === 'batch' ? 'var(--primary)' : 'var(--border)',
+                background: uploadMode === 'batch' ? '#C1F5C9' : 'transparent',
+                borderColor: uploadMode === 'batch' ? '#000' : '#000',
               }}
             >
               Batch
@@ -435,15 +407,13 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                   padding: '16px',
                 }}>
                   <span style={{ fontSize: '2rem' }}>
-                    {selectedFile.type.includes('pdf') ? '📄' :
-                     selectedFile.type.includes('image') ? '🖼️' :
-                     selectedFile.type.includes('text') ? '📝' : '📁'}
+                    {getFileIcon(selectedFile.type)}
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
                       {selectedFile.name}
                     </div>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginTop: 2 }}>
+                    <div style={{ color: '#555', fontSize: '0.8rem', fontWeight: 600, marginTop: 2 }}>
                       {formatFileSize(selectedFile.size)} • {selectedFile.type}
                     </div>
                   </div>
@@ -454,9 +424,10 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 {isStoring && (
                   <div style={{
                     padding: '16px',
-                    background: 'rgba(0, 192, 255, 0.1)',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid rgba(0, 192, 255, 0.3)',
+                    background: '#C1F5C9',
+                    borderRadius: '12px',
+                    border: '2px solid #000',
+                    boxShadow: '3px 3px 0px 0px #000',
                     marginBottom: '16px',
                   }}>
                     <div style={{
@@ -467,7 +438,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                     }}>
                       <div className="tf-spinner" style={{ width: 18, height: 18 }} />
                       <div style={{
-                        color: 'var(--primary)',
+                        color: '#000',
                         fontWeight: 600,
                         fontSize: '0.9rem',
                       }}>
@@ -475,7 +446,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                       </div>
                     </div>
                     <p style={{
-                      color: 'var(--text-secondary)',
+                      color: '#555',
                       fontSize: '0.8rem',
                       margin: 0,
                       lineHeight: '1.5',
@@ -494,16 +465,48 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                   </div>
                 )}
 
+                {success && !showFraudTest && txDigest && (
+                  <a
+                    href={`https://suivision.xyz/txblock/${txDigest}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      marginTop: '8px',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      background: '#C1F5C9',
+                      border: '2px solid #000',
+                      boxShadow: '2px 2px 0px 0px #000',
+                      color: '#000',
+                      fontSize: '0.85rem',
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    View on Explorer
+                  </a>
+                )}
+
                 {success && !showFraudTest && (
                   <button
                     onClick={() => setShowFraudTest(true)}
                     style={{
                       width: '100%',
                       padding: '12px',
-                      background: 'rgba(245, 158, 11, 0.1)',
-                      border: '1.5px solid rgba(245, 158, 11, 0.3)',
+                      background: '#FEF5E7',
+                      border: '2px solid #000',
                       borderRadius: '8px',
-                      color: '#F59E0B',
+                      boxShadow: '3px 3px 0px 0px #000',
+                      color: '#F39C12',
                       fontSize: '0.85rem',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -514,12 +517,16 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                       gap: '8px',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
-                      e.currentTarget.style.borderColor = '#F59E0B';
+                      e.currentTarget.style.background = '#FEF5E7';
+                      e.currentTarget.style.borderColor = '#000';
+                      e.currentTarget.style.boxShadow = '1px 1px 0px 0px #000';
+                      e.currentTarget.style.transform = 'translate(2px, 2px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(245, 158, 11, 0.1)';
-                      e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                      e.currentTarget.style.background = '#FEF5E7';
+                      e.currentTarget.style.borderColor = '#000';
+                      e.currentTarget.style.boxShadow = '3px 3px 0px 0px #000';
+                      e.currentTarget.style.transform = 'translate(0, 0)';
                     }}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -603,16 +610,17 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 <div style={{
                   marginTop: '16px',
                   padding: '16px',
-                  background: 'rgba(99, 102, 241, 0.05)',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
-                  borderRadius: 'var(--radius-sm)',
+                  background: '#A2A7FF',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
+                  boxShadow: '3px 3px 0px 0px #000',
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                     marginBottom: '8px',
-                    color: '#6366F1',
+                    color: '#000',
                     fontWeight: 600,
                     fontSize: '0.85rem',
                   }}>
@@ -627,7 +635,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                     margin: 0,
                     paddingLeft: '24px',
                     fontSize: '0.8rem',
-                    color: 'var(--text-secondary)',
+                    color: '#000',
                     lineHeight: '1.6',
                   }}>
                     <li>Single transaction for all documents</li>
@@ -640,16 +648,17 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 <div style={{
                   marginTop: '16px',
                   padding: '12px',
-                  background: 'rgba(16, 185, 129, 0.05)',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  borderRadius: 'var(--radius-sm)',
+                  background: '#C1F5C9',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
+                  boxShadow: '2px 2px 0px 0px #000',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   fontSize: '0.8rem',
-                  color: 'var(--text-secondary)',
+                  color: '#000',
                 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" strokeWidth="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>
@@ -664,9 +673,10 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 {(isHashing || isStoring) && (
                   <div style={{
                     padding: '16px',
-                    background: 'rgba(0, 192, 255, 0.1)',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid rgba(0, 192, 255, 0.3)',
+                    background: '#C1F5C9',
+                    borderRadius: '12px',
+                    border: '2px solid #000',
+                    boxShadow: '3px 3px 0px 0px #000',
                     marginBottom: '16px',
                   }}>
                     <div style={{
@@ -677,7 +687,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                     }}>
                       <div className="tf-spinner" style={{ width: 18, height: 18 }} />
                       <div style={{
-                        color: 'var(--primary)',
+                        color: '#000',
                         fontWeight: 600,
                         fontSize: '0.9rem',
                         flex: 1,
@@ -685,7 +695,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                         {batchProgress.fileName || 'Processing...'}
                       </div>
                       <div style={{
-                        color: 'var(--text-dim)',
+                        color: '#555',
                         fontSize: '0.8rem',
                         fontWeight: 600,
                       }}>
@@ -694,16 +704,17 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                     </div>
                     <div style={{
                       width: '100%',
-                      height: '6px',
-                      background: 'rgba(0, 192, 255, 0.2)',
+                      height: '8px',
+                      background: '#FFFFFF',
+                      border: '2px solid #000',
                       borderRadius: '3px',
                       overflow: 'hidden',
                     }}>
                       <div style={{
                         width: `${(batchProgress.current / batchProgress.total) * 100}%`,
                         height: '100%',
-                        background: 'var(--primary)',
-                        borderRadius: '3px',
+                        background: '#D2FF00',
+                        borderRadius: '1px',
                         transition: 'width 0.3s ease',
                       }} />
                     </div>
@@ -714,26 +725,27 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 {!isHashing && !isStoring && (
                   <div style={{
                     padding: '16px',
-                    background: 'rgba(99, 102, 241, 0.05)',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid rgba(99, 102, 241, 0.2)',
+                    background: '#A2A7FF',
+                    borderRadius: '12px',
+                    border: '2px solid #000',
+                    boxShadow: '3px 3px 0px 0px #000',
                     marginBottom: '16px',
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: '12px',
                   }}>
                     <div>
-                      <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Total Files</div>
-                      <div style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 700 }}>{batchDocuments.length}</div>
+                      <div style={{ color: '#555', fontSize: '0.75rem', fontWeight: 600 }}>Total Files</div>
+                      <div style={{ color: '#000', fontSize: '1.25rem', fontWeight: 700 }}>{batchDocuments.length}</div>
                     </div>
                     <div>
-                      <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Ready to Store</div>
-                      <div style={{ color: '#10B981', fontSize: '1.25rem', fontWeight: 700 }}>{validDocumentCount}</div>
+                      <div style={{ color: '#555', fontSize: '0.75rem', fontWeight: 600 }}>Ready to Store</div>
+                      <div style={{ color: '#2ECC71', fontSize: '1.25rem', fontWeight: 700 }}>{validDocumentCount}</div>
                     </div>
                     {errorDocumentCount > 0 && (
                       <div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Hash Errors</div>
-                        <div style={{ color: '#EF4444', fontSize: '1.25rem', fontWeight: 700 }}>{errorDocumentCount}</div>
+                        <div style={{ color: '#555', fontSize: '0.75rem', fontWeight: 600 }}>Hash Errors</div>
+                        <div style={{ color: '#E74C3C', fontSize: '1.25rem', fontWeight: 700 }}>{errorDocumentCount}</div>
                       </div>
                     )}
                   </div>
@@ -743,8 +755,8 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 <div style={{
                   maxHeight: '400px',
                   overflowY: 'auto',
-                  border: '1px solid rgba(0, 192, 255, 0.2)',
-                  borderRadius: 'var(--radius-sm)',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
                   marginBottom: '16px',
                 }}>
                   {batchDocuments.map((doc, idx) => {
@@ -758,11 +770,11 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                           alignItems: 'center',
                           gap: '12px',
                           padding: '12px 16px',
-                          borderBottom: idx < batchDocuments.length - 1 ? '1px solid rgba(0, 192, 255, 0.1)' : 'none',
+                          borderBottom: idx < batchDocuments.length - 1 ? '1px solid #000' : 'none',
                           background: result?.status === 'success'
-                            ? 'rgba(16, 185, 129, 0.05)'
+                            ? '#C1F5C9'
                             : result?.status === 'error'
-                              ? 'rgba(239, 68, 68, 0.05)'
+                              ? '#FADBD8'
                               : 'transparent',
                         }}
                       >
@@ -779,7 +791,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                           }}>
                             {doc.file.name}
                           </div>
-                          <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                          <div style={{ color: '#555', fontSize: '0.75rem' }}>
                             {formatFileSize(doc.file.size)}
                             {doc.hash && !isHashing && ` • ${doc.hash.slice(0, 8)}...${doc.hash.slice(-8)}`}
                           </div>
@@ -790,8 +802,9 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                             borderRadius: '4px',
                             fontSize: '0.7rem',
                             fontWeight: 600,
-                            background: 'rgba(239, 68, 68, 0.2)',
-                            color: '#EF4444',
+                            background: '#FADBD8',
+                            border: '1px solid #E74C3C',
+                            color: '#E74C3C',
                           }}>
                             Hash Error
                           </div>
@@ -806,9 +819,12 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                             fontSize: '0.7rem',
                             fontWeight: 600,
                             background: result.status === 'success'
-                              ? 'rgba(16, 185, 129, 0.2)'
-                              : 'rgba(239, 68, 68, 0.2)',
-                            color: result.status === 'success' ? '#10B981' : '#EF4444',
+                              ? '#C1F5C9'
+                              : '#FADBD8',
+                            border: result.status === 'success'
+                              ? '1px solid #2ECC71'
+                              : '1px solid #E74C3C',
+                            color: result.status === 'success' ? '#2ECC71' : '#E74C3C',
                           }}>
                             {result.status === 'success' ? '✓ Stored' : '✗ Failed'}
                           </div>
@@ -822,14 +838,15 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 {success && batchResults.length > 0 && (
                   <div style={{
                     padding: '16px',
-                    background: 'rgba(16, 185, 129, 0.05)',
-                    border: '1px solid rgba(16, 185, 129, 0.2)',
-                    borderRadius: 'var(--radius-sm)',
+                    background: '#C1F5C9',
+                    border: '2px solid #000',
+                    borderRadius: '12px',
+                    boxShadow: '3px 3px 0px 0px #000',
                     marginBottom: '16px',
                   }}>
                     <div style={{
                       fontWeight: 600,
-                      color: '#10B981',
+                      color: '#2ECC71',
                       fontSize: '0.9rem',
                       marginBottom: '12px',
                       display: 'flex',
@@ -847,12 +864,12 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                       gridTemplateColumns: 'repeat(2, 1fr)',
                       gap: '8px',
                     }}>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        <strong style={{ color: '#10B981' }}>{batchResults.filter(r => r.status === 'success').length}</strong> successfully stored
+                      <div style={{ fontSize: '0.8rem', color: '#555' }}>
+                        <strong style={{ color: '#2ECC71' }}>{batchResults.filter(r => r.status === 'success').length}</strong> successfully stored
                       </div>
                       {batchResults.filter(r => r.status === 'error').length > 0 && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                          <strong style={{ color: '#EF4444' }}>{batchResults.filter(r => r.status === 'error').length}</strong> failed
+                        <div style={{ fontSize: '0.8rem', color: '#555' }}>
+                          <strong style={{ color: '#E74C3C' }}>{batchResults.filter(r => r.status === 'error').length}</strong> failed
                         </div>
                       )}
                     </div>

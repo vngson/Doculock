@@ -53,10 +53,10 @@ export function Toast({ message, type = 'info', duration = 3000, onClose }: Toas
   };
 
   const colors = {
-    success: { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.4)', text: '#22c55e' },
-    error: { bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.4)', text: '#ef4444' },
-    info: { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.4)', text: '#3b82f6' },
-    warning: { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#f59e0b' },
+    success: { bg: '#E8F8EE', border: '#2ECC71', text: '#2ECC71' },
+    error: { bg: '#FDEDEC', border: '#E74C3C', text: '#E74C3C' },
+    info: { bg: '#EBF0FF', border: '#A2A7FF', text: '#6366F1' },
+    warning: { bg: '#FEF5E7', border: '#F39C12', text: '#F39C12' },
   };
 
   const color = colors[type];
@@ -71,16 +71,15 @@ export function Toast({ message, type = 'info', duration = 3000, onClose }: Toas
         zIndex: 9999,
         padding: '16px 20px',
         background: color.bg,
-        border: `1.5px solid ${color.border}`,
-        borderRadius: '12px',
+        border: '2px solid #000000',
+        borderRadius: '16px',
         color: color.text,
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
         fontWeight: 600,
         fontSize: '0.95rem',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-        backdropFilter: 'blur(10px)',
+        boxShadow: '3px 3px 0px 0px #000000',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(-20px)',
         transition: 'all 0.3s ease',
@@ -99,8 +98,9 @@ export function Toast({ message, type = 'info', duration = 3000, onClose }: Toas
           setTimeout(() => onClose?.(), 300);
         }}
         style={{
-          background: 'none',
-          border: 'none',
+          background: '#fff',
+          border: '2px solid #000',
+          borderRadius: '8px',
           color: 'inherit',
           cursor: 'pointer',
           padding: '4px',

@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { syncEvents, getSyncStats } from '@/services/indexer';
 import { createSuiClient } from '@/lib/doculock';
+import { rateLimit } from '@/lib/rate-limit';
 
 /**
  * POST /api/indexer/sync - Trigger sync of blockchain events to MongoDB
  */
-export async function POST() {
-  try {
-    console.log('[Indexer API] Starting sync...');
+export async function POST(request: Request) {
+  const rl = rateLimit(request, { max: 10, windowMs: 60000 });
+  if (rl) return rl;
 
+  const apiKey = request.headers.get('x-api-key');
+  if (!process.env.ADMIN_API_KEY || apiKey !== process.env.ADMIN_API_KEY) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
     const suiClient = createSuiClient();
     const syncedCount = await syncEvents(suiClient);
 
@@ -34,7 +41,10 @@ export async function POST() {
 /**
  * GET /api/indexer/sync - Get sync statistics
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const rl = rateLimit(request, { max: 60, windowMs: 60000 });
+  if (rl) return rl;
+
   try {
     const stats = await getSyncStats();
 

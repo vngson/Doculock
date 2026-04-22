@@ -1,14 +1,13 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import '@mysten/dapp-kit/dist/index.css';
-import { Providers } from './providers';
-import { HexBackground } from './components/HexBackground';
-import { NetworkCursor } from './components/NetworkCursor';
+import type { Metadata } from "next";
+import "./globals.css";
+import "@mysten/dapp-kit/dist/index.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: 'DocuLock - Document Timestamping & Authenticity Verifier',
-  description: 'Proof of Existence on SUI Blockchain - Store document hashes and verify authenticity',
-  metadataBase: new URL('https://doculock.docs.cmdocs.sh'),
+  title: "DocuLock - Document Timestamping & Authenticity Verifier",
+  description:
+    "Proof of Existence on SUI Blockchain - Store document hashes and verify authenticity",
+  metadataBase: new URL("https://doculock.docs.cmdocs.sh"),
 };
 
 export default function RootLayout({
@@ -19,9 +18,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <HexBackground />
-        <NetworkCursor />
-        <div className="bg-gradient-overlay" />
         <Providers>{children}</Providers>
       </body>
     </html>

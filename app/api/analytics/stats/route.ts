@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDocumentsCollection } from '@/lib/mongodb';
+import { doculockConfig } from '@/lib/config';
+import { rateLimit } from '@/lib/rate-limit';
 
 export interface AnalyticsStats {
   totalDocuments: number;
   uniqueUsers: number;
+  totalCreators: number;
   totalFileSize: number;
   avgFileSize: number;
   topMimeTypes: { type: string; count: number }[];
+  networkName: string;
+  latestTxTimestamp: string | null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const rl = rateLimit(request, { max: 60, windowMs: 60000 });
+  if (rl) return rl;
+
   try {
     if (!process.env.MONGODB_URI) {
       return NextResponse.json(
@@ -65,12 +73,17 @@ export async function GET() {
       count: item.count,
     }));
 
+    const lastDoc = await collection.findOne({}, { sort: { indexed_at: -1 } });
+
     const stats: AnalyticsStats = {
       totalDocuments,
       uniqueUsers: uniqueUsersCount,
+      totalCreators: uniqueUsersCount,
       totalFileSize: Number(totalFileSize) || 0,
       avgFileSize: Number(avgFileSize) || 0,
       topMimeTypes,
+      networkName: doculockConfig.network || 'testnet',
+      latestTxTimestamp: lastDoc?.indexed_at ? new Date(lastDoc.indexed_at).toISOString() : null,
     };
 
     return NextResponse.json(stats);

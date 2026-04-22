@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clearIndex, syncEvents } from '@/services/indexer';
 import { createSuiClient } from '@/lib/doculock';
+import { rateLimit } from '@/lib/rate-limit';
 
 /**
  * POST /api/indexer/resync - Clear and resync all documents
  */
-export async function POST() {
+export async function POST(request: Request) {
+  const rl = rateLimit(request, { max: 5, windowMs: 60000 });
+  if (rl) return rl;
+
+  const apiKey = request.headers.get('x-api-key');
+  if (!process.env.ADMIN_API_KEY || apiKey !== process.env.ADMIN_API_KEY) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    console.log('[Indexer Resync API] Starting full resync...');
 
     // Clear existing index
     const deletedCount = await clearIndex();

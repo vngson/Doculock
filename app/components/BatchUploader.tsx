@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { Package } from 'lucide-react';
 import { useSignAndExecuteTransaction, useSuiClient } from '@mysten/dapp-kit';
 import { calculateSHA256, hexToBytes } from '@/lib/crypto';
 import { formatFileSize, getFileIcon } from '@/lib/file';
@@ -82,8 +83,6 @@ export function BatchUploader() {
     setResults([]);
 
     try {
-      console.log('[BatchUploader] Preparing batch store for', validDocuments.length, 'documents');
-
       // Prepare document info for batch transaction
       const documentInfos: DocumentInfo[] = validDocuments.map(doc => ({
         fileHash: doc.hashBytes,
@@ -100,11 +99,7 @@ export function BatchUploader() {
         { transaction: txb },
         {
           onSuccess: async (result) => {
-            console.log('[BatchUploader] Transaction submitted:', result);
-            console.log('[BatchUploader] Transaction digest:', result.digest);
-
             // Wait for transaction to be confirmed
-            console.log('[BatchUploader] Waiting for transaction confirmation...');
             let txDetails;
             let retries = 0;
             const maxRetries = 20;
@@ -119,23 +114,18 @@ export function BatchUploader() {
                     showEvents: true,
                   },
                 });
-                console.log('[BatchUploader] Transaction details:', txDetails);
 
                 // Check if transaction was successful
                 if (txDetails.effects?.status?.status === 'success') {
-                  console.log('[BatchUploader] Transaction confirmed successfully!');
                   break;
                 } else {
-                  console.error('[BatchUploader] Transaction failed:', txDetails.effects?.status);
                   setError('Transaction failed on blockchain');
                   setIsStoring(false);
                   return;
                 }
               } catch (err: any) {
                 retries++;
-                console.log(`[BatchUploader] Retry ${retries}/${maxRetries}: Transaction not found yet...`);
                 if (retries >= maxRetries) {
-                  console.error('[BatchUploader] Max retries reached');
                   setError('Transaction confirmation timeout. Please verify on blockchain.');
                   setIsStoring(false);
                   return;
@@ -147,14 +137,8 @@ export function BatchUploader() {
 
             // Sync to MongoDB after successful transaction
             try {
-              console.log('[BatchUploader] Syncing to MongoDB...');
-              const syncResponse = await fetch('/api/indexer/sync', {
-                method: 'POST',
-              });
-              const syncResult = await syncResponse.json();
-              console.log('[BatchUploader] Sync result:', syncResult);
+              await fetch('/api/indexer/sync', { method: 'POST' });
             } catch (syncError) {
-              console.error('[BatchUploader] Sync error:', syncError);
               // Don't fail the upload if sync fails
             }
 
@@ -245,7 +229,7 @@ export function BatchUploader() {
   return (
     <div className="tf-card">
       <div className="tf-header">
-        <div className="tf-icon">📦</div>
+        <div className="tf-icon"><Package size={20} /></div>
         <div>
           <div className="tf-title">Batch Document Upload</div>
           <div className="tf-subtitle">
@@ -279,9 +263,10 @@ export function BatchUploader() {
           <div style={{
             marginTop: '16px',
             padding: '16px',
-            background: 'rgba(99, 102, 241, 0.05)',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            borderRadius: 'var(--radius-sm)',
+            background: '#C1F5C9',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
             <div style={{
               display: 'flex',
@@ -303,7 +288,7 @@ export function BatchUploader() {
               margin: 0,
               paddingLeft: '24px',
               fontSize: '0.8rem',
-              color: 'var(--text-secondary)',
+              color: '#333',
               lineHeight: '1.6',
             }}>
               <li>Single transaction for all documents</li>
@@ -321,9 +306,10 @@ export function BatchUploader() {
           {(isHashing || isStoring) && (
             <div style={{
               padding: '16px',
-              background: 'rgba(0, 192, 255, 0.1)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid rgba(0, 192, 255, 0.3)',
+              background: '#C1F5C9',
+              borderRadius: '12px',
+              border: '2px solid #000',
+              boxShadow: '3px 3px 0px 0px #000',
               marginBottom: '16px',
             }}>
               <div style={{
@@ -334,7 +320,7 @@ export function BatchUploader() {
               }}>
                 <div className="tf-spinner" style={{ width: 18, height: 18 }} />
                 <div style={{
-                  color: 'var(--primary)',
+                  color: '#000',
                   fontWeight: 600,
                   fontSize: '0.9rem',
                   flex: 1,
@@ -342,7 +328,7 @@ export function BatchUploader() {
                   {progress.fileName || 'Processing...'}
                 </div>
                 <div style={{
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                 }}>
@@ -352,14 +338,14 @@ export function BatchUploader() {
               <div style={{
                 width: '100%',
                 height: '6px',
-                background: 'rgba(0, 192, 255, 0.2)',
+                background: '#C1F5C9',
                 borderRadius: '3px',
                 overflow: 'hidden',
               }}>
                 <div style={{
                   width: `${(progress.current / progress.total) * 100}%`,
                   height: '100%',
-                  background: 'var(--primary)',
+                  background: '#D2FF00',
                   borderRadius: '3px',
                   transition: 'width 0.3s ease',
                 }} />
@@ -371,26 +357,27 @@ export function BatchUploader() {
           {!isHashing && !isStoring && (
             <div style={{
               padding: '16px',
-              background: 'rgba(99, 102, 241, 0.05)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
+              background: '#C1F5C9',
+              borderRadius: '12px',
+              border: '2px solid #000',
+              boxShadow: '3px 3px 0px 0px #000',
               marginBottom: '16px',
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '12px',
             }}>
               <div>
-                <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Total Files</div>
-                <div style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 700 }}>{documents.length}</div>
+                <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Total Files</div>
+                <div style={{ color: '#000', fontSize: '1.25rem', fontWeight: 700 }}>{documents.length}</div>
               </div>
               <div>
-                <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Ready to Store</div>
-                <div style={{ color: '#10B981', fontSize: '1.25rem', fontWeight: 700 }}>{validDocumentCount}</div>
+                <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Ready to Store</div>
+                <div style={{ color: '#2ECC71', fontSize: '1.25rem', fontWeight: 700 }}>{validDocumentCount}</div>
               </div>
               {errorDocumentCount > 0 && (
                 <div>
-                  <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Hash Errors</div>
-                  <div style={{ color: '#EF4444', fontSize: '1.25rem', fontWeight: 700 }}>{errorDocumentCount}</div>
+                  <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Hash Errors</div>
+                  <div style={{ color: '#E74C3C', fontSize: '1.25rem', fontWeight: 700 }}>{errorDocumentCount}</div>
                 </div>
               )}
             </div>
@@ -400,8 +387,9 @@ export function BatchUploader() {
           <div style={{
             maxHeight: '400px',
             overflowY: 'auto',
-            border: '1px solid rgba(0, 192, 255, 0.2)',
-            borderRadius: 'var(--radius-sm)',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            boxShadow: '3px 3px 0px 0px #000',
             marginBottom: '16px',
           }}>
             {documents.map((doc, idx) => {
@@ -415,11 +403,11 @@ export function BatchUploader() {
                     alignItems: 'center',
                     gap: '12px',
                     padding: '12px 16px',
-                    borderBottom: idx < documents.length - 1 ? '1px solid rgba(0, 192, 255, 0.1)' : 'none',
+                    borderBottom: idx < documents.length - 1 ? '2px solid #000' : 'none',
                     background: result?.status === 'success'
-                      ? 'rgba(16, 185, 129, 0.05)'
+                      ? '#C1F5C9'
                       : result?.status === 'error'
-                        ? 'rgba(239, 68, 68, 0.05)'
+                        ? '#FADBD8'
                         : 'transparent',
                   }}
                 >
@@ -436,7 +424,7 @@ export function BatchUploader() {
                     }}>
                       {doc.file.name}
                     </div>
-                    <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                    <div style={{ color: '#666', fontSize: '0.75rem' }}>
                       {formatFileSize(doc.file.size)}
                       {doc.hash && !isHashing && ` • ${doc.hash.slice(0, 8)}...${doc.hash.slice(-8)}`}
                     </div>
@@ -447,8 +435,9 @@ export function BatchUploader() {
                       borderRadius: '4px',
                       fontSize: '0.7rem',
                       fontWeight: 600,
-                      background: 'rgba(239, 68, 68, 0.2)',
-                      color: '#EF4444',
+                      background: '#FADBD8',
+                      border: '2px solid #000',
+                      color: '#E74C3C',
                     }}>
                       Hash Error
                     </div>
@@ -462,10 +451,11 @@ export function BatchUploader() {
                       borderRadius: '4px',
                       fontSize: '0.7rem',
                       fontWeight: 600,
+                      border: '2px solid #000',
                       background: result.status === 'success'
-                        ? 'rgba(16, 185, 129, 0.2)'
-                        : 'rgba(239, 68, 68, 0.2)',
-                      color: result.status === 'success' ? '#10B981' : '#EF4444',
+                        ? '#C1F5C9'
+                        : '#FADBD8',
+                      color: result.status === 'success' ? '#2ECC71' : '#E74C3C',
                     }}>
                       {result.status === 'success' ? '✓ Stored' : '✗ Failed'}
                     </div>
@@ -479,14 +469,15 @@ export function BatchUploader() {
           {success && results.length > 0 && (
             <div style={{
               padding: '16px',
-              background: 'rgba(16, 185, 129, 0.05)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              borderRadius: 'var(--radius-sm)',
+              background: '#C1F5C9',
+              border: '2px solid #000',
+              borderRadius: '12px',
+              boxShadow: '3px 3px 0px 0px #000',
               marginBottom: '16px',
             }}>
               <div style={{
                 fontWeight: 600,
-                color: '#10B981',
+                color: '#2ECC71',
                 fontSize: '0.9rem',
                 marginBottom: '12px',
                 display: 'flex',
@@ -504,12 +495,12 @@ export function BatchUploader() {
                 gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '8px',
               }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  <strong style={{ color: '#10B981' }}>{results.filter(r => r.status === 'success').length}</strong> successfully stored
+                <div style={{ fontSize: '0.8rem', color: '#333' }}>
+                  <strong style={{ color: '#2ECC71' }}>{results.filter(r => r.status === 'success').length}</strong> successfully stored
                 </div>
                 {results.filter(r => r.status === 'error').length > 0 && (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <strong style={{ color: '#EF4444' }}>{results.filter(r => r.status === 'error').length}</strong> failed
+                  <div style={{ fontSize: '0.8rem', color: '#333' }}>
+                    <strong style={{ color: '#E74C3C' }}>{results.filter(r => r.status === 'error').length}</strong> failed
                   </div>
                 )}
               </div>

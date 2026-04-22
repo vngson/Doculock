@@ -6,6 +6,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { SuiClient } from '@mysten/sui/client';
 import { doculockConfig, getRegistryId } from './config';
 import { bytesToHex } from './crypto';
+import { logger } from './logger';
 
 // Simple in-memory cache for document events to ensure consistency
 // Cache expires after 30 seconds
@@ -18,7 +19,6 @@ const CACHE_TTL = 30000; // 30 seconds
  * Call this after uploading a new document to ensure fresh data
  */
 export function invalidateDocumentEventsCache(): void {
-  console.log('[getDocumentEvents] Cache invalidated');
   cachedEvents = null;
   cacheTimestamp = 0;
 }
@@ -61,11 +61,9 @@ export async function createStoreDocumentTx(
   fileSize: number,
   mimeType: string,
 ): Promise<Transaction> {
-  console.log('[doculock] Creating store document transaction...');
-  console.log('[doculock] Package ID:', doculockConfig.packageId);
+  logger.debug('Creating store document transaction...');
 
   const registryId = getRegistryId();
-  console.log('[doculock] Registry ID:', registryId);
 
   if (!doculockConfig.packageId) {
     throw new Error('Package ID is not configured. Please set NEXT_PUBLIC_DOCULOCK_PACKAGE_ID in .env.local');
@@ -78,10 +76,6 @@ export async function createStoreDocumentTx(
   const txb = new Transaction();
 
   const target = `${doculockConfig.packageId}::doculock::store_document`;
-  console.log('[doculock] Move call target:', target);
-  console.log('[doculock] File name:', fileName);
-  console.log('[doculock] File size:', fileSize);
-  console.log('[doculock] Hash length:', fileHash.length);
 
   txb.moveCall({
     target: target,
@@ -98,7 +92,7 @@ export async function createStoreDocumentTx(
   // Build the transaction with gas configuration
   txb.setGasBudget(10000000);
 
-  console.log('[doculock] Store document transaction created successfully');
+  logger.debug('Store document transaction created successfully');
   return txb;
 }
 
@@ -118,9 +112,7 @@ export interface DocumentInfo {
 export async function createBatchStoreDocumentsTx(
   documents: DocumentInfo[],
 ): Promise<Transaction> {
-  console.log('[doculock] Creating batch store document transaction...');
-  console.log('[doculock] Package ID:', doculockConfig.packageId);
-  console.log('[doculock] Number of documents:', documents.length);
+  logger.debug('Creating batch store document transaction...', documents.length);
 
   if (!doculockConfig.packageId) {
     throw new Error('Package ID is not configured. Please set NEXT_PUBLIC_DOCULOCK_PACKAGE_ID in .env.local');
@@ -130,8 +122,6 @@ export async function createBatchStoreDocumentsTx(
   if (!registryId) {
     throw new Error('Registry ID is not configured. Please create registry and set NEXT_PUBLIC_DOCULOCK_REGISTRY_ID in .env.local');
   }
-
-  console.log('[doculock] Registry ID:', registryId);
 
   const txb = new Transaction();
   const target = `${doculockConfig.packageId}::doculock::store_document`;
@@ -143,9 +133,6 @@ export async function createBatchStoreDocumentsTx(
   // Add multiple store_document calls to the PTB
   for (let i = 0; i < documents.length; i++) {
     const doc = documents[i];
-    console.log(`[doculock] Adding document ${i + 1}/${documents.length}:`, doc.fileName);
-    console.log(`[doculock]   Hash length:`, doc.fileHash.length);
-    console.log(`[doculock]   File size:`, doc.fileSize);
 
     txb.moveCall({
       target,
@@ -165,8 +152,7 @@ export async function createBatchStoreDocumentsTx(
   const gasBudget = 10_000_000 + (documents.length * 5_000_000);
   txb.setGasBudget(gasBudget);
 
-  console.log(`[doculock] Batch transaction created with gas budget: ${gasBudget} MIST`);
-  console.log('[doculock] Batch transaction created successfully');
+  logger.debug('Batch transaction created successfully');
   return txb;
 }
 
@@ -175,8 +161,7 @@ export async function createBatchStoreDocumentsTx(
  * @returns Transaction ready to execute
  */
 export async function createRegistryTx(): Promise<Transaction> {
-  console.log('[doculock] Creating registry transaction...');
-  console.log('[doculock] Package ID:', doculockConfig.packageId);
+  logger.debug('Creating registry transaction...');
 
   if (!doculockConfig.packageId) {
     throw new Error('Package ID is not configured. Please set NEXT_PUBLIC_DOCULOCK_PACKAGE_ID in .env.local');
@@ -185,7 +170,6 @@ export async function createRegistryTx(): Promise<Transaction> {
   const txb = new Transaction();
 
   const target = `${doculockConfig.packageId}::doculock::create_registry`;
-  console.log('[doculock] Move call target:', target);
 
   txb.moveCall({
     target: target,
@@ -195,7 +179,7 @@ export async function createRegistryTx(): Promise<Transaction> {
   // Build the transaction with gas configuration
   txb.setGasBudget(10000000);
 
-  console.log('[doculock] Transaction block created successfully');
+  logger.debug('Registry transaction created successfully');
   return txb;
 }
 
@@ -211,7 +195,7 @@ export async function getRegistryObject(
     const registryId = getRegistryId();
 
     if (!registryId) {
-      console.error('[getRegistryObject] Registry ID not found');
+      logger.error('Registry ID not found');
       return null;
     }
 
@@ -224,11 +208,11 @@ export async function getRegistryObject(
       },
     });
 
-    console.log('[getRegistryObject] Registry:', registry);
+    logger.debug('Registry fetched');
 
     return registry;
   } catch (error) {
-    console.error('Error getting registry:', error);
+    logger.error('Error getting registry:', error);
     return null;
   }
 }
@@ -248,12 +232,12 @@ export async function verifyDocument(
     const packageId = doculockConfig.packageId;
 
     if (!registryId) {
-      console.error('[verifyDocument] Registry ID not found');
+      logger.error('Registry ID not found');
       return false;
     }
 
     if (!packageId) {
-      console.error('[verifyDocument] Package ID not found');
+      logger.error('Package ID not found');
       return false;
     }
 
@@ -261,33 +245,18 @@ export async function verifyDocument(
     let hashHex = fileHash.startsWith('0x') ? fileHash.slice(2) : fileHash;
     hashHex = hashHex.toLowerCase().trim();
 
-    console.log('[verifyDocument] ============================================');
-    console.log('[verifyDocument] Hash to verify:', hashHex);
-    console.log('[verifyDocument] Hash length:', hashHex.length);
-    console.log('[verifyDocument] Registry ID:', registryId);
-    console.log('[verifyDocument] Package ID:', packageId);
-
     // Validate hash format
     if (!/^[a-f0-9]{64}$/.test(hashHex)) {
-      console.error('[verifyDocument] Invalid hash format:', hashHex);
+      logger.error('Invalid hash format');
       return false;
     }
 
-    // First, get registry to check its state
-    const registry = await getRegistryObject(suiClient);
-    if (registry && registry.data?.content) {
-      console.log('[verifyDocument] Registry total:', registry.data.content.fields?.total);
-    }
-
     // Method 1: Try querying DocumentStored events (most reliable)
-    console.log('[verifyDocument] Querying DocumentStored events...');
     const events = await suiClient.queryEvents({
       query: {
         MoveEventType: `${packageId}::doculock::DocumentStored`,
       },
     });
-
-    console.log('[verifyDocument] Total events found:', events.data.length);
 
     // Search for matching hash in events
     for (const event of events.data) {
@@ -304,17 +273,11 @@ export async function verifyDocument(
       // Normalize event hash
       eventHash = eventHash.toLowerCase().trim();
 
-      console.log('[verifyDocument] Event hash:', eventHash, 'Type:', typeof eventHash);
-
       // Compare hashes
       if (eventHash && eventHash === hashHex) {
-        console.log('[verifyDocument] ✓ Hash found in events!');
-        console.log('[verifyDocument] ============================================');
         return true;
       }
     }
-
-    console.log('[verifyDocument] Hash not found in events');
 
     // Method 2: Try dynamic field query (for Table)
     // Parse hex to bytes array
@@ -322,8 +285,6 @@ export async function verifyDocument(
     for (let i = 0; i < hashHex.length; i += 2) {
       bytes.push(parseInt(hashHex.slice(i, i + 2), 16));
     }
-
-    console.log('[verifyDocument] Bytes array length:', bytes.length);
 
     // Try getDynamicFieldObject
     const dynamicField = await suiClient.getDynamicFieldObject({
@@ -334,20 +295,13 @@ export async function verifyDocument(
       },
     });
 
-    console.log('[verifyDocument] Dynamic field result:', dynamicField);
-
     if (!dynamicField.error) {
-      console.log('[verifyDocument] ✓ Hash found in dynamic field!');
-      console.log('[verifyDocument] ============================================');
       return true;
     }
 
-    console.log('[verifyDocument] Hash not found on blockchain');
-    console.log('[verifyDocument] ============================================');
     return false;
   } catch (error) {
-    console.error('[verifyDocument] Error verifying document:', error);
-    console.log('[verifyDocument] ============================================');
+    logger.error('Error verifying document:', error);
     return false;
   }
 }
@@ -366,7 +320,7 @@ export async function getDocumentMetadata(
     const packageId = doculockConfig.packageId;
 
     if (!packageId) {
-      console.error('[getDocumentMetadata] Package ID not found');
+      logger.error('Package ID not found');
       return null;
     }
 
@@ -374,16 +328,12 @@ export async function getDocumentMetadata(
     let hashHex = fileHash.startsWith('0x') ? fileHash.slice(2) : fileHash;
     hashHex = hashHex.toLowerCase().trim();
 
-    console.log('[getDocumentMetadata] Hash to lookup:', hashHex);
-
     // Query DocumentStored events to find the document
     const events = await suiClient.queryEvents({
       query: {
         MoveEventType: `${packageId}::doculock::DocumentStored`,
       },
     });
-
-    console.log('[getDocumentMetadata] Total events found:', events.data.length);
 
     // Search for matching hash in events
     for (const event of events.data) {
@@ -402,9 +352,6 @@ export async function getDocumentMetadata(
 
       // Compare hashes
       if (eventHash && eventHash === hashHex) {
-        console.log('[getDocumentMetadata] Found document in events!');
-        console.log('[getDocumentMetadata] Timestamp raw value:', parsed.timestamp, 'Type:', typeof parsed.timestamp);
-
         // Convert timestamp to number if it's a string
         let timestamp = parsed.timestamp;
         if (typeof timestamp === 'string') {
@@ -420,10 +367,9 @@ export async function getDocumentMetadata(
       }
     }
 
-    console.log('[getDocumentMetadata] Document not found');
     return null;
   } catch (error) {
-    console.error('Error getting document metadata:', error);
+    logger.error('Error getting document metadata:', error);
     return null;
   }
 }
@@ -442,11 +388,9 @@ export async function findDocumentByName(
     const packageId = doculockConfig.packageId;
 
     if (!packageId) {
-      console.error('[findDocumentByName] Package ID not found');
+      logger.error('Package ID not found');
       return null;
     }
-
-    console.log('[findDocumentByName] Searching for file:', fileName);
 
     const events = await suiClient.queryEvents({
       query: {
@@ -466,9 +410,6 @@ export async function findDocumentByName(
           eventHash = String(eventHash);
         }
 
-        console.log('[findDocumentByName] Found file with matching name!');
-        console.log('[findDocumentByName] Event hash:', eventHash);
-
         return {
           document_hash: eventHash,
           creator: parsed.creator,
@@ -480,10 +421,9 @@ export async function findDocumentByName(
       }
     }
 
-    console.log('[findDocumentByName] No file found with matching name');
     return null;
   } catch (error) {
-    console.error('Error finding document by name:', error);
+    logger.error('Error finding document by name:', error);
     return null;
   }
 }
@@ -503,23 +443,17 @@ export async function getDocumentEvents(
     const useCache = cachedEvents !== null && (now - cacheTimestamp) < CACHE_TTL;
 
     if (useCache) {
-      console.log('[getDocumentEvents] Using cached events, count:', cachedEvents!.length);
       const result = creatorAddress
         ? cachedEvents!.filter(event => event.creator === creatorAddress)
         : cachedEvents!;
-      console.log('[getDocumentEvents] Filtered events count:', result.length);
       return result;
     }
 
-    console.log('[getDocumentEvents] Querying events with packageId:', doculockConfig.packageId);
     const events = await suiClient.queryEvents({
       query: {
         MoveEventType: `${doculockConfig.packageId}::doculock::DocumentStored`,
       },
     });
-
-    console.log('[getDocumentEvents] Total events found:', events.data.length);
-    console.log('[getDocumentEvents] First event:', events.data[0]);
 
     const filteredEvents = creatorAddress
       ? events.data.filter(event => {
@@ -539,7 +473,6 @@ export async function getDocumentEvents(
       // timestampMs is the actual Unix timestamp when the transaction was executed
       const timestamp = event.timestampMs;
       if (!timestamp) {
-        console.log('[getDocumentEvents] WARNING: Skipping event without timestampMs:', parsed.file_name, 'parsed.timestamp:', parsed.timestamp);
         continue;
       }
 
@@ -563,16 +496,14 @@ export async function getDocumentEvents(
     // Cache the result
     cachedEvents = result;
     cacheTimestamp = now;
-    console.log('[getDocumentEvents] Cached events, count:', result.length);
 
     const finalResult = creatorAddress
       ? result.filter(event => event.creator === creatorAddress)
       : result;
 
-    console.log('[getDocumentEvents] Final result count:', finalResult.length);
     return finalResult;
   } catch (error) {
-    console.error('Error fetching document events:', error);
+    logger.error('Error fetching document events:', error);
     return [];
   }
 }
@@ -583,17 +514,13 @@ export async function getDocumentEvents(
  */
 export async function debugListAllDocuments(suiClient: SuiClient): Promise<void> {
   try {
-    console.log('[debugListAllDocuments] ============================================');
-    console.log('[debugListAllDocuments] Package ID:', doculockConfig.packageId);
-    console.log('[debugListAllDocuments] Registry ID:', getRegistryId());
-
     const events = await suiClient.queryEvents({
       query: {
         MoveEventType: `${doculockConfig.packageId}::doculock::DocumentStored`,
       },
     });
 
-    console.log('[debugListAllDocuments] Total documents found:', events.data.length);
+    logger.debug('Total documents found:', events.data.length);
 
     for (let i = 0; i < events.data.length; i++) {
       const event = events.data[i];
@@ -607,18 +534,9 @@ export async function debugListAllDocuments(suiClient: SuiClient): Promise<void>
         eventHash = String(eventHash);
       }
 
-      console.log('[debugListAllDocuments] Document', i + 1, ':');
-      console.log('  - File name:', parsed.file_name);
-      console.log('  - Hash:', eventHash);
-      console.log('  - Hash length:', eventHash?.length);
-      console.log('  - File size:', parsed.file_size);
-      console.log('  - MIME type:', parsed.mime_type);
-      console.log('  - Creator:', parsed.creator);
-      console.log('  - Timestamp:', parsed.timestamp);
+      logger.debug(`Document ${i + 1}:`, parsed.file_name, eventHash?.length, 'bytes');
     }
-
-    console.log('[debugListAllDocuments] ============================================');
   } catch (error) {
-    console.error('[debugListAllDocuments] Error:', error);
+    logger.error('debugListAllDocuments error:', error);
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDocumentsCollection } from '@/lib/mongodb';
+import { rateLimit } from '@/lib/rate-limit';
 
 export interface TrendDataPoint {
   date: string;
@@ -10,6 +11,9 @@ export interface TrendDataPoint {
 }
 
 export async function GET(request: NextRequest) {
+  const rl = rateLimit(request, { max: 60, windowMs: 60000 });
+  if (rl) return rl;
+
   try {
     if (!process.env.MONGODB_URI) {
       return NextResponse.json(

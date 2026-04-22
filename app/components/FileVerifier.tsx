@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Search, Folder, AlertTriangle, FileSpreadsheet, FileText, FileJson, Globe } from 'lucide-react';
 import { FileDropzone } from './FileDropzone';
 import { HashDisplay } from './HashDisplay';
 import { TrustBadge } from './TrustBadge';
@@ -86,33 +87,21 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
   const handleVerifyWithHash = async (hashToVerify: string) => {
     if (!hashToVerify) return;
 
-    console.log('[FileVerifier] Verifying hash:', hashToVerify);
-    console.log('[FileVerifier] Hash length:', hashToVerify?.length);
-    console.log('[FileVerifier] Hash type:', typeof hashToVerify);
-
     setIsVerifying(true);
 
     try {
-      console.log('[FileVerifier] Calling verifyDocument...');
       const exists = await verifyDocument(suiClient, hashToVerify);
-      console.log('[FileVerifier] Verification result:', exists);
 
       let metadata;
 
       if (exists) {
-        console.log('[FileVerifier] Getting metadata...');
         metadata = await getDocumentMetadata(suiClient, hashToVerify);
-        console.log('[FileVerifier] Metadata:', metadata);
         setResult({ exists, metadata });
       } else {
         // Hash not found - check if a file with the same name exists
-        console.log('[FileVerifier] Hash not found, checking for file with same name...');
         if (selectedFile) {
           const existingFile = await findDocumentByName(suiClient, selectedFile.name);
           if (existingFile) {
-            console.log('[FileVerifier] Found existing file with same name!');
-            console.log('[FileVerifier] Existing file hash:', existingFile.document_hash);
-            console.log('[FileVerifier] Existing file timestamp:', existingFile.timestamp, 'Type:', typeof existingFile.timestamp);
             const ts = existingFile.timestamp;
             let normalizedTimestamp: number | undefined;
 
@@ -141,7 +130,6 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               }
             }
 
-            console.log('[FileVerifier] Normalized timestamp:', normalizedTimestamp);
             setResult({
               exists: false,
               existingFileWithSameName: {
@@ -153,7 +141,6 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               },
             });
           } else {
-            console.log('[FileVerifier] No file found with same name');
             setResult({ exists: false });
           }
         } else {
@@ -487,14 +474,15 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
 
             <div style={{
               padding: '12px',
-              background: 'rgba(245, 158, 11, 0.05)',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
-              borderRadius: '8px',
+              background: '#FEF5E7',
+              border: '2px solid #000',
+              borderRadius: '12px',
               marginBottom: '16px',
+              boxShadow: '3px 3px 0px 0px #000',
             }}>
               <div style={{
                 fontWeight: 600,
-                color: '#F59E0B',
+                color: '#F39C12',
                 fontSize: '0.9rem',
                 marginBottom: '8px',
                 display: 'flex',
@@ -508,23 +496,24 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 </svg>
                 File with same name exists but content differs
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '0.8rem', color: '#333', lineHeight: 1.5 }}>
                 A file named <strong>"{result.existingFileWithSameName.file_name}"</strong> is already stored on the blockchain,
                 but the hash doesn't match. This means the file content has been modified.
               </div>
             </div>
 
             <div style={{
-              background: 'var(--bg)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
+              background: '#fff',
+              border: '2px solid #000',
+              borderRadius: '12px',
               padding: '16px',
               marginBottom: '16px',
+              boxShadow: '3px 3px 0px 0px #000',
             }}>
               <div style={{
                 fontSize: '0.7rem',
                 fontWeight: 600,
-                color: 'var(--text-dim)',
+                color: '#666',
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
                 marginBottom: '12px',
@@ -533,7 +522,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </div>
 
               <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
                   Current File Hash (your upload)
                 </div>
                 <div style={{
@@ -542,16 +531,16 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                   lineHeight: '1.8',
                   letterSpacing: '1px',
                   padding: '10px 14px',
-                  background: 'rgba(239, 68, 68, 0.05)',
-                  border: '1px solid rgba(239, 68, 68, 0.2)',
-                  borderRadius: '6px',
+                  background: '#FADBD8',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
                   wordBreak: 'break-all',
                 }}>
                   {bytesCurrent.map((byte, i) => (
                     <span
                       key={`current-${i}`}
                       style={{
-                        color: byte !== bytesExisting[i] ? '#EF4444' : 'var(--text)',
+                        color: byte !== bytesExisting[i] ? '#E74C3C' : '#000',
                         fontWeight: byte !== bytesExisting[i] ? '700' : '400',
                         textDecoration: byte !== bytesExisting[i] ? 'underline' : 'none',
                         marginRight: '2px',
@@ -564,7 +553,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
                   Stored File Hash (on blockchain)
                 </div>
                 <div style={{
@@ -573,16 +562,16 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                   lineHeight: '1.8',
                   letterSpacing: '1px',
                   padding: '10px 14px',
-                  background: 'rgba(16, 185, 129, 0.05)',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  borderRadius: '6px',
+                  background: '#C1F5C9',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
                   wordBreak: 'break-all',
                 }}>
                   {bytesExisting.map((byte, i) => (
                     <span
                       key={`stored-${i}`}
                       style={{
-                        color: byte !== bytesCurrent[i] ? '#EF4444' : 'var(--text)',
+                        color: byte !== bytesCurrent[i] ? '#E74C3C' : '#000',
                         fontWeight: byte !== bytesCurrent[i] ? '700' : '400',
                         textDecoration: byte !== bytesCurrent[i] ? 'underline' : 'none',
                         marginRight: '2px',
@@ -597,12 +586,12 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               <div style={{
                 marginTop: '12px',
                 padding: '10px 14px',
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                background: '#FADBD8',
+                border: '2px solid #000',
+                borderRadius: '12px',
               }}>
                 <div style={{
-                  color: '#EF4444',
+                  color: '#E74C3C',
                   fontWeight: 600,
                   fontSize: '0.8rem',
                   marginBottom: '4px',
@@ -611,7 +600,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 </div>
                 <div style={{
                   fontSize: '0.7rem',
-                  color: 'var(--text-dim)',
+                  color: '#666',
                 }}>
                   {bytesExisting.filter((byte, i) => byte !== bytesCurrent[i]).length} / {bytesExisting.length} bytes differ
                 </div>
@@ -631,7 +620,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                   {formatFileSize(result.existingFileWithSameName.file_size)}
                   {selectedFile && selectedFile.size !== result.existingFileWithSameName.file_size && (
                     <span style={{
-                      color: '#EF4444',
+                      color: '#E74C3C',
                       marginLeft: '8px',
                       fontWeight: 600,
                     }}>
@@ -639,7 +628,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                     </span>
                   )}
                 </span>
-                <span className="vf-diff-icon" style={{ color: selectedFile && selectedFile.size === result.existingFileWithSameName.file_size ? '#10B981' : '#EF4444' }}>
+                <span className="vf-diff-icon" style={{ color: selectedFile && selectedFile.size === result.existingFileWithSameName.file_size ? '#2ECC71' : '#E74C3C' }}>
                   {selectedFile && selectedFile.size === result.existingFileWithSameName.file_size ? '✓' : '✗'}
                 </span>
               </div>
@@ -653,7 +642,6 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 <span className="vf-diff-value" style={{ fontSize: '0.8rem' }}>
                   {(() => {
                     const ts = result.existingFileWithSameName.timestamp;
-                    console.log('[FileVerifier] Timestamp value:', ts, 'Type:', typeof ts);
 
                     if (ts == null) {
                       return 'N/A';
@@ -690,7 +678,6 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                     }
 
                     const isValid = !isNaN(date.getTime());
-                    console.log('[FileVerifier] Parsed date:', date, 'Valid:', isValid);
                     return isValid
                       ? date.toLocaleString('vi-VN', {
                           day: '2-digit',
@@ -702,7 +689,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                       : 'N/A';
                   })()}
                 </span>
-                <span className="vf-diff-icon" style={{ color: result.existingFileWithSameName.timestamp ? '#10B981' : '#F59E0B' }}>
+                <span className="vf-diff-icon" style={{ color: result.existingFileWithSameName.timestamp ? '#2ECC71' : '#F39C12' }}>
                   {result.existingFileWithSameName.timestamp ? '✓' : '?'}
                 </span>
               </div>
@@ -718,7 +705,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </svg>
               Document Not Found
             </div>
-            <div style={{ color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+            <div style={{ color: '#666', fontSize: '0.85rem', lineHeight: 1.5 }}>
               This document has not been stored on the blockchain yet.
               Upload it first to create an immutable timestamp proof.
             </div>
@@ -752,7 +739,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
   return (
     <div className="tf-card" style={{ maxWidth: '100%', overflow: 'visible' }}>
       <div className="tf-header">
-        <div className="tf-icon">{mode === 'single' ? '🔍' : '📁'}</div>
+        <div className="tf-icon">{mode === 'single' ? <Search size={20} /> : <Folder size={20} />}</div>
         <div style={{ flex: 1 }}>
           <div className="tf-title">{mode === 'single' ? 'Verify Document' : 'Batch Verification'}</div>
           <div className="tf-subtitle">
@@ -769,8 +756,8 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
             style={{
               padding: '6px 12px',
               fontSize: '0.8rem',
-              background: mode === 'single' ? 'rgba(0, 192, 255, 0.2)' : 'transparent',
-              borderColor: mode === 'single' ? 'var(--primary)' : 'var(--border)',
+              background: mode === 'single' ? '#C1F5C9' : 'transparent',
+              borderColor: mode === 'single' ? '#000' : '#000',
             }}
           >
             Single
@@ -784,8 +771,8 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
             style={{
               padding: '6px 12px',
               fontSize: '0.8rem',
-              background: mode === 'batch' ? 'rgba(0, 192, 255, 0.2)' : 'transparent',
-              borderColor: mode === 'batch' ? 'var(--primary)' : 'var(--border)',
+              background: mode === 'batch' ? '#C1F5C9' : 'transparent',
+              borderColor: mode === 'batch' ? '#000' : '#000',
             }}
           >
             Batch
@@ -810,9 +797,9 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
             fontSize: '0.75rem',
             wordBreak: 'break-all',
             padding: '12px',
-            background: 'rgba(0, 192, 255, 0.05)',
-            border: '1px solid rgba(0, 192, 255, 0.2)',
-            borderRadius: '8px',
+            background: '#C1F5C9',
+            border: '2px solid #000',
+            borderRadius: '12px',
           }}>
             {hash}
           </div>
@@ -835,7 +822,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
                 {selectedFile.name}
               </div>
-              <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+              <div style={{ color: '#666', fontSize: '0.75rem' }}>
                 {formatFileSize(selectedFile.size)} • {selectedFile.type}
               </div>
             </div>
@@ -912,14 +899,14 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               <button
                 className="tf-submit"
                 onClick={() => folderInputRef.current?.click()}
-                style={{ width: '100%', justifyContent: 'center', background: 'rgba(99, 102, 241, 0.1)', border: '1.5px solid rgba(99, 102, 241, 0.3)', color: '#6366F1' }}
+                style={{ width: '100%', justifyContent: 'center', background: '#A2A7FF', border: '2px solid #000', color: '#000' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)';
-                  e.currentTarget.style.borderColor = '#6366F1';
+                  e.currentTarget.style.background = '#A2A7FF';
+                  e.currentTarget.style.borderColor = '#000';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+                  e.currentTarget.style.background = '#A2A7FF';
+                  e.currentTarget.style.borderColor = '#000';
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -931,14 +918,14 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               <button
                 className="tf-submit"
                 onClick={() => zipInputRef.current?.click()}
-                style={{ width: '100%', justifyContent: 'center', background: 'rgba(245, 158, 11, 0.1)', border: '1.5px solid rgba(245, 158, 11, 0.3)', color: '#F59E0B' }}
+                style={{ width: '100%', justifyContent: 'center', background: '#FEF5E7', border: '2px solid #000', color: '#F39C12' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
-                  e.currentTarget.style.borderColor = '#F59E0B';
+                  e.currentTarget.style.background = '#FEF5E7';
+                  e.currentTarget.style.borderColor = '#000';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(245, 158, 11, 0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                  e.currentTarget.style.background = '#FEF5E7';
+                  e.currentTarget.style.borderColor = '#000';
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -956,10 +943,11 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               {batchIsProcessing && (
                 <div style={{
                   padding: '16px',
-                  background: 'rgba(0, 192, 255, 0.1)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid rgba(0, 192, 255, 0.3)',
+                  background: '#C1F5C9',
+                  borderRadius: '12px',
+                  border: '2px solid #000',
                   marginBottom: '16px',
+                  boxShadow: '3px 3px 0px 0px #000',
                 }}>
                   <div style={{
                     display: 'flex',
@@ -969,7 +957,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                   }}>
                     <div className="tf-spinner" style={{ width: 18, height: 18 }} />
                     <div style={{
-                      color: 'var(--primary)',
+                      color: '#D2FF00',
                       fontWeight: 600,
                       fontSize: '0.9rem',
                       flex: 1,
@@ -977,7 +965,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                       {batchProgress.fileName || 'Processing...'}
                     </div>
                     <div style={{
-                      color: 'var(--text-dim)',
+                      color: '#666',
                       fontSize: '0.8rem',
                       fontWeight: 600,
                     }}>
@@ -987,14 +975,14 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                   <div style={{
                     width: '100%',
                     height: '6px',
-                    background: 'rgba(0, 192, 255, 0.2)',
+                    background: '#C1F5C9',
                     borderRadius: '3px',
                     overflow: 'hidden',
                   }}>
                     <div style={{
                       width: `${(batchProgress.current / batchProgress.total) * 100}%`,
                       height: '100%',
-                      background: 'var(--primary)',
+                      background: '#D2FF00',
                       borderRadius: '3px',
                       transition: 'width 0.3s ease',
                     }} />
@@ -1005,37 +993,38 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               {!batchIsProcessing && batchResults.length > 0 && (
                 <div style={{
                   padding: '16px',
-                  background: 'rgba(99, 102, 241, 0.05)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  background: '#A2A7FF',
+                  borderRadius: '12px',
+                  border: '2px solid #000',
                   marginBottom: '16px',
                   display: 'grid',
                   gridTemplateColumns: batchSummary.contentDiffers > 0
                     ? 'repeat(auto-fit, minmax(100px, 1fr))'
                     : 'repeat(auto-fit, minmax(120px, 1fr))',
                   gap: '12px',
+                  boxShadow: '3px 3px 0px 0px #000',
                 }}>
                   <div>
-                    <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Total</div>
-                    <div style={{ color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.total}</div>
+                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Total</div>
+                    <div style={{ color: '#000', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.total}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Verified</div>
-                    <div style={{ color: '#10B981', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.verified}</div>
+                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Verified</div>
+                    <div style={{ color: '#2ECC71', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.verified}</div>
                   </div>
                   {batchSummary.contentDiffers > 0 && (
                     <div>
-                      <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Content Differs</div>
-                      <div style={{ color: '#F59E0B', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.contentDiffers}</div>
+                      <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Content Differs</div>
+                      <div style={{ color: '#F39C12', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.contentDiffers}</div>
                     </div>
                   )}
                   <div>
-                    <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Not Found</div>
-                    <div style={{ color: '#EF4444', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.notFound}</div>
+                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Not Found</div>
+                    <div style={{ color: '#E74C3C', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.notFound}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 600 }}>Errors</div>
-                    <div style={{ color: '#F59E0B', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.errors}</div>
+                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Errors</div>
+                    <div style={{ color: '#F39C12', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.errors}</div>
                   </div>
                 </div>
               )}
@@ -1043,9 +1032,10 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               <div style={{
                 maxHeight: '400px',
                 overflowY: 'auto',
-                border: '1px solid rgba(0, 192, 255, 0.2)',
-                borderRadius: 'var(--radius-sm)',
+                border: '2px solid #000',
+                borderRadius: '12px',
                 marginBottom: '16px',
+                boxShadow: '3px 3px 0px 0px #000',
               }}>
                 {batchFiles.map((file, idx) => {
                   const result = batchResults[idx];
@@ -1059,13 +1049,13 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                         alignItems: 'center',
                         gap: '12px',
                         padding: '12px 16px',
-                        borderBottom: idx < batchFiles.length - 1 ? '1px solid rgba(0, 192, 255, 0.1)' : 'none',
+                        borderBottom: idx < batchFiles.length - 1 ? '2px solid #000' : 'none',
                         background: result?.verified
-                          ? 'rgba(16, 185, 129, 0.05)'
+                          ? '#C1F5C9'
                           : isContentDiffers
-                            ? 'rgba(245, 158, 11, 0.05)'
+                            ? '#FEF5E7'
                             : result?.hash && !result?.verified
-                              ? 'rgba(239, 68, 68, 0.05)'
+                              ? '#FADBD8'
                               : 'transparent',
                       }}
                     >
@@ -1082,7 +1072,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                         }}>
                           {file.name}
                         </div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                        <div style={{ color: '#666', fontSize: '0.75rem' }}>
                           {formatFileSize(file.size)}
                         </div>
                       </div>
@@ -1096,22 +1086,22 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                           fontSize: '0.7rem',
                           fontWeight: 600,
                           background: result.verified
-                            ? 'rgba(16, 185, 129, 0.2)'
+                            ? '#C1F5C9'
                             : isContentDiffers
-                              ? 'rgba(245, 158, 11, 0.2)'
-                              : 'rgba(239, 68, 68, 0.2)',
+                              ? '#FEF5E7'
+                              : '#FADBD8',
                           color: result.verified
-                            ? '#10B981'
+                            ? '#2ECC71'
                             : isContentDiffers
-                              ? '#F59E0B'
-                              : '#EF4444',
+                              ? '#F39C12'
+                              : '#E74C3C',
                         }}>
-                          {result.verified ? '✓ Verified' : isContentDiffers ? '⚠️ Content Differs' : '✗ Not Found'}
+                          {result.verified ? '✓ Verified' : isContentDiffers ? 'Content Differs' : '✗ Not Found'}
                         </div>
                       )}
                       {result?.errorMessage && (
-                        <div style={{ color: '#F59E0B', fontSize: '0.7rem' }}>
-                          ⚠️ Error
+                        <div style={{ color: '#F39C12', fontSize: '0.7rem' }}>
+                          Error
                         </div>
                       )}
                     </div>
@@ -1122,16 +1112,17 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               {!batchIsProcessing && batchResults.some(r => r.hash && !r.verified && r.existingFileWithSameName) && (
                 <div style={{
                   padding: '16px',
-                  background: 'rgba(245, 158, 11, 0.05)',
-                  border: '1px solid rgba(245, 158, 11, 0.2)',
-                  borderRadius: 'var(--radius-sm)',
+                  background: '#FEF5E7',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
                   marginBottom: '16px',
                   maxHeight: '400px',
                   overflowY: 'auto',
+                  boxShadow: '3px 3px 0px 0px #000',
                 }}>
                   <div style={{
                     fontWeight: 600,
-                    color: '#F59E0B',
+                    color: '#F39C12',
                     fontSize: '0.9rem',
                     marginBottom: '12px',
                     display: 'flex',
@@ -1145,7 +1136,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                     </svg>
                     Files with Same Name Found - Content Differs
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  <div style={{ fontSize: '0.8rem', color: '#333', lineHeight: 1.5 }}>
                     The following files have matching names on blockchain but different content:
                   </div>
 
@@ -1159,9 +1150,10 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                       return (
                         <div key={idx} style={{
                           padding: '12px',
-                          background: 'var(--bg)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '8px',
+                          background: '#fff',
+                          border: '2px solid #000',
+                          borderRadius: '12px',
+                          boxShadow: '2px 2px 0px 0px #000',
                         }}>
                           <div style={{ marginBottom: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
                             {file.name}
@@ -1174,7 +1166,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                             marginBottom: '8px',
                           }}>
                             <div>
-                              <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '4px' }}>
+                              <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '4px' }}>
                                 Current File Hash
                               </div>
                               <div style={{
@@ -1183,16 +1175,16 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                                 lineHeight: '1.6',
                                 letterSpacing: '0.5px',
                                 padding: '8px 12px',
-                                background: 'rgba(239, 68, 68, 0.05)',
-                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                borderRadius: '6px',
+                                background: '#FADBD8',
+                                border: '2px solid #000',
+                                borderRadius: '12px',
                                 wordBreak: 'break-all',
                               }}>
                                 {bytesCurrent.map((byte, i) => (
                                   <span
                                     key={`curr-${idx}-${i}`}
                                     style={{
-                                      color: byte !== bytesExisting[i] ? '#EF4444' : 'var(--text)',
+                                      color: byte !== bytesExisting[i] ? '#E74C3C' : '#000',
                                       fontWeight: byte !== bytesExisting[i] ? '700' : '400',
                                       fontSize: '0.65rem',
                                       marginRight: '1px',
@@ -1205,7 +1197,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                             </div>
 
                             <div>
-                              <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '4px' }}>
+                              <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '4px' }}>
                                 Stored File Hash
                               </div>
                               <div style={{
@@ -1214,16 +1206,16 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                                 lineHeight: '1.6',
                                 letterSpacing: '0.5px',
                                 padding: '8px 12px',
-                                background: 'rgba(16, 185, 129, 0.05)',
-                                border: '1px solid rgba(16, 185, 129, 0.2)',
-                                borderRadius: '6px',
+                                background: '#C1F5C9',
+                                border: '2px solid #000',
+                                borderRadius: '12px',
                                 wordBreak: 'break-all',
                               }}>
                                 {bytesExisting.map((byte, i) => (
                                   <span
                                     key={`stored-${idx}-${i}`}
                                     style={{
-                                      color: byte !== bytesCurrent[i] ? '#EF4444' : 'var(--text)',
+                                      color: byte !== bytesCurrent[i] ? '#E74C3C' : '#000',
                                       fontWeight: byte !== bytesCurrent[i] ? '700' : '400',
                                       fontSize: '0.65rem',
                                       marginRight: '1px',
@@ -1241,23 +1233,23 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                             gap: '12px',
                             marginTop: '8px',
                             padding: '8px 12px',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                            borderRadius: '6px',
+                            background: '#FADBD8',
+                            border: '2px solid #000',
+                            borderRadius: '12px',
                           }}>
-                            <span style={{ color: '#EF4444', fontWeight: 600, fontSize: '0.8rem' }}>
+                            <span style={{ color: '#E74C3C', fontWeight: 600, fontSize: '0.8rem' }}>
                               Differs by ~{bytesExisting.reduce((acc, byte, i) => acc + (byte !== bytesCurrent[i] ? 4 : 0), 0)} bits
                             </span>
-                            <span style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>
+                            <span style={{ color: '#666', fontSize: '0.7rem' }}>
                               ({bytesExisting.filter((byte, i) => byte !== bytesCurrent[i]).length} / {bytesExisting.length} bytes)
                             </span>
                           </div>
 
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          <div style={{ fontSize: '0.75rem', color: '#333' }}>
                             <div style={{ marginBottom: '4px' }}>
                               <strong>Stored file:</strong> {formatFileSize(result.existingFileWithSameName.file_size)}
                               {file.size !== result.existingFileWithSameName.file_size && (
-                                <span style={{ color: '#EF4444', marginLeft: '8px' }}>
+                                <span style={{ color: '#E74C3C', marginLeft: '8px' }}>
                                   (current: {formatFileSize(file.size)})
                                 </span>
                               )}
@@ -1333,12 +1325,12 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                             top: 'calc(100% + 8px)',
                             right: 0,
                             width: '200px',
-                            background: 'var(--surface)',
-                            border: '1.5px solid var(--border)',
+                            background: '#fff',
+                            border: '2px solid #000',
                             borderRadius: '12px',
                             padding: '8px',
                             zIndex: 9999,
-                            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.4)',
+                            boxShadow: '3px 3px 0px 0px #000',
                           }}
                         >
                           <button
@@ -1352,15 +1344,15 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                               border: 'none',
                               borderRadius: '8px',
                               background: 'transparent',
-                              color: 'var(--text)',
+                              color: '#000',
                               fontSize: '0.85rem',
                               fontWeight: 600,
                               cursor: 'pointer',
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-light)'; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                           >
-                            <span style={{ fontSize: '1.1rem' }}>📊</span>
+                            <FileSpreadsheet size={16} />
                             Export as Excel
                           </button>
                           <button
@@ -1374,15 +1366,15 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                               border: 'none',
                               borderRadius: '8px',
                               background: 'transparent',
-                              color: 'var(--text)',
+                              color: '#000',
                               fontSize: '0.85rem',
                               fontWeight: 600,
                               cursor: 'pointer',
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-light)'; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                           >
-                            <span style={{ fontSize: '1.1rem' }}>📄</span>
+                            <FileText size={16} />
                             Export as PDF
                           </button>
                           <button
@@ -1396,15 +1388,15 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                               border: 'none',
                               borderRadius: '8px',
                               background: 'transparent',
-                              color: 'var(--text)',
+                              color: '#000',
                               fontSize: '0.85rem',
                               fontWeight: 600,
                               cursor: 'pointer',
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-light)'; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                           >
-                            <span style={{ fontSize: '1.1rem' }}>📋</span>
+                            <FileJson size={16} />
                             Export as JSON
                           </button>
                           <button
@@ -1418,15 +1410,15 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                               border: 'none',
                               borderRadius: '8px',
                               background: 'transparent',
-                              color: 'var(--text)',
+                              color: '#000',
                               fontSize: '0.85rem',
                               fontWeight: 600,
                               cursor: 'pointer',
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-light)'; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                           >
-                            <span style={{ fontSize: '1.1rem' }}>🌐</span>
+                            <Globe size={16} />
                             Export as HTML
                           </button>
                         </div>

@@ -5,6 +5,8 @@ import { useSuiClient, useCurrentAccount } from '@mysten/dapp-kit';
 import { getDocumentEvents, type DocumentStoredEvent } from '@/lib/doculock';
 import { formatFileSize } from '@/lib/file';
 import { DocumentCard } from './DocumentCard';
+import { EmptyState } from './ui/EmptyState';
+import { Inbox } from 'lucide-react';
 
 export function DocumentHistory() {
   const suiClient = useSuiClient();
@@ -60,12 +62,13 @@ export function DocumentHistory() {
 
   if (documents.length === 0) {
     return (
-      <div className="tf-card">
-        <div className="hp-empty">
-          <p>No documents yet</p>
-          <span>Upload your first document to get started</span>
-        </div>
-      </div>
+      <EmptyState
+        icon={<Inbox size={36} />}
+        title="No documents yet"
+        description="Upload your first document to get started"
+        actionLabel="Upload Document"
+        onAction={() => { window.location.hash = 'upload'; }}
+      />
     );
   }
 

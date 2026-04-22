@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Scale, AlertTriangle } from 'lucide-react';
 import { FileDropzone } from './FileDropzone';
 import { HashDisplay } from './HashDisplay';
 import { showToast } from './Toast';
@@ -81,7 +82,7 @@ export function DocumentComparison() {
   return (
     <div className="tf-card">
       <div className="tf-header">
-        <div className="tf-icon">⚖️</div>
+        <div className="tf-icon"><Scale size={20} /></div>
         <div>
           <div className="tf-title">Document Comparison</div>
           <div className="tf-subtitle">Compare two files byte-by-byte</div>
@@ -107,9 +108,10 @@ export function DocumentComparison() {
           {fileA && (
             <div style={{
               padding: '16px',
-              background: 'var(--bg)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
+              background: '#fff',
+              border: '2px solid #000',
+              borderRadius: '12px',
+              boxShadow: '3px 3px 0px 0px #000',
             }}>
               <div style={{
                 display: 'flex',
@@ -131,7 +133,7 @@ export function DocumentComparison() {
                     {fileA.name}
                   </div>
                   <div style={{
-                    color: 'var(--text-secondary)',
+                    color: '#333',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     marginTop: 2,
@@ -148,9 +150,9 @@ export function DocumentComparison() {
                   padding: '8px',
                   marginTop: '12px',
                   background: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: '6px',
-                  color: 'var(--text-secondary)',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
+                  color: '#333',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -161,8 +163,8 @@ export function DocumentComparison() {
                   e.currentTarget.style.color = '#EF4444';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.borderColor = '#000';
+                  e.currentTarget.style.color = '#333';
                 }}
               >
                 Remove File
@@ -184,9 +186,10 @@ export function DocumentComparison() {
           {fileB && (
             <div style={{
               padding: '16px',
-              background: 'var(--bg)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
+              background: '#fff',
+              border: '2px solid #000',
+              borderRadius: '12px',
+              boxShadow: '3px 3px 0px 0px #000',
             }}>
               <div style={{
                 display: 'flex',
@@ -208,7 +211,7 @@ export function DocumentComparison() {
                     {fileB.name}
                   </div>
                   <div style={{
-                    color: 'var(--text-secondary)',
+                    color: '#333',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     marginTop: 2,
@@ -225,9 +228,9 @@ export function DocumentComparison() {
                   padding: '8px',
                   marginTop: '12px',
                   background: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: '6px',
-                  color: 'var(--text-secondary)',
+                  border: '2px solid #000',
+                  borderRadius: '12px',
+                  color: '#333',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -238,8 +241,8 @@ export function DocumentComparison() {
                   e.currentTarget.style.color = '#EF4444';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.borderColor = '#000';
+                  e.currentTarget.style.color = '#333';
                 }}
               >
                 Remove File
@@ -254,16 +257,17 @@ export function DocumentComparison() {
         <>
           {/* Metadata Comparison */}
           <div style={{
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
+            background: '#fff',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            boxShadow: '3px 3px 0px 0px #000',
             padding: '16px',
             marginBottom: '20px',
           }}>
             <div style={{
               fontSize: '0.7rem',
               fontWeight: 600,
-              color: 'var(--text-dim)',
+              color: '#666',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
               marginBottom: '12px',
@@ -279,17 +283,17 @@ export function DocumentComparison() {
                 gap: '8px',
                 padding: '10px',
                 background: fileA.name === fileB.name
-                  ? 'rgba(16, 185, 129, 0.05)'
-                  : 'rgba(239, 68, 68, 0.05)',
+                  ? '#C1F5C9'
+                  : '#FADBD8',
                 border: fileA.name === fileB.name
-                  ? '1px solid rgba(16, 185, 129, 0.2)'
-                  : '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                  ? '2px solid #000'
+                  : '2px solid #000',
+                borderRadius: '12px',
               }}>
                 <div style={{
                   fontSize: '0.7rem',
                   fontWeight: 600,
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   textTransform: 'uppercase',
                   marginBottom: '4px',
                 }}>
@@ -301,20 +305,21 @@ export function DocumentComparison() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    borderRadius: '4px',
+                    background: '#fff',
+                    border: '1px solid #000',
+                    borderRadius: '8px',
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', minWidth: '60px' }}>File A:</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File A:</span>
                     <span style={{
                       flex: 1,
                       fontSize: '0.85rem',
-                      color: fileA.name === fileB.name ? 'var(--text)' : '#EF4444',
-                      fontFamily: 'var(--font-mono)',
+                      color: fileA.name === fileB.name ? '#000' : '#E74C3C',
+                      fontFamily: 'monospace',
                       wordBreak: 'break-all',
                     }}>
                       {fileA.name}
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.name === fileB.name ? '#10B981' : '#EF4444'} strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.name === fileB.name ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
                       {fileA.name === fileB.name
                         ? <polyline points="20 6 9 17 4 12" />
                         : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
@@ -326,20 +331,21 @@ export function DocumentComparison() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    borderRadius: '4px',
+                    background: '#fff',
+                    border: '1px solid #000',
+                    borderRadius: '8px',
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', minWidth: '60px' }}>File B:</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File B:</span>
                     <span style={{
                       flex: 1,
                       fontSize: '0.85rem',
-                      color: fileA.name === fileB.name ? 'var(--text)' : '#EF4444',
-                      fontFamily: 'var(--font-mono)',
+                      color: fileA.name === fileB.name ? '#000' : '#E74C3C',
+                      fontFamily: 'monospace',
                       wordBreak: 'break-all',
                     }}>
                       {fileB.name}
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.name === fileB.name ? '#10B981' : '#EF4444'} strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.name === fileB.name ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
                       {fileA.name === fileB.name
                         ? <polyline points="20 6 9 17 4 12" />
                         : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
@@ -350,11 +356,11 @@ export function DocumentComparison() {
                 {fileA.name !== fileB.name && (
                   <div style={{
                     fontSize: '0.75rem',
-                    color: '#EF4444',
+                    color: '#E74C3C',
                     fontWeight: 600,
                     marginTop: '4px',
                   }}>
-                    ⚠️ Filenames differ
+                    Filenames differ
                   </div>
                 )}
               </div>
@@ -366,17 +372,17 @@ export function DocumentComparison() {
                 gap: '8px',
                 padding: '10px',
                 background: fileA.size === fileB.size
-                  ? 'rgba(16, 185, 129, 0.05)'
-                  : 'rgba(239, 68, 68, 0.05)',
+                  ? '#C1F5C9'
+                  : '#FADBD8',
                 border: fileA.size === fileB.size
-                  ? '1px solid rgba(16, 185, 129, 0.2)'
-                  : '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                  ? '2px solid #000'
+                  : '2px solid #000',
+                borderRadius: '12px',
               }}>
                 <div style={{
                   fontSize: '0.7rem',
                   fontWeight: 600,
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   textTransform: 'uppercase',
                   marginBottom: '4px',
                 }}>
@@ -388,19 +394,20 @@ export function DocumentComparison() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    borderRadius: '4px',
+                    background: '#fff',
+                    border: '1px solid #000',
+                    borderRadius: '8px',
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', minWidth: '60px' }}>File A:</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File A:</span>
                     <span style={{
                       flex: 1,
                       fontSize: '0.85rem',
-                      color: fileA.size === fileB.size ? 'var(--text)' : '#EF4444',
-                      fontFamily: 'var(--font-mono)',
+                      color: fileA.size === fileB.size ? '#000' : '#E74C3C',
+                      fontFamily: 'monospace',
                     }}>
                       {formatFileSize(fileA.size)} ({fileA.size} bytes)
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.size === fileB.size ? '#10B981' : '#EF4444'} strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.size === fileB.size ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
                       {fileA.size === fileB.size
                         ? <polyline points="20 6 9 17 4 12" />
                         : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
@@ -412,19 +419,20 @@ export function DocumentComparison() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    borderRadius: '4px',
+                    background: '#fff',
+                    border: '1px solid #000',
+                    borderRadius: '8px',
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', minWidth: '60px' }}>File B:</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File B:</span>
                     <span style={{
                       flex: 1,
                       fontSize: '0.85rem',
-                      color: fileA.size === fileB.size ? 'var(--text)' : '#EF4444',
-                      fontFamily: 'var(--font-mono)',
+                      color: fileA.size === fileB.size ? '#000' : '#E74C3C',
+                      fontFamily: 'monospace',
                     }}>
                       {formatFileSize(fileB.size)} ({fileB.size} bytes)
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.size === fileB.size ? '#10B981' : '#EF4444'} strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.size === fileB.size ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
                       {fileA.size === fileB.size
                         ? <polyline points="20 6 9 17 4 12" />
                         : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
@@ -435,11 +443,11 @@ export function DocumentComparison() {
                 {fileA.size !== fileB.size && (
                   <div style={{
                     fontSize: '0.75rem',
-                    color: '#EF4444',
+                    color: '#E74C3C',
                     fontWeight: 600,
                     marginTop: '4px',
                   }}>
-                    ⚠️ Sizes differ by {Math.abs(fileA.size - fileB.size)} bytes
+                    Sizes differ by {Math.abs(fileA.size - fileB.size)} bytes
                   </div>
                 )}
               </div>
@@ -451,17 +459,17 @@ export function DocumentComparison() {
                 gap: '8px',
                 padding: '10px',
                 background: fileA.type === fileB.type
-                  ? 'rgba(16, 185, 129, 0.05)'
-                  : 'rgba(239, 68, 68, 0.05)',
+                  ? '#C1F5C9'
+                  : '#FADBD8',
                 border: fileA.type === fileB.type
-                  ? '1px solid rgba(16, 185, 129, 0.2)'
-                  : '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                  ? '2px solid #000'
+                  : '2px solid #000',
+                borderRadius: '12px',
               }}>
                 <div style={{
                   fontSize: '0.7rem',
                   fontWeight: 600,
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   textTransform: 'uppercase',
                   marginBottom: '4px',
                 }}>
@@ -473,19 +481,20 @@ export function DocumentComparison() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    borderRadius: '4px',
+                    background: '#fff',
+                    border: '1px solid #000',
+                    borderRadius: '8px',
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', minWidth: '60px' }}>File A:</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File A:</span>
                     <span style={{
                       flex: 1,
                       fontSize: '0.85rem',
-                      color: fileA.type === fileB.type ? 'var(--text)' : '#EF4444',
-                      fontFamily: 'var(--font-mono)',
+                      color: fileA.type === fileB.type ? '#000' : '#E74C3C',
+                      fontFamily: 'monospace',
                     }}>
                       {fileA.type}
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.type === fileB.type ? '#10B981' : '#EF4444'} strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.type === fileB.type ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
                       {fileA.type === fileB.type
                         ? <polyline points="20 6 9 17 4 12" />
                         : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
@@ -497,19 +506,20 @@ export function DocumentComparison() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    borderRadius: '4px',
+                    background: '#fff',
+                    border: '1px solid #000',
+                    borderRadius: '8px',
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', minWidth: '60px' }}>File B:</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File B:</span>
                     <span style={{
                       flex: 1,
                       fontSize: '0.85rem',
-                      color: fileA.type === fileB.type ? 'var(--text)' : '#EF4444',
-                      fontFamily: 'var(--font-mono)',
+                      color: fileA.type === fileB.type ? '#000' : '#E74C3C',
+                      fontFamily: 'monospace',
                     }}>
                       {fileB.type}
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.type === fileB.type ? '#10B981' : '#EF4444'} strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.type === fileB.type ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
                       {fileA.type === fileB.type
                         ? <polyline points="20 6 9 17 4 12" />
                         : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
@@ -520,11 +530,11 @@ export function DocumentComparison() {
                 {fileA.type !== fileB.type && (
                   <div style={{
                     fontSize: '0.75rem',
-                    color: '#EF4444',
+                    color: '#E74C3C',
                     fontWeight: 600,
                     marginTop: '4px',
                   }}>
-                    ⚠️ File types differ
+                    File types differ
                   </div>
                 )}
               </div>
@@ -535,12 +545,11 @@ export function DocumentComparison() {
           <div style={{
             padding: '16px',
             background: comparisonResult.areIdentical
-              ? 'rgba(16, 185, 129, 0.05)'
-              : 'rgba(239, 68, 68, 0.05)',
-            border: comparisonResult.areIdentical
-              ? '1px solid rgba(16, 185, 129, 0.2)'
-              : '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '8px',
+              ? '#C1F5C9'
+              : '#FADBD8',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            boxShadow: '3px 3px 0px 0px #000',
             marginBottom: '20px',
           }}>
             <div style={{
@@ -548,7 +557,7 @@ export function DocumentComparison() {
               alignItems: 'center',
               justifyContent: 'space-between',
               marginBottom: '12px',
-              color: comparisonResult.areIdentical ? '#10B981' : '#EF4444',
+              color: comparisonResult.areIdentical ? '#2ECC71' : '#E74C3C',
               fontWeight: 600,
               fontSize: '0.9rem',
             }}>
@@ -571,21 +580,22 @@ export function DocumentComparison() {
                 <div style={{
                   flex: 1,
                   height: '8px',
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  borderRadius: '4px',
+                  background: '#FADBD8',
+                  border: '1px solid #000',
+                  borderRadius: '8px',
                   overflow: 'hidden',
                 }}>
                   <div style={{
                     width: `${comparisonResult.percentageDiff}%`,
                     height: '100%',
-                    background: '#EF4444',
-                    borderRadius: '4px',
+                    background: '#E74C3C',
+                    borderRadius: '8px',
                     transition: 'width 0.5s ease-out',
                   }} />
                 </div>
                 <span style={{
                   fontSize: '0.7rem',
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   whiteSpace: 'nowrap',
                 }}>
                   {comparisonResult.byteDifferences} / {hashA.length / 2} bytes
@@ -596,16 +606,17 @@ export function DocumentComparison() {
 
           {/* Hash Comparison Visualization */}
           <div style={{
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
+            background: '#fff',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            boxShadow: '3px 3px 0px 0px #000',
             padding: '16px',
             marginBottom: '20px',
           }}>
             <div style={{
               fontSize: '0.7rem',
               fontWeight: 600,
-              color: 'var(--text-dim)',
+              color: '#666',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
               marginBottom: '12px',
@@ -615,25 +626,25 @@ export function DocumentComparison() {
 
             {/* File A Hash */}
             <div style={{ marginBottom: '12px' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
                 File A Hash
               </div>
               <div style={{
-                fontFamily: 'var(--font-mono)',
+                fontFamily: 'monospace',
                 fontSize: '0.75rem',
                 lineHeight: '1.8',
                 letterSpacing: '1px',
                 padding: '10px 14px',
-                background: 'rgba(16, 185, 129, 0.05)',
-                border: '1px solid rgba(16, 185, 129, 0.2)',
-                borderRadius: '6px',
+                background: '#C1F5C9',
+                border: '2px solid #000',
+                borderRadius: '12px',
                 wordBreak: 'break-all',
               }}>
                 {bytesA.map((byte, i) => (
                   <span
                     key={`a-${i}`}
                     style={{
-                      color: byte !== bytesB[i] ? '#EF4444' : 'var(--text)',
+                      color: byte !== bytesB[i] ? '#E74C3C' : '#000',
                       fontWeight: byte !== bytesB[i] ? '700' : '400',
                       textDecoration: byte !== bytesB[i] ? 'underline' : 'none',
                       marginRight: '2px',
@@ -647,25 +658,25 @@ export function DocumentComparison() {
 
             {/* File B Hash */}
             <div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
                 File B Hash
               </div>
               <div style={{
-                fontFamily: 'var(--font-mono)',
+                fontFamily: 'monospace',
                 fontSize: '0.75rem',
                 lineHeight: '1.8',
                 letterSpacing: '1px',
                 padding: '10px 14px',
-                background: 'rgba(239, 68, 68, 0.05)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                background: '#FADBD8',
+                border: '2px solid #000',
+                borderRadius: '12px',
                 wordBreak: 'break-all',
               }}>
                 {bytesB.map((byte, i) => (
                   <span
                     key={`b-${i}`}
                     style={{
-                      color: byte !== bytesA[i] ? '#EF4444' : 'var(--text)',
+                      color: byte !== bytesA[i] ? '#E74C3C' : '#000',
                       fontWeight: byte !== bytesA[i] ? '700' : '400',
                       textDecoration: byte !== bytesA[i] ? 'underline' : 'none',
                       marginRight: '2px',
@@ -681,16 +692,17 @@ export function DocumentComparison() {
           {/* Explanation */}
           <div style={{
             padding: '14px',
-            background: 'rgba(0, 192, 255, 0.05)',
-            border: '1px solid rgba(0, 192, 255, 0.15)',
-            borderRadius: '8px',
+            background: '#C1F5C9',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            boxShadow: '3px 3px 0px 0px #000',
             fontSize: '0.8rem',
-            color: 'var(--text-secondary)',
+            color: '#333',
             lineHeight: '1.6',
           }}>
             <div style={{
               fontWeight: 600,
-              color: 'var(--primary)',
+              color: '#000',
               marginBottom: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -704,7 +716,7 @@ export function DocumentComparison() {
               How this works
             </div>
             <p style={{ margin: 0 }}>
-              <strong style={{ color: 'var(--text)' }}>
+              <strong style={{ color: '#000' }}>
                 SHA-256 hash is calculated from file CONTENT only.
               </strong>{' '}
               Filename, size, and type are metadata. Two files with different names but same content will have the same hash. The hash comparison above shows if the actual file content is identical.
@@ -738,9 +750,10 @@ export function DocumentComparison() {
       {isCalculating && (
         <div style={{
           padding: '16px',
-          background: 'rgba(0, 192, 255, 0.1)',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid rgba(0, 192, 255, 0.3)',
+          background: '#C1F5C9',
+          borderRadius: '12px',
+          border: '2px solid #000',
+          boxShadow: '3px 3px 0px 0px #000',
           marginTop: '20px',
         }}>
           <div style={{
@@ -750,7 +763,7 @@ export function DocumentComparison() {
           }}>
             <div className="tf-spinner" style={{ width: 18, height: 18 }} />
             <div style={{
-              color: 'var(--primary)',
+              color: '#000',
               fontWeight: 600,
               fontSize: '0.9rem',
             }}>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FileEdit, Ruler } from 'lucide-react';
 
 interface FraudSimulationProps {
   originalHash: string;
@@ -100,10 +101,11 @@ export function FraudSimulation({
   return (
     <div style={{
       padding: '20px',
-      background: 'rgba(239, 68, 68, 0.05)',
-      border: '1px solid rgba(239, 68, 68, 0.2)',
+      background: '#FADBD8',
+      border: '2px solid #000',
       borderRadius: '12px',
       marginTop: '20px',
+      boxShadow: '3px 3px 0px 0px #000',
     }}>
       {!simulated ? (
         <>
@@ -112,7 +114,7 @@ export function FraudSimulation({
             alignItems: 'center',
             gap: '10px',
             marginBottom: '16px',
-            color: '#F59E0B',
+            color: '#F39C12',
             fontWeight: 600,
             fontSize: '0.9rem',
           }}>
@@ -125,7 +127,7 @@ export function FraudSimulation({
           </div>
 
           <p style={{
-            color: 'var(--text-secondary)',
+            color: '#333',
             fontSize: '0.85rem',
             lineHeight: '1.6',
             marginBottom: '16px',
@@ -143,25 +145,26 @@ export function FraudSimulation({
               style={{
                 flex: 1,
                 padding: '12px 16px',
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1.5px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '8px',
-                color: '#EF4444',
+                background: '#FADBD8',
+                border: '2px solid #000',
+                borderRadius: '12px',
+                color: '#E74C3C',
                 fontSize: '0.85rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
+                boxShadow: '3px 3px 0px 0px #000',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                e.currentTarget.style.borderColor = '#EF4444';
+                e.currentTarget.style.background = '#F5B7B1';
+                e.currentTarget.style.borderColor = '#000';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                e.currentTarget.style.background = '#FADBD8';
+                e.currentTarget.style.borderColor = '#000';
               }}
             >
-              📝 Simulate Rename
+              <FileEdit size={14} /> Simulate Rename
             </button>
 
             <button
@@ -169,25 +172,26 @@ export function FraudSimulation({
               style={{
                 flex: 1,
                 padding: '12px 16px',
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1.5px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '8px',
-                color: '#EF4444',
+                background: '#FADBD8',
+                border: '2px solid #000',
+                borderRadius: '12px',
+                color: '#E74C3C',
                 fontSize: '0.85rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
+                boxShadow: '3px 3px 0px 0px #000',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                e.currentTarget.style.borderColor = '#EF4444';
+                e.currentTarget.style.background = '#F5B7B1';
+                e.currentTarget.style.borderColor = '#000';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                e.currentTarget.style.background = '#FADBD8';
+                e.currentTarget.style.borderColor = '#000';
               }}
             >
-              📏 Simulate Size Change
+              <Ruler size={14} /> Simulate Size Change
             </button>
           </div>
         </>
@@ -199,12 +203,13 @@ export function FraudSimulation({
             gap: '10px',
             marginBottom: '20px',
             padding: '12px',
-            background: tamperField === 'name' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-            border: tamperField === 'name' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '8px',
-            color: tamperField === 'name' ? '#F59E0B' : '#EF4444',
+            background: tamperField === 'name' ? '#FEF5E7' : '#FADBD8',
+            border: '2px solid #000',
+            borderRadius: '12px',
+            color: tamperField === 'name' ? '#F39C12' : '#E74C3C',
             fontWeight: 600,
             fontSize: '0.9rem',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
             {tamperField === 'name' ? (
               <>
@@ -229,16 +234,17 @@ export function FraudSimulation({
 
           {/* Hash Comparison */}
           <div style={{
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
+            background: '#fff',
+            border: '2px solid #000',
+            borderRadius: '12px',
             padding: '16px',
             marginBottom: '20px',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
             <div style={{
               fontSize: '0.7rem',
               fontWeight: 600,
-              color: 'var(--text-dim)',
+              color: '#666',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
               marginBottom: '12px',
@@ -284,7 +290,7 @@ export function FraudSimulation({
                 width: '80px',
                 fontSize: '0.7rem',
                 fontWeight: 600,
-                color: 'var(--text-dim)',
+                color: '#666',
                 textTransform: 'uppercase',
               }}>
                 Original
@@ -293,13 +299,13 @@ export function FraudSimulation({
                 flex: 1,
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.7rem',
-                color: 'var(--text)',
+                color: '#000',
                 wordBreak: 'break-all',
                 lineHeight: '1.8',
                 letterSpacing: '1px',
-                background: 'rgba(16, 185, 129, 0.05)',
-                border: '1px solid rgba(16, 185, 129, 0.2)',
-                borderRadius: '6px',
+                background: '#C1F5C9',
+                border: '2px solid #000',
+                borderRadius: '12px',
                 padding: '10px 14px',
               }}>
                 {originalHash.match(/.{1,2}/g)?.map((byte, i) => (
@@ -310,8 +316,8 @@ export function FraudSimulation({
                       margin: '0 1px',
                       color: originalHash[i * 2] !== tamperedHash[i * 2] ||
                              originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                             ? '#EF4444'
-                             : 'var(--text)',
+                             ? '#E74C3C'
+                             : '#000',
                       fontWeight: originalHash[i * 2] !== tamperedHash[i * 2] ||
                                  originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
                                  ? '700'
@@ -339,7 +345,7 @@ export function FraudSimulation({
                 width: '80px',
                 fontSize: '0.7rem',
                 fontWeight: 600,
-                color: 'var(--text-dim)',
+                color: '#666',
                 textTransform: 'uppercase',
               }}>
                 Tampered
@@ -348,13 +354,13 @@ export function FraudSimulation({
                 flex: 1,
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.7rem',
-                color: 'var(--text)',
+                color: '#000',
                 wordBreak: 'break-all',
                 lineHeight: '1.8',
                 letterSpacing: '1px',
-                background: 'rgba(239, 68, 68, 0.05)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                background: '#FADBD8',
+                border: '2px solid #000',
+                borderRadius: '12px',
                 padding: '10px 14px',
               }}>
                 {tamperedHash.match(/.{1,2}/g)?.map((byte, i) => (
@@ -365,8 +371,8 @@ export function FraudSimulation({
                       margin: '0 1px',
                       color: originalHash[i * 2] !== tamperedHash[i * 2] ||
                              originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                             ? '#EF4444'
-                             : 'var(--text)',
+                             ? '#E74C3C'
+                             : '#000',
                       fontWeight: originalHash[i * 2] !== tamperedHash[i * 2] ||
                                  originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
                                  ? '700'
@@ -387,16 +393,16 @@ export function FraudSimulation({
             <div style={{
               marginTop: '12px',
               padding: '10px 14px',
-              background: tamperField === 'name' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              border: tamperField === 'name' ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '6px',
+              background: tamperField === 'name' ? '#C1F5C9' : '#FADBD8',
+              border: '2px solid #000',
+              borderRadius: '12px',
             }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 marginBottom: '8px',
-                color: tamperField === 'name' ? '#10B981' : '#EF4444',
+                color: tamperField === 'name' ? '#2ECC71' : '#E74C3C',
                 fontWeight: 600,
                 fontSize: '0.8rem',
               }}>
@@ -411,21 +417,22 @@ export function FraudSimulation({
                 <div style={{
                   flex: 1,
                   height: '8px',
-                  background: tamperField === 'name' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                  background: tamperField === 'name' ? '#C1F5C9' : '#FADBD8',
                   borderRadius: '4px',
                   overflow: 'hidden',
+                  border: '1px solid #000',
                 }}>
                   <div style={{
                     width: `${difference}%`,
                     height: '100%',
-                    background: tamperField === 'name' ? '#10B981' : '#EF4444',
+                    background: tamperField === 'name' ? '#2ECC71' : '#E74C3C',
                     borderRadius: '4px',
                     transition: 'width 0.5s ease-out',
                   }} />
                 </div>
                 <span style={{
                   fontSize: '0.7rem',
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   whiteSpace: 'nowrap',
                 }}>
                   {Math.round((originalHash.length / 2) * (difference / 100))} / {originalHash.length / 2} bytes changed
@@ -436,16 +443,17 @@ export function FraudSimulation({
 
           {/* Metadata Comparison */}
           <div style={{
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
+            background: '#fff',
+            border: '2px solid #000',
+            borderRadius: '12px',
             padding: '16px',
             marginBottom: '20px',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
             <div style={{
               fontSize: '0.7rem',
               fontWeight: 600,
-              color: 'var(--text-dim)',
+              color: '#666',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
               marginBottom: '12px',
@@ -462,15 +470,15 @@ export function FraudSimulation({
                 display: 'flex',
                 alignItems: 'center',
                 padding: '10px',
-                background: 'rgba(16, 185, 129, 0.05)',
-                border: '1px solid rgba(16, 185, 129, 0.2)',
-                borderRadius: '6px',
+                background: '#C1F5C9',
+                border: '2px solid #000',
+                borderRadius: '12px',
               }}>
                 <div style={{
                   width: '100px',
                   fontSize: '0.7rem',
                   fontWeight: 600,
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   textTransform: 'uppercase',
                 }}>
                   Original
@@ -478,12 +486,12 @@ export function FraudSimulation({
                 <div style={{
                   flex: 1,
                   fontSize: '0.85rem',
-                  color: 'var(--text)',
+                  color: '#000',
                   wordBreak: 'break-all',
                 }}>
                   {tamperField === 'name' ? fileName : `${formatFileSize(fileSize)} (${mimeType})`}
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" strokeWidth="2">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
@@ -492,15 +500,15 @@ export function FraudSimulation({
                 display: 'flex',
                 alignItems: 'center',
                 padding: '10px',
-                background: 'rgba(239, 68, 68, 0.05)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '6px',
+                background: '#FADBD8',
+                border: '2px solid #000',
+                borderRadius: '12px',
               }}>
                 <div style={{
                   width: '100px',
                   fontSize: '0.7rem',
                   fontWeight: 600,
-                  color: 'var(--text-dim)',
+                  color: '#666',
                   textTransform: 'uppercase',
                 }}>
                   Tampered
@@ -508,12 +516,12 @@ export function FraudSimulation({
                 <div style={{
                   flex: 1,
                   fontSize: '0.85rem',
-                  color: '#EF4444',
+                  color: '#E74C3C',
                   wordBreak: 'break-all',
                 }}>
                   {getTamperedValue()}
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E74C3C" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="15" y1="9" x2="9" y2="15" />
                   <line x1="9" y1="9" x2="15" y2="15" />
@@ -525,16 +533,17 @@ export function FraudSimulation({
           {/* Explanation */}
           <div style={{
             padding: '14px',
-            background: 'rgba(0, 192, 255, 0.05)',
-            border: '1px solid rgba(0, 192, 255, 0.15)',
-            borderRadius: '8px',
+            background: '#C1F5C9',
+            border: '2px solid #000',
+            borderRadius: '12px',
             fontSize: '0.8rem',
-            color: 'var(--text-secondary)',
+            color: '#333',
             lineHeight: '1.6',
+            boxShadow: '3px 3px 0px 0px #000',
           }}>
             <div style={{
               fontWeight: 600,
-              color: 'var(--primary)',
+              color: '#D2FF00',
               marginBottom: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -550,7 +559,7 @@ export function FraudSimulation({
             <p style={{ margin: 0 }}>
               {tamperField === 'name' ? (
                 <>
-                  <strong style={{ color: 'var(--text)' }}>
+                  <strong style={{ color: '#000' }}>
                     Hash is based on file content, not file name.
                   </strong>{' '}
                   Renaming a file doesn't change its hash because the content
@@ -559,7 +568,7 @@ export function FraudSimulation({
                 </>
               ) : (
                 <>
-                  <strong style={{ color: 'var(--text)' }}>
+                  <strong style={{ color: '#000' }}>
                     SHA-256 is designed to be extremely sensitive.
                   </strong>{' '}
                   Changing any bit of file content causes the hash to change
@@ -577,21 +586,22 @@ export function FraudSimulation({
               width: '100%',
               padding: '12px',
               background: 'transparent',
-              border: '1.5px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--text-secondary)',
+              border: '2px solid #000',
+              borderRadius: '12px',
+              color: '#333',
               fontSize: '0.85rem',
               fontWeight: 600,
               cursor: 'pointer',
               transition: 'all 0.2s',
+              boxShadow: '3px 3px 0px 0px #000',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--primary)';
-              e.currentTarget.style.color = 'var(--primary)';
+              e.currentTarget.style.borderColor = '#D2FF00';
+              e.currentTarget.style.color = '#D2FF00';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = '#000';
+              e.currentTarget.style.color = '#333';
             }}
           >
             ↻ Reset & Try Again

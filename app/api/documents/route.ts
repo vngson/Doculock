@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDocumentsCollection, AnalyticsDocument, toAnalyticsDocument } from '@/lib/mongodb';
+import { rateLimit } from '@/lib/rate-limit';
+import { validateSearchQuery, validateLimit, validateAddress } from '@/lib/validation';
 
 /**
  * Pagination parameters
@@ -17,23 +19,23 @@ interface PaginationParams {
  * GET /api/documents - Query documents from MongoDB with pagination and filtering
  */
 export async function GET(request: NextRequest) {
+  const rl = rateLimit(request, { max: 60, windowMs: 60000 });
+  if (rl) return rl;
+
   try {
     const { searchParams } = new URL(request.url);
 
     // Parse pagination parameters
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const creator = searchParams.get('creator') || undefined;
-    const searchQuery = searchParams.get('search') || undefined;
+    const limit = validateLimit(searchParams.get('limit'));
+    const creator = validateAddress(searchParams.get('creator')) || undefined;
+    const searchQuery = validateSearchQuery(searchParams.get('search')) || undefined;
     const sort = searchParams.get('sort') || 'timestamp';
     const order = searchParams.get('order') || 'desc';
 
     // Validate parameters
     if (page < 1) {
       return NextResponse.json({ error: 'Page must be >= 1' }, { status: 400 });
-    }
-    if (limit < 1 || limit > 100) {
-      return NextResponse.json({ error: 'Limit must be between 1 and 100' }, { status: 400 });
     }
 
     const collection = await getDocumentsCollection();
@@ -54,9 +56,6 @@ export async function GET(request: NextRequest) {
     const sortOrder = order === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sort] = sortOrder;
-
-    console.log('[Documents API] Query:', JSON.stringify(query));
-    console.log('[Documents API] Sort:', JSON.stringify(sortObj));
 
     // Execute query with pagination
     const skip = (page - 1) * limit;

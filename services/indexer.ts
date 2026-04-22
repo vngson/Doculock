@@ -2,6 +2,7 @@ import { SuiClient } from '@mysten/sui/client';
 import { getDocumentsCollection, StoredDocument } from '@/lib/mongodb';
 import { doculockConfig } from '@/lib/config';
 import { bytesToHex } from '@/lib/crypto';
+import { logger } from '@/lib/logger';
 
 interface SuiDocumentEvent {
   id: {
@@ -101,7 +102,7 @@ export async function syncEvents(suiClient: SuiClient): Promise<number> {
 
     return syncedCount;
   } catch (error) {
-    console.error('[Indexer] Error syncing events:', error);
+    logger.error('Error syncing events:', error);
     throw error;
   }
 }
@@ -133,7 +134,7 @@ export async function getSyncStats(): Promise<{
       lastSyncedAt: lastSynced?.indexed_at,
     };
   } catch (error) {
-    console.error('[Indexer] Error getting sync stats:', error);
+    logger.error('Error getting sync stats:', error);
     return {
       blockchainCount: 0,
       databaseCount: 0,
@@ -147,7 +148,7 @@ export async function clearIndex(): Promise<number> {
     const result = await collection.deleteMany({});
     return result.deletedCount;
   } catch (error) {
-    console.error('[Indexer] Error clearing index:', error);
+    logger.error('Error clearing index:', error);
     throw error;
   }
 }
