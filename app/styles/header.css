@@ -193,6 +193,7 @@
   height: 42px;
   min-height: 42px;
   box-sizing: border-box;
+  transform: translate(2px, 2px);
 }
 
 @media (min-width: 531px) {
@@ -202,8 +203,8 @@
 }
 
 .site-network:hover {
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 .dot {

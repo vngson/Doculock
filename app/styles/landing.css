@@ -417,7 +417,8 @@
   background: var(--primary);
   color: var(--black);
   border: 2px solid var(--black);
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-xs); */
+  transform: translate(2px, 2px);
 }
 
 /* ── FraudSimulation ── */
@@ -464,7 +465,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -711,7 +713,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
   font-family: inherit;
 }
 
@@ -1330,17 +1333,17 @@
   border-radius: 8px;
   background: var(--tertiary);
   border: 2px solid var(--black);
-  box-shadow: var(--shadow-xs);
   color: var(--black);
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.15s;
+  transform: translate(2px, 2px);
 }
 
 .fu-explorer-link:hover {
-  box-shadow: none;
-  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
 }
 
 .fu-fraud-btn {
@@ -1349,7 +1352,7 @@
   background: var(--warning-bg);
   border: 2px solid var(--black);
   border-radius: 8px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
   color: var(--warning);
   font-size: 0.85rem;
   font-weight: 600;
@@ -1360,11 +1363,12 @@
   justify-content: center;
   gap: 8px;
   font-family: inherit;
+  transform: translate(2px, 2px);
 }
 
 .fu-fraud-btn:hover {
-  box-shadow: none;
-  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-sm);
+  transform: translate(0, 0);
 }
 
 .fu-batch-info-box {
@@ -1474,12 +1478,12 @@
   white-space: nowrap;
   line-height: 1;
   text-transform: uppercase;
-  box-shadow: var(--shadow-xs);
+  transform: translate(1px, 1px);
 }
 
 .sui-badge:hover {
-  transform: translate(1px, 1px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .sui-badge--full-wrapper {
@@ -1597,14 +1601,15 @@
   border: 2.5px solid var(--black);
   cursor: pointer;
   font-family: var(--font-sans);
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-xs); */
+  transform: translate(2px, 2px);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
 .cta-primary:hover {
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 .cta-outline {
@@ -1617,15 +1622,16 @@
   border: 2.5px solid var(--black);
   cursor: pointer;
   font-family: var(--font-sans);
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-xs); */
+  transform: translate(2px, 2px);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
 .cta-outline:hover {
   background: var(--primary);
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 .cta-ghost {
@@ -1668,7 +1674,8 @@
   );
 
   /* Neo-brutal shadow — dùng filter vì box-shadow bị clip */
-  filter: drop-shadow(4px 4px 0px #000);
+  filter: drop-shadow(2px 2px 0px #000);
+  transform: translate(2px, 2px);
 
   transition: all 0.15s ease;
 }
@@ -1676,8 +1683,8 @@
 
 /* hover */
 .cta-arrow:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000;
+  transform: translate(0, 0);
+  filter: drop-shadow(4px 4px 0px #000);
 }
 
 /* active */
@@ -1832,12 +1839,12 @@
   border-radius: 12px;
   margin-bottom: 8px;
   font-size: 0.85rem;
-  box-shadow: var(--shadow-xs);
+  transform: translate(1px, 1px);
 }
 
 .activity-item:hover {
-  transform: translate(1px, 1px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
   background: var(--tertiary);
 }
 
@@ -2113,7 +2120,7 @@
   cursor: pointer;
   text-decoration: none;
   border: 2.5px solid transparent;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .cert-btn--primary {
@@ -2123,8 +2130,8 @@
 }
 
 .cert-btn--primary:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .cert-btn--outline {
@@ -2135,8 +2142,8 @@
 
 .cert-btn--outline:hover {
   background: var(--tertiary);
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .cert-btn--ghost {
@@ -2190,12 +2197,12 @@
   cursor: pointer;
   margin-top: 12px;
   text-transform: uppercase;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .verify-btn:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .verify-btn:disabled {
@@ -2263,11 +2270,11 @@
   font-weight: 800;
   border: 2.5px solid var(--black);
   cursor: pointer;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
   text-transform: uppercase;
 }
 
 .empty-state-action:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }

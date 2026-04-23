@@ -88,13 +88,14 @@
   background: var(--card);
   border: 2.5px solid var(--black);
   border-radius: 20px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
   animation: fade-up 0.3s ease-out 0.3s both;
 }
 
 .info-card:hover {
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-md);
 }
 
 .info-card-icon {
@@ -207,6 +208,7 @@
   border: 2px solid var(--black);
   border-radius: var(--radius);
   /* box-shadow: var(--shadow-xs); */
+  transform: translate(2px, 2px);
   animation: fade-up 0.3s ease-out both;
 }
 
@@ -218,8 +220,8 @@
 }
 
 .stat-card:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .stat-card--loading {

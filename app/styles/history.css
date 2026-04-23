@@ -39,13 +39,13 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  box-shadow: var(--shadow-xs);
+  transform: translate(1px, 1px);
 }
 
 .hp-refresh:hover {
   background: var(--tertiary);
-  transform: translate(1px, 1px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .hp-list {
@@ -61,12 +61,12 @@
   border-radius: var(--radius);
   cursor: pointer;
   animation: fade-up 0.3s ease-out both;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .hp-card:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .hp-card-row {
@@ -182,12 +182,12 @@
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .tf-btn-qr:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 /* ── QR Modal ── */
@@ -315,11 +315,11 @@
   justify-content: center;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .qr-copy-btn:hover {
   background: var(--tertiary);
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }

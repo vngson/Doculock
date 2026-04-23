@@ -137,7 +137,8 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 @media (min-width: 640px) {
@@ -151,8 +152,8 @@
 .fz-dropzone:hover {
   border-style: solid;
   background: var(--tertiary);
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 .fz-dropzone--dragover {
@@ -212,12 +213,12 @@
   border-radius: var(--radius);
   cursor: pointer;
   animation: fade-up 0.3s ease-out both;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .dc-card:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .dc-header {
@@ -290,13 +291,13 @@
   gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .dc-btn:hover {
   background: var(--tertiary);
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .dc-btn--primary {
@@ -436,13 +437,13 @@
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
 }
 
 .dd-btn:hover {
   background: var(--tertiary);
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .dd-btn--primary {

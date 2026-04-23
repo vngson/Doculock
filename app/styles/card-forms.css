@@ -181,13 +181,13 @@
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: var(--shadow-xs);
+  transform: translate(1px, 1px);
 }
 
 .vf-copy-btn:hover {
   background: var(--tertiary);
-  transform: translate(1px, 1px);
-  box-shadow: none;
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-xs);
 }
 
 .vf-hash--fail {
@@ -212,7 +212,8 @@
   gap: 8px;
   background: var(--primary);
   color: var(--black);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
+  transform: translate(2px, 2px);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -227,8 +228,8 @@
 }
 
 .tf-submit:hover:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 .tf-submit:active:not(:disabled) {
