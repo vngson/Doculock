@@ -164,26 +164,6 @@ export default function Home() {
         <div className="site-header-right">
           <ConnectButton
             connectText="Connect Wallet"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "0 20px",
-              border: "2.5px solid #000000",
-              borderRadius: "12px",
-              background: "#D2FF00",
-              color: "#000000",
-              fontSize: "0.85rem",
-              fontWeight: 800,
-              fontFamily: "inherit",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-              whiteSpace: "nowrap",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              boxShadow: "3px 3px 0px 0px rgba(0,0,0,1)",
-              boxSizing: "border-box",
-            }}
           />
         </div>
       </header>
