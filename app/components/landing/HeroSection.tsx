@@ -1,53 +1,26 @@
 "use client";
 
-import Image from "next/image";
 import { NetworkStats } from "./NetworkStats";
 import { SuiBadge } from "../ui/SuiBadge";
-import { useEffect, useState } from "react";
 
 interface HeroSectionProps {
   onUploadClick: () => void;
   onVerifyClick: () => void;
   onDemoClick: () => void;
-}
-
-interface Stats {
-  totalDocuments: number;
-  uniqueUsers: number;
+  walletConnected: boolean;
 }
 
 export function HeroSection({
   onUploadClick,
   onVerifyClick,
   onDemoClick,
+  walletConnected,
 }: HeroSectionProps) {
-  const [stats, setStats] = useState<Stats | null>(null);
-
-  useEffect(() => {
-    fetch("/api/analytics/stats")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => data && setStats(data))
-      .catch(() => {});
-  }, []);
-
   return (
     <section className="landing-hero">
       <div className="landing-hero-bg"></div>
 
-      {/* Logo watermark background */}
-      {/* <div className="hero-watermark" aria-hidden="true">
-        <Image
-          src="/Doculock_Transparent_Logo.png"
-          alt=""
-          width={400}
-          height={400}
-          priority
-        />
-      </div> */}
-
       <div className="landing-hero-content">
-        {/* <h1 className="landing-title">DocuLock</h1> */}
-        {/* <p className="landing-subtitle">Proof of Existence on Sui Blockchain</p> */}
         <p className="landing-subtitle">
           Timestamp your documents on-chain.
           <br />
@@ -55,21 +28,27 @@ export function HeroSection({
         </p>
 
         <div className="cta-group">
-          <button className="cta-primary" onClick={onUploadClick}>
+          <button
+            className={` ${!walletConnected ? "cta--disabled cta-outline" : "cta-primary"}`}
+            onClick={walletConnected ? onUploadClick : undefined}
+            disabled={!walletConnected}
+          >
             Upload Document
           </button>
-          <button className="cta-outline" onClick={onVerifyClick}>
+          <button 
+            className={` ${!walletConnected ? "cta-primary" : " cta-outline"}`} onClick={onVerifyClick}>
             Verify Document
           </button>
-          <button className="cta-ghost" onClick={onDemoClick}>
+          <button
+            className={`cta-ghost ${!walletConnected ? "cta--disabled" : ""}`}
+            onClick={walletConnected ? onDemoClick : undefined}
+            disabled={!walletConnected}
+          >
             Try Demo
           </button>
         </div>
 
-        <NetworkStats
-          totalDocuments={stats?.totalDocuments}
-          totalCreators={stats?.uniqueUsers}
-        />
+        <NetworkStats />
 
         <div className="landing-powered">
           <SuiBadge variant="full" />

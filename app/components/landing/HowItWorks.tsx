@@ -53,7 +53,7 @@ export function HowItWorks() {
 
   return (
     <section className="how-it-works" ref={sectionRef}>
-      <h2 className="section-title">How it Works</h2>
+      {/* <h2 className="section-title">How it Works</h2>
       <div className="steps-container">
         {steps.map((step, i) => (
           <div
@@ -75,7 +75,8 @@ export function HowItWorks() {
             )}
           </div>
         ))}
-      </div>
+      </div> */}
+      <img src="/HowItWork.png" className="how-it-works-img" alt="How it works" />
     </section>
   );
 }

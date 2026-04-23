@@ -24,7 +24,7 @@ import AnalyticsPage from "./analytics/page";
 type Tab = "analytics" | "upload" | "verify" | "history";
 
 export default function Home() {
-  const [tab, setTab] = useState<Tab>("upload");
+  const [tab, setTab] = useState<Tab>("verify");
   const [preloadedHash, setPreloadedHash] = useState("");
   const [demoRunning, setDemoRunning] = useState(false);
   const [demoStep, setDemoStep] = useState("");
@@ -49,6 +49,7 @@ export default function Home() {
       const hashParam = searchParams.get("hash");
 
       if (["upload", "verify", "history", "analytics"].includes(tabName)) {
+        if (!account && tabName !== "verify") return;
         setTab(tabName as Tab);
         setPreloadedHash(hashParam || "");
         // Scroll to app section when navigating via hash
@@ -59,9 +60,10 @@ export default function Home() {
     handleHashChange();
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
+  }, [account]);
 
   const handleTabChange = (newTab: Tab) => {
+    if (!account && newTab !== "verify") return;
     setTab(newTab);
     if (newTab !== "verify") {
       window.history.pushState(null, "", window.location.pathname);
@@ -197,6 +199,7 @@ export default function Home() {
           scrollToApp();
         }}
         onDemoClick={runDemo}
+        walletConnected={!!account}
       />
       <NeoBrutalistDivider />
       <HowItWorks />
@@ -234,8 +237,9 @@ export default function Home() {
             aria-selected={tab === "analytics"}
             aria-controls="panel-analytics"
             id="tab-analytics"
-            className={`tab ${tab === "analytics" ? "tab--active" : ""}`}
+            className={`tab ${tab === "analytics" ? "tab--active" : ""} ${!account ? "tab--disabled" : ""}`}
             onClick={() => handleTabChange("analytics")}
+            {...(!account ? { tabIndex: -1, "aria-disabled": true } : {})}
           >
             <BarChart3 size={16} />
             Analytics
@@ -245,8 +249,9 @@ export default function Home() {
             aria-selected={tab === "upload"}
             aria-controls="panel-upload"
             id="tab-upload"
-            className={`tab ${tab === "upload" ? "tab--active" : ""}`}
+            className={`tab ${tab === "upload" ? "tab--active" : ""} ${!account ? "tab--disabled" : ""}`}
             onClick={() => handleTabChange("upload")}
+            {...(!account ? { tabIndex: -1, "aria-disabled": true } : {})}
           >
             <FileText size={16} />
             Upload
@@ -267,8 +272,9 @@ export default function Home() {
             aria-selected={tab === "history"}
             aria-controls="panel-history"
             id="tab-history"
-            className={`tab ${tab === "history" ? "tab--active" : ""}`}
+            className={`tab ${tab === "history" ? "tab--active" : ""} ${!account ? "tab--disabled" : ""}`}
             onClick={() => handleTabChange("history")}
+            {...(!account ? { tabIndex: -1, "aria-disabled": true } : {})}
           >
             <ClipboardList size={16} />
             History

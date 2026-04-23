@@ -467,7 +467,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
 
                 {success && !showFraudTest && txDigest && (
                   <a
-                    href={`https://suivision.xyz/txblock/${txDigest}`}
+                    href={`https://testnet.suivision.xyz/txblock/${txDigest}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -485,6 +485,18 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                       fontWeight: 500,
                       textDecoration: 'none',
                       transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#C1F5C9';
+                      e.currentTarget.style.borderColor = '#000';
+                      e.currentTarget.style.boxShadow = '1px 1px 0px 0px #000';
+                      e.currentTarget.style.transform = 'translate(2px, 2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#C1F5C9';
+                      e.currentTarget.style.borderColor = '#000';
+                      e.currentTarget.style.boxShadow = '3px 3px 0px 0px #000';
+                      e.currentTarget.style.transform = 'translate(0, 0)';
                     }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
