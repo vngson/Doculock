@@ -8,7 +8,7 @@
   border: 2.5px solid var(--black);
   border-radius: 16px;
   margin-bottom: 20px;
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-sm); */
 }
 
 @media (min-width: 640px) {

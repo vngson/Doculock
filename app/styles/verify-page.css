@@ -211,7 +211,7 @@
   background: var(--surface);
   border: 2px solid var(--black);
   border-radius: var(--radius);
-  cursor: pointer;
+  /* cursor: pointer; */
   animation: fade-up 0.3s ease-out both;
   transform: translate(2px, 2px);
 }
