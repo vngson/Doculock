@@ -337,7 +337,7 @@ export function BatchUploader() {
                     </div>
                   )}
                   {isHashing && !doc.hash && (
-                    <div className="tf-spinner" style={{ width: 16, height: 16 }} />
+                    <div className="tf-spinner tf-spinner--sm" />
                   )}
                   {result && (
                     <div className={`bu-badge ${result.status === 'success' ? 'bu-badge--ok' : 'bu-badge--fail'}`}>
@@ -361,11 +361,11 @@ export function BatchUploader() {
               </div>
               <div className="bu-complete-stats">
                 <div className="bu-complete-stat">
-                  <strong style={{ color: 'var(--success)' }}>{results.filter(r => r.status === 'success').length}</strong> successfully stored
+                  <strong className="fv-text-success">{results.filter(r => r.status === 'success').length}</strong> successfully stored
                 </div>
                 {results.filter(r => r.status === 'error').length > 0 && (
                   <div className="bu-complete-stat">
-                    <strong style={{ color: 'var(--error)' }}>{results.filter(r => r.status === 'error').length}</strong> failed
+                    <strong className="fv-text-error">{results.filter(r => r.status === 'error').length}</strong> failed
                   </div>
                 )}
               </div>
@@ -374,7 +374,7 @@ export function BatchUploader() {
 
           {/* Error Message */}
           {error && (
-            <div className="tf-error" style={{ marginBottom: '16px' }}>
+            <div className="tf-error tf-error--mb">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />

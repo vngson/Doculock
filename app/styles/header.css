@@ -1,0 +1,267 @@
+/* ── Header ── */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 2.5px solid var(--black);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  gap: 8px;
+  position: relative;
+  z-index: 100;
+}
+
+@media (max-width: 460px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .site-header-right {
+    width: 100%;
+    order: 2;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 430px) {
+  .site-header {
+    padding: 10px 12px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .site-header-left {
+    gap: 8px;
+  }
+  .site-header-right {
+    width: 100%;
+    order: 2;
+    gap: 6px;
+  }
+  .site-brand {
+    font-size: 1rem;
+  }
+  .site-tagline,
+  .site-network {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .site-header {
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 28px;
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-header {
+    margin-bottom: 32px;
+  }
+}
+
+.site-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .site-header-left {
+    gap: 14px;
+  }
+}
+
+.site-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: sepia(1) hue-rotate(20deg) saturate(4);
+}
+
+.site-brand {
+  font-size: 2rem;
+  /* font-weight: 900; */
+  letter-spacing: -0.02em;
+  color: var(--black);
+  font-family: "Oi", sans-serif;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .site-brand {
+    font-size: 2rem;
+  }
+}
+
+.site-tagline {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 2px;
+  font-weight: 700;
+}
+
+@media (max-width: 639px) {
+  .site-tagline {
+    display: none;
+  }
+}
+
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .site-header-right {
+    gap: 12px;
+  }
+}
+
+/* Unified height for header elements */
+@media (min-width: 530px) {
+  .site-header-right > div:not(.site-network),
+  .site-header-right > div > div > button,
+  .site-network,
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
+    height: 42px !important;
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (min-width: 461px) and (max-width: 530px) {
+  .site-network {
+    display: none !important;
+  }
+  .site-header-right > div:not(.site-network),
+  .site-header-right > div > div > button,
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
+    height: 38px !important;
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 460px) {
+  .site-network {
+    display: none !important;
+  }
+  .site-header-right > div:not(.site-network),
+  .site-header-right > div > div > button,
+  [data-dapp-kit].Button_buttonVariants__x1s81q0,
+  [data-dapp-kit] .Button_buttonVariants__x1s81q0,
+  .AccountDropdownMenu_connectedAccount__div2ql0,
+  [data-dapp-kit] .AccountDropdownMenu_connectedAccount__div2ql0 {
+    height: 36px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+}
+
+.site-network {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 0 16px;
+  background: var(--surface);
+  border: 2px solid var(--black);
+  border-radius: 20px;
+  height: 42px;
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 531px) {
+  .site-network {
+    display: flex;
+  }
+}
+
+.site-network:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-xs);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  border: 1.5px solid var(--black);
+}
+
+/* Container */
+.neo-brutalist-divider {
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  cursor: default;
+  width: calc(100vw - 40px);
+  margin-left: calc(-50vw + 50% + 20px);
+  margin-right: calc(-50vw + 50% + 20px);
+}
+
+/* Responsive: Desktop (md = 768px) */
+@media (min-width: 768px) {
+  .neo-brutalist-divider {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+  }
+}
+
+/* Icon Box (Ô chứa icon Neo-Brutalism) */
+.icon-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  /* border: 2px solid black;
+  box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+  background-color: white; */
+  padding: 0.25rem; /* p-1 */
+  /* transition: transform 0.3s ease-out;  */
+}
+
+/* Hover Effect cho Icon Trái */
+/* .neo-brutalist-divider:hover .icon-box.left {
+  transform: rotate(180deg);
+} */
+
+/* Hover Effect cho Icon Phải */
+/* .neo-brutalist-divider:hover .icon-box.right {
+  transform: rotate(-180deg);
+} */
+
+/* Đường kẻ */
+.divider-line {
+  height: 1px;
+  background-color: black;
+  flex-grow: 1;
+  margin-left: 0.5rem; /* mx-2 */
+  margin-right: 0.5rem; /* mx-2 */
+}

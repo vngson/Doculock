@@ -1,0 +1,623 @@
+/* ── Mode Toggle ── */
+
+.fv-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.fv-mode-btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: transparent;
+  border-color: var(--black);
+}
+
+.fv-mode-btn--active {
+  background: var(--tertiary);
+}
+
+/* ── Card Override ── */
+
+.fv-card-full {
+  max-width: 100%;
+  overflow: visible;
+}
+
+/* ── Header Text ── */
+
+.fv-header-text {
+  flex: 1;
+}
+
+/* ── Single Mode — Hash Input ── */
+
+.fv-hash-input {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  word-break: break-all;
+  padding: 12px;
+  background: var(--tertiary);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Single Mode — File Display ── */
+
+.fv-file-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fv-file-icon {
+  font-size: 1.5rem;
+}
+
+.fv-file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fv-file-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.fv-file-meta {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+/* ── Single Mode — Actions ── */
+
+.fv-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ── Content Differs — Warning Box ── */
+
+.fv-warn-box {
+  padding: 12px;
+  background: var(--warning-bg);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-warn-box-title {
+  font-weight: 600;
+  color: var(--warning);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fv-warn-box-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Hash Comparison Card ── */
+
+.fv-hash-compare-card {
+  background: var(--surface);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-hash-compare-heading {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+.fv-hash-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.fv-hash-section {
+  margin-bottom: 12px;
+}
+
+.fv-hash-block {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.8;
+  letter-spacing: 1px;
+  padding: 10px 14px;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+}
+
+.fv-hash-block--current {
+  background: var(--error-bg);
+}
+
+.fv-hash-block--stored {
+  background: var(--tertiary);
+}
+
+.fv-hash-byte {
+  display: inline-block;
+  margin-right: 2px;
+  color: var(--black);
+  font-weight: 400;
+}
+
+.fv-hash-byte--diff {
+  color: var(--error);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ── Diff Stats ── */
+
+.fv-diff-stats-box {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--error-bg);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+}
+
+.fv-diff-stats-main {
+  color: var(--error);
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.fv-diff-stats-sub {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+/* ── Not Found State ── */
+
+.fv-not-found-text {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ── Date Value ── */
+
+.fv-date-value {
+  font-size: 0.8rem;
+}
+
+/* ── Diff Icon Override ── */
+
+.fv-diff-icon--ok {
+  color: var(--success);
+}
+
+.fv-diff-icon--fail {
+  color: var(--error);
+}
+
+.fv-diff-icon--warn {
+  color: var(--warning);
+}
+
+/* ── Size Diff ── */
+
+.fv-size-diff {
+  color: var(--error);
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+/* ── Batch Mode — Hidden Inputs ── */
+
+.fv-hidden {
+  display: none;
+}
+
+/* ── Batch Mode — Input Buttons ── */
+
+.fv-batch-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 0;
+}
+
+.fv-batch-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.fv-batch-btn--folder {
+  background: var(--secondary);
+  border: 2px solid var(--black);
+  color: var(--black);
+}
+
+.fv-batch-btn--zip {
+  background: var(--warning-bg);
+  border: 2px solid var(--black);
+  color: var(--warning);
+}
+
+/* ── Batch Mode — Progress ── */
+
+.fv-batch-progress {
+  padding: 16px;
+  background: var(--tertiary);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--black);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-batch-progress-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.fv-batch-progress-label {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.fv-batch-progress-count {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.fv-batch-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.fv-batch-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* ── Batch Mode — Summary Stats ── */
+
+.fv-batch-summary {
+  padding: 16px;
+  background: var(--secondary);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--black);
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-batch-summary--with-differs {
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.fv-batch-stat-label {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.fv-batch-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--black);
+}
+
+.fv-batch-stat-value--verified {
+  color: var(--success);
+}
+
+.fv-batch-stat-value--differs {
+  color: var(--warning);
+}
+
+.fv-batch-stat-value--not-found {
+  color: var(--error);
+}
+
+.fv-batch-stat-value--errors {
+  color: var(--warning);
+}
+
+/* ── Batch Mode — File List ── */
+
+.fv-batch-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-batch-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.fv-batch-item + .fv-batch-item {
+  border-top: 2px solid var(--black);
+}
+
+.fv-batch-item--verified {
+  background: var(--success-bg);
+}
+
+.fv-batch-item--differs {
+  background: var(--warning-bg);
+}
+
+.fv-batch-item--not-found {
+  background: var(--error-bg);
+}
+
+.fv-batch-item-icon {
+  font-size: 1.25rem;
+}
+
+.fv-batch-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fv-batch-item-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fv-batch-item-size {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.fv-batch-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.fv-batch-badge--verified {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.fv-batch-badge--differs {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.fv-batch-badge--not-found {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.fv-batch-error-label {
+  color: var(--warning);
+  font-size: 0.7rem;
+}
+
+/* ── Batch Mode — Content Differs Detail ── */
+
+.fv-batch-diff-box {
+  padding: 16px;
+  background: var(--warning-bg);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-batch-diff-title {
+  font-weight: 600;
+  color: var(--warning);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fv-batch-diff-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.fv-batch-diff-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fv-batch-diff-item {
+  padding: 12px;
+  background: var(--surface);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs);
+}
+
+.fv-batch-diff-item-name {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.fv-batch-diff-hash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.fv-batch-diff-hash-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.fv-batch-diff-hash-block {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  padding: 8px 12px;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+}
+
+.fv-batch-diff-hash-block--current {
+  background: var(--error-bg);
+}
+
+.fv-batch-diff-hash-block--stored {
+  background: var(--tertiary);
+}
+
+.fv-batch-diff-byte {
+  font-size: 0.65rem;
+  margin-right: 1px;
+}
+
+.fv-batch-diff-stats-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--error-bg);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+}
+
+.fv-batch-diff-bits {
+  color: var(--error);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.fv-batch-diff-bytes {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+}
+
+.fv-batch-diff-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.fv-batch-diff-meta-row {
+  margin-bottom: 4px;
+}
+
+.fv-batch-diff-size-diff {
+  color: var(--error);
+  margin-left: 8px;
+}
+
+/* ── Batch Mode — Export Dropdown ── */
+
+.fv-export-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.fv-export-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 200px;
+  background: var(--surface);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  z-index: 9999;
+  box-shadow: var(--shadow-sm);
+}
+
+.fv-export-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--black);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.fv-export-item:hover {
+  background: var(--tertiary);
+}
+
+/* ── Batch Mode — Actions Row ── */
+
+.fv-batch-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* ── Common Utility — Success/Error Strong ── */
+
+.fv-text-success {
+  color: var(--success);
+}
+
+.fv-text-error {
+  color: var(--error);
+}
+
+/* ── Explanation Text ── */
+
+.fv-explanation-text {
+  margin: 0;
+}
+
+.fv-explanation-strong {
+  color: var(--black);
+}

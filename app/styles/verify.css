@@ -1,0 +1,155 @@
+/* ── Verify Form ── */
+
+.vf-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.vf-actions .tf-submit {
+  flex: 1;
+}
+
+.vf-reset {
+  margin-top: 20px;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--black);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-xs);
+}
+
+.vf-reset:hover {
+  background: var(--tertiary);
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* ── Verify Result ── */
+
+.vf-result {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2.5px solid var(--black);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fade-up 0.4s ease-out;
+}
+
+/* ── Badge ── */
+
+.vf-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  font-weight: 800;
+  border: 2.5px solid var(--black);
+  box-shadow: var(--shadow-xs);
+}
+
+.vf-badge--ok {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.vf-badge--warn {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.vf-badge--fail {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* ── Diff Viewer ── */
+
+.vf-diff {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vf-diff-heading {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.vf-diff-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  animation: fade-up 0.3s ease-out;
+  background: var(--bg);
+  border: 2px solid var(--black);
+}
+
+.vf-diff-row:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.vf-diff-row:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.vf-diff-row:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.vf-diff-row--ok {
+  background: var(--success-bg);
+  border-left: 5px solid var(--success);
+}
+
+.vf-diff-row--fail {
+  background: var(--error-bg);
+  border-left: 5px solid var(--error);
+}
+
+.vf-diff-label {
+  width: 120px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.vf-diff-value {
+  flex: 1;
+  word-break: break-all;
+  font-size: 0.88rem;
+}
+
+.vf-diff-value.vf-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.vf-diff-icon {
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.vf-diff-row--ok .vf-diff-icon {
+  color: var(--success);
+}
+.vf-diff-row--fail .vf-diff-icon {
+  color: var(--error);
+}

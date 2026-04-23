@@ -162,26 +162,18 @@ export function FraudSimulation({
                 Original
               </div>
               <div className="fs-hash-block fs-hash-block--original">
-                {originalHash.match(/.{1,2}/g)?.map((byte, i) => (
-                  <span
-                    key={`orig-${i}`}
-                    style={{
-                      display: 'inline-block',
-                      margin: '0 1px',
-                      color: originalHash[i * 2] !== tamperedHash[i * 2] ||
-                             originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                             ? '#E74C3C' : '#000',
-                      fontWeight: originalHash[i * 2] !== tamperedHash[i * 2] ||
-                                 originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                 ? '700' : '400',
-                      textDecoration: originalHash[i * 2] !== tamperedHash[i * 2] ||
-                                          originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                          ? 'underline' : 'none',
-                    }}
-                  >
-                    {byte}
-                  </span>
-                ))}
+                {originalHash.match(/.{1,2}/g)?.map((byte, i) => {
+                  const isDiff = originalHash[i * 2] !== tamperedHash[i * 2] ||
+                                 originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1];
+                  return (
+                    <span
+                      key={`orig-${i}`}
+                      className={`fv-hash-byte ${isDiff ? 'fv-hash-byte--diff' : ''}`}
+                    >
+                      {byte}
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
@@ -191,26 +183,18 @@ export function FraudSimulation({
                 Tampered
               </div>
               <div className="fs-hash-block fs-hash-block--tampered">
-                {tamperedHash.match(/.{1,2}/g)?.map((byte, i) => (
-                  <span
-                    key={`tamp-${i}`}
-                    style={{
-                      display: 'inline-block',
-                      margin: '0 1px',
-                      color: originalHash[i * 2] !== tamperedHash[i * 2] ||
-                             originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                             ? '#E74C3C' : '#000',
-                      fontWeight: originalHash[i * 2] !== tamperedHash[i * 2] ||
-                                 originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                 ? '700' : '400',
-                      textDecoration: originalHash[i * 2] !== tamperedHash[i * 2] ||
-                                          originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                          ? 'underline' : 'none',
-                    }}
-                  >
-                    {byte}
-                  </span>
-                ))}
+                {tamperedHash.match(/.{1,2}/g)?.map((byte, i) => {
+                  const isDiff = originalHash[i * 2] !== tamperedHash[i * 2] ||
+                                 originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1];
+                  return (
+                    <span
+                      key={`tamp-${i}`}
+                      className={`fv-hash-byte ${isDiff ? 'fv-hash-byte--diff' : ''}`}
+                    >
+                      {byte}
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
@@ -279,10 +263,10 @@ export function FraudSimulation({
               </svg>
               Why this matters
             </div>
-            <p style={{ margin: 0 }}>
+            <p className="fv-explanation-text">
               {tamperField === 'name' ? (
                 <>
-                  <strong style={{ color: '#000' }}>
+                  <strong className="fv-explanation-strong">
                     Hash is based on file content, not file name.
                   </strong>{' '}
                   Renaming a file doesn&apos;t change its hash because the content
@@ -291,7 +275,7 @@ export function FraudSimulation({
                 </>
               ) : (
                 <>
-                  <strong style={{ color: '#000' }}>
+                  <strong className="fv-explanation-strong">
                     SHA-256 is designed to be extremely sensitive.
                   </strong>{' '}
                   Changing any bit of file content causes the hash to change

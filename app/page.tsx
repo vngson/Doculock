@@ -146,7 +146,7 @@ export default function Home() {
   return (
     <main>
       {/* ===== Sticky Header ===== */}
-      <header className="site-header global-header">
+      <header className="site-header">
         <div className="site-header-left">
           {/* <Image
             src="/Doculock_Transparent_Logo.png"

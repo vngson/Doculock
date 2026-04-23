@@ -1,0 +1,98 @@
+/* ── Tab Bar ── */
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  background: var(--surface);
+  border: 2.5px solid var(--black);
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .tab-bar {
+    gap: 6px;
+    padding: 6px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tab-bar {
+    margin-bottom: 28px;
+  }
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .tab {
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+.tab:hover {
+  color: var(--text);
+  background: var(--tertiary);
+  border-color: var(--black);
+}
+
+.tab--active {
+  color: var(--black);
+  background: var(--primary);
+  font-weight: 900;
+  border-color: var(--black);
+  box-shadow: var(--shadow-xs);
+}
+
+.tab--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Tab Content ── */
+
+.tab-content {
+  animation: fade-up 0.25s ease-out;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

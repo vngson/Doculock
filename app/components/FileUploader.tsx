@@ -258,22 +258,22 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
       <div className="tf-card">
         <div className="tf-header">
           <div className="tf-icon">{uploadMode === 'single' ? <FileText size={20} /> : <Package size={20} />}</div>
-          <div style={{ flex: 1 }}>
+          <div className="fv-header-text">
             <div className="tf-title">{uploadMode === 'single' ? 'Upload Document' : 'Batch Upload'}</div>
             <div className="tf-subtitle">
               {uploadMode === 'single' ? 'Store document hash on Sui blockchain' : 'Store multiple documents with PTB'}
             </div>
           </div>
-          <div className="fu-mode-group">
+          <div className="fv-mode-toggle">
             <button
               onClick={() => { setUploadMode('single'); handleReset(); }}
-              className={`fu-mode-btn ${uploadMode === 'single' ? 'fu-mode-btn--active' : ''}`}
+              className={`vf-reset fv-mode-btn ${uploadMode === 'single' ? 'fv-mode-btn--active' : ''}`}
             >
               Single
             </button>
             <button
               onClick={() => { setUploadMode('batch'); handleReset(); }}
-              className={`fu-mode-btn ${uploadMode === 'batch' ? 'fu-mode-btn--active' : ''}`}
+              className={`vf-reset fv-mode-btn ${uploadMode === 'batch' ? 'fv-mode-btn--active' : ''}`}
             >
               Batch
             </button>
@@ -488,7 +488,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                           </div>
                         </div>
                         {doc.hashError && <div className="bu-badge bu-badge--fail">Hash Error</div>}
-                        {isHashing && !doc.hash && <div className="tf-spinner" style={{ width: 16, height: 16 }} />}
+                        {isHashing && !doc.hash && <div className="tf-spinner tf-spinner--sm" />}
                         {result && (
                           <div className={`bu-badge ${result.status === 'success' ? 'bu-badge--ok' : 'bu-badge--fail'}`}>
                             {result.status === 'success' ? '✓ Stored' : '✗ Failed'}
@@ -510,11 +510,11 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                     </div>
                     <div className="bu-complete-stats">
                       <div className="bu-complete-stat">
-                        <strong style={{ color: 'var(--success)' }}>{batchResults.filter(r => r.status === 'success').length}</strong> successfully stored
+                        <strong className="fv-text-success">{batchResults.filter(r => r.status === 'success').length}</strong> successfully stored
                       </div>
                       {batchResults.filter(r => r.status === 'error').length > 0 && (
                         <div className="bu-complete-stat">
-                          <strong style={{ color: 'var(--error)' }}>{batchResults.filter(r => r.status === 'error').length}</strong> failed
+                          <strong className="fv-text-error">{batchResults.filter(r => r.status === 'error').length}</strong> failed
                         </div>
                       )}
                     </div>
@@ -522,7 +522,7 @@ export function FileUploader({ onDocumentStored }: FileUploaderProps) {
                 )}
 
                 {error && (
-                  <div className="tf-error" style={{ marginBottom: '16px' }}>
+                  <div className="tf-error tf-error--mb">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <circle cx="12" cy="12" r="10" />
                       <line x1="12" y1="8" x2="12" y2="12" />

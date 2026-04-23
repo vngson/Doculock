@@ -27,6 +27,14 @@ interface BatchVerificationResultExtended extends BatchVerificationResult {
   processing: boolean;
 }
 
+function HashByteSpan({ byte, isDiff }: { byte: string; isDiff: boolean }) {
+  return (
+    <span className={`fv-hash-byte ${isDiff ? 'fv-hash-byte--diff' : ''}`}>
+      {byte}
+    </span>
+  );
+}
+
 export function FileVerifier({ initialHash }: FileVerifierProps) {
   const suiClient = useSuiClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -439,7 +447,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                   {result.metadata.timestamp && (
                     <div className="vf-diff-row vf-diff-row--ok">
                       <span className="vf-diff-label">Uploaded</span>
-                      <span className="vf-diff-value" style={{ fontSize: '0.8rem' }}>
+                      <span className="vf-diff-value fv-date-value">
                         {(() => {
                           const date = new Date(result.metadata.timestamp);
                           const isValid = !isNaN(date.getTime());
@@ -472,23 +480,8 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               File Content Differs
             </div>
 
-            <div style={{
-              padding: '12px',
-              background: '#FEF5E7',
-              border: '2px solid #000',
-              borderRadius: '12px',
-              marginBottom: '16px',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}>
-              <div style={{
-                fontWeight: 600,
-                color: '#F39C12',
-                fontSize: '0.9rem',
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}>
+            <div className="fv-warn-box">
+              <div className="fv-warn-box-title">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                   <line x1="12" y1="9" x2="12" y2="13" />
@@ -496,112 +489,44 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 </svg>
                 File with same name exists but content differs
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#333', lineHeight: 1.5 }}>
+              <div className="fv-warn-box-text">
                 A file named <strong>"{result.existingFileWithSameName.file_name}"</strong> is already stored on the blockchain,
-                but the hash doesn't match. This means the file content has been modified.
+                but the hash doesn&apos;t match. This means the file content has been modified.
               </div>
             </div>
 
-            <div style={{
-              background: '#fff',
-              border: '2px solid #000',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '16px',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}>
-              <div style={{
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: '#666',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: '12px',
-              }}>
+            <div className="fv-hash-compare-card">
+              <div className="fv-hash-compare-heading">
                 Hash Comparison
               </div>
 
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
+              <div className="fv-hash-section">
+                <div className="fv-hash-label">
                   Current File Hash (your upload)
                 </div>
-                <div style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
-                  lineHeight: '1.8',
-                  letterSpacing: '1px',
-                  padding: '10px 14px',
-                  background: '#FADBD8',
-                  border: '2px solid #000',
-                  borderRadius: '12px',
-                  wordBreak: 'break-all',
-                }}>
+                <div className="fv-hash-block fv-hash-block--current">
                   {bytesCurrent.map((byte, i) => (
-                    <span
-                      key={`current-${i}`}
-                      style={{
-                        color: byte !== bytesExisting[i] ? '#E74C3C' : '#000',
-                        fontWeight: byte !== bytesExisting[i] ? '700' : '400',
-                        textDecoration: byte !== bytesExisting[i] ? 'underline' : 'none',
-                        marginRight: '2px',
-                      }}
-                    >
-                      {byte}
-                    </span>
+                    <HashByteSpan key={`current-${i}`} byte={byte} isDiff={byte !== bytesExisting[i]} />
                   ))}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
+                <div className="fv-hash-label">
                   Stored File Hash (on blockchain)
                 </div>
-                <div style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
-                  lineHeight: '1.8',
-                  letterSpacing: '1px',
-                  padding: '10px 14px',
-                  background: '#C1F5C9',
-                  border: '2px solid #000',
-                  borderRadius: '12px',
-                  wordBreak: 'break-all',
-                }}>
+                <div className="fv-hash-block fv-hash-block--stored">
                   {bytesExisting.map((byte, i) => (
-                    <span
-                      key={`stored-${i}`}
-                      style={{
-                        color: byte !== bytesCurrent[i] ? '#E74C3C' : '#000',
-                        fontWeight: byte !== bytesCurrent[i] ? '700' : '400',
-                        textDecoration: byte !== bytesCurrent[i] ? 'underline' : 'none',
-                        marginRight: '2px',
-                      }}
-                    >
-                      {byte}
-                    </span>
+                    <HashByteSpan key={`stored-${i}`} byte={byte} isDiff={byte !== bytesCurrent[i]} />
                   ))}
                 </div>
               </div>
 
-              <div style={{
-                marginTop: '12px',
-                padding: '10px 14px',
-                background: '#FADBD8',
-                border: '2px solid #000',
-                borderRadius: '12px',
-              }}>
-                <div style={{
-                  color: '#E74C3C',
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
-                  marginBottom: '4px',
-                }}>
+              <div className="fv-diff-stats-box">
+                <div className="fv-diff-stats-main">
                   Files differ by ~{bytesExisting.reduce((acc, byte, i) => acc + (byte !== bytesCurrent[i] ? 4 : 0), 0)} bits
                 </div>
-                <div style={{
-                  fontSize: '0.7rem',
-                  color: '#666',
-                }}>
+                <div className="fv-diff-stats-sub">
                   {bytesExisting.filter((byte, i) => byte !== bytesCurrent[i]).length} / {bytesExisting.length} bytes differ
                 </div>
               </div>
@@ -619,16 +544,12 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 <span className="vf-diff-value">
                   {formatFileSize(result.existingFileWithSameName.file_size)}
                   {selectedFile && selectedFile.size !== result.existingFileWithSameName.file_size && (
-                    <span style={{
-                      color: '#E74C3C',
-                      marginLeft: '8px',
-                      fontWeight: 600,
-                    }}>
+                    <span className="fv-size-diff">
                       (yours: {formatFileSize(selectedFile.size)})
                     </span>
                   )}
                 </span>
-                <span className="vf-diff-icon" style={{ color: selectedFile && selectedFile.size === result.existingFileWithSameName.file_size ? '#2ECC71' : '#E74C3C' }}>
+                <span className={`vf-diff-icon ${selectedFile && selectedFile.size === result.existingFileWithSameName.file_size ? 'fv-diff-icon--ok' : 'fv-diff-icon--fail'}`}>
                   {selectedFile && selectedFile.size === result.existingFileWithSameName.file_size ? '✓' : '✗'}
                 </span>
               </div>
@@ -639,7 +560,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </div>
               <div className="vf-diff-row">
                 <span className="vf-diff-label">Uploaded</span>
-                <span className="vf-diff-value" style={{ fontSize: '0.8rem' }}>
+                <span className="vf-diff-value fv-date-value">
                   {(() => {
                     const ts = result.existingFileWithSameName.timestamp;
 
@@ -689,7 +610,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                       : 'N/A';
                   })()}
                 </span>
-                <span className="vf-diff-icon" style={{ color: result.existingFileWithSameName.timestamp ? '#2ECC71' : '#F39C12' }}>
+                <span className={`vf-diff-icon ${result.existingFileWithSameName.timestamp ? 'fv-diff-icon--ok' : 'fv-diff-icon--warn'}`}>
                   {result.existingFileWithSameName.timestamp ? '✓' : '?'}
                 </span>
               </div>
@@ -705,7 +626,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </svg>
               Document Not Found
             </div>
-            <div style={{ color: '#666', fontSize: '0.85rem', lineHeight: 1.5 }}>
+            <div className="fv-not-found-text">
               This document has not been stored on the blockchain yet.
               Upload it first to create an immutable timestamp proof.
             </div>
@@ -717,7 +638,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
 
   const renderActions = () => {
     return (
-      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+      <div className="fv-actions-row">
         {!result && !isVerifying && (
           <button
             className="tf-submit"
@@ -737,28 +658,22 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
   const batchSummary = generateSummary(batchResults);
 
   return (
-    <div className="tf-card" style={{ maxWidth: '100%', overflow: 'visible' }}>
+    <div className="tf-card fv-card-full">
       <div className="tf-header">
         <div className="tf-icon">{mode === 'single' ? <Search size={20} /> : <Folder size={20} />}</div>
-        <div style={{ flex: 1 }}>
+        <div className="fv-header-text">
           <div className="tf-title">{mode === 'single' ? 'Verify Document' : 'Batch Verification'}</div>
           <div className="tf-subtitle">
             {mode === 'single' ? 'Check if a document exists on-chain' : 'Verify multiple documents at once'}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+        <div className="fv-mode-toggle">
           <button
             onClick={() => {
               setMode('single');
               handleReset();
             }}
-            className="vf-reset"
-            style={{
-              padding: '6px 12px',
-              fontSize: '0.8rem',
-              background: mode === 'single' ? '#C1F5C9' : 'transparent',
-              borderColor: mode === 'single' ? '#000' : '#000',
-            }}
+            className={`vf-reset fv-mode-btn ${mode === 'single' ? 'fv-mode-btn--active' : ''}`}
           >
             Single
           </button>
@@ -767,13 +682,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               setMode('batch');
               handleReset();
             }}
-            className="vf-reset"
-            style={{
-              padding: '6px 12px',
-              fontSize: '0.8rem',
-              background: mode === 'batch' ? '#C1F5C9' : 'transparent',
-              borderColor: mode === 'batch' ? '#000' : '#000',
-            }}
+            className={`vf-reset fv-mode-btn ${mode === 'batch' ? 'fv-mode-btn--active' : ''}`}
           >
             Batch
           </button>
@@ -792,15 +701,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
       {!selectedFile && hash && (
         <div className="tf-fields">
           <div className="tf-label">Document Hash</div>
-          <div className="tf-input" style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.75rem',
-            wordBreak: 'break-all',
-            padding: '12px',
-            background: '#C1F5C9',
-            border: '2px solid #000',
-            borderRadius: '12px',
-          }}>
+          <div className="fv-hash-input">
             {hash}
           </div>
 
@@ -814,15 +715,15 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
       {selectedFile && (
         <div className="tf-fields">
           <div className="tf-label">File to Verify</div>
-          <div className="tf-input" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: '1.5rem' }}>
+          <div className="tf-input fv-file-display">
+            <span className="fv-file-icon">
               {getFileIcon(selectedFile.type)}
             </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+            <div className="fv-file-info">
+              <div className="fv-file-name">
                 {selectedFile.name}
               </div>
-              <div style={{ color: '#666', fontSize: '0.75rem' }}>
+              <div className="fv-file-meta">
                 {formatFileSize(selectedFile.size)} • {selectedFile.type}
               </div>
             </div>
@@ -831,7 +732,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
           {hash && <HashDisplay hash={hash} />}
 
           {renderResult()}
-          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+          <div className="fv-actions-row">
             {!result && (
               <button
                 className="tf-submit"
@@ -864,7 +765,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
             type="file"
             multiple
             onChange={(e) => handleBatchFileSelect(e.target.files)}
-            style={{ display: 'none' }}
+            className="fv-hidden"
           />
           <input
             ref={folderInputRef}
@@ -872,22 +773,21 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
             multiple
             {...({ webkitdirectory: '' } as any)}
             onChange={handleFolderUpload}
-            style={{ display: 'none' }}
+            className="fv-hidden"
           />
           <input
             ref={zipInputRef}
             type="file"
             accept=".zip"
             onChange={handleZipUpload}
-            style={{ display: 'none' }}
+            className="fv-hidden"
           />
 
           {batchFiles.length === 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '20px 0' }}>
+            <div className="fv-batch-inputs">
               <button
-                className="tf-submit"
+                className="tf-submit fv-batch-btn"
                 onClick={() => fileInputRef.current?.click()}
-                style={{ width: '100%', justifyContent: 'center' }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -897,17 +797,8 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </button>
 
               <button
-                className="tf-submit"
+                className="tf-submit fv-batch-btn fv-batch-btn--folder"
                 onClick={() => folderInputRef.current?.click()}
-                style={{ width: '100%', justifyContent: 'center', background: '#A2A7FF', border: '2px solid #000', color: '#000' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#A2A7FF';
-                  e.currentTarget.style.borderColor = '#000';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#A2A7FF';
-                  e.currentTarget.style.borderColor = '#000';
-                }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -916,17 +807,8 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </button>
 
               <button
-                className="tf-submit"
+                className="tf-submit fv-batch-btn fv-batch-btn--zip"
                 onClick={() => zipInputRef.current?.click()}
-                style={{ width: '100%', justifyContent: 'center', background: '#FEF5E7', border: '2px solid #000', color: '#F39C12' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#FEF5E7';
-                  e.currentTarget.style.borderColor = '#000';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#FEF5E7';
-                  e.currentTarget.style.borderColor = '#000';
-                }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 8v13H3V8" />
@@ -941,166 +823,97 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
           {batchFiles.length > 0 && (
             <>
               {batchIsProcessing && (
-                <div style={{
-                  padding: '16px',
-                  background: '#C1F5C9',
-                  borderRadius: '12px',
-                  border: '2px solid #000',
-                  marginBottom: '16px',
-                  boxShadow: '3px 3px 0px 0px #000',
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    marginBottom: '8px',
-                  }}>
-                    <div className="tf-spinner" style={{ width: 18, height: 18 }} />
-                    <div style={{
-                      color: '#D2FF00',
-                      fontWeight: 600,
-                      fontSize: '0.9rem',
-                      flex: 1,
-                    }}>
+                <div className="fv-batch-progress">
+                  <div className="fv-batch-progress-header">
+                    <div className="tf-spinner tf-spinner--md" />
+                    <div className="fv-batch-progress-label">
                       {batchProgress.fileName || 'Processing...'}
                     </div>
-                    <div style={{
-                      color: '#666',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                    }}>
+                    <div className="fv-batch-progress-count">
                       {batchProgress.current} / {batchProgress.total}
                     </div>
                   </div>
-                  <div style={{
-                    width: '100%',
-                    height: '6px',
-                    background: '#C1F5C9',
-                    borderRadius: '3px',
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: `${(batchProgress.current / batchProgress.total) * 100}%`,
-                      height: '100%',
-                      background: '#D2FF00',
-                      borderRadius: '3px',
-                      transition: 'width 0.3s ease',
-                    }} />
+                  <div className="fv-batch-progress-track">
+                    <div
+                      className="fv-batch-progress-fill"
+                      style={{ width: `${(batchProgress.current / batchProgress.total) * 100}%` }}
+                    />
                   </div>
                 </div>
               )}
 
               {!batchIsProcessing && batchResults.length > 0 && (
-                <div style={{
-                  padding: '16px',
-                  background: '#A2A7FF',
-                  borderRadius: '12px',
-                  border: '2px solid #000',
-                  marginBottom: '16px',
-                  display: 'grid',
-                  gridTemplateColumns: batchSummary.contentDiffers > 0
-                    ? 'repeat(auto-fit, minmax(100px, 1fr))'
-                    : 'repeat(auto-fit, minmax(120px, 1fr))',
-                  gap: '12px',
-                  boxShadow: '3px 3px 0px 0px #000',
-                }}>
+                <div className={`fv-batch-summary ${batchSummary.contentDiffers > 0 ? 'fv-batch-summary--with-differs' : ''}`}>
                   <div>
-                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Total</div>
-                    <div style={{ color: '#000', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.total}</div>
+                    <div className="fv-batch-stat-label">Total</div>
+                    <div className="fv-batch-stat-value">{batchSummary.total}</div>
                   </div>
                   <div>
-                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Verified</div>
-                    <div style={{ color: '#2ECC71', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.verified}</div>
+                    <div className="fv-batch-stat-label">Verified</div>
+                    <div className="fv-batch-stat-value fv-batch-stat-value--verified">{batchSummary.verified}</div>
                   </div>
                   {batchSummary.contentDiffers > 0 && (
                     <div>
-                      <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Content Differs</div>
-                      <div style={{ color: '#F39C12', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.contentDiffers}</div>
+                      <div className="fv-batch-stat-label">Content Differs</div>
+                      <div className="fv-batch-stat-value fv-batch-stat-value--differs">{batchSummary.contentDiffers}</div>
                     </div>
                   )}
                   <div>
-                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Not Found</div>
-                    <div style={{ color: '#E74C3C', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.notFound}</div>
+                    <div className="fv-batch-stat-label">Not Found</div>
+                    <div className="fv-batch-stat-value fv-batch-stat-value--not-found">{batchSummary.notFound}</div>
                   </div>
                   <div>
-                    <div style={{ color: '#666', fontSize: '0.75rem', fontWeight: 600 }}>Errors</div>
-                    <div style={{ color: '#F39C12', fontSize: '1.25rem', fontWeight: 700 }}>{batchSummary.errors}</div>
+                    <div className="fv-batch-stat-label">Errors</div>
+                    <div className="fv-batch-stat-value fv-batch-stat-value--errors">{batchSummary.errors}</div>
                   </div>
                 </div>
               )}
 
-              <div style={{
-                maxHeight: '400px',
-                overflowY: 'auto',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                marginBottom: '16px',
-                boxShadow: '3px 3px 0px 0px #000',
-              }}>
+              <div className="fv-batch-list">
                 {batchFiles.map((file, idx) => {
                   const result = batchResults[idx];
                   const isContentDiffers = result?.hash && !result?.verified && result?.existingFileWithSameName;
 
+                  const itemClass = result?.verified
+                    ? 'fv-batch-item--verified'
+                    : isContentDiffers
+                      ? 'fv-batch-item--differs'
+                      : result?.hash && !result?.verified
+                        ? 'fv-batch-item--not-found'
+                        : '';
+
                   return (
                     <div
                       key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px 16px',
-                        borderBottom: idx < batchFiles.length - 1 ? '2px solid #000' : 'none',
-                        background: result?.verified
-                          ? '#C1F5C9'
-                          : isContentDiffers
-                            ? '#FEF5E7'
-                            : result?.hash && !result?.verified
-                              ? '#FADBD8'
-                              : 'transparent',
-                      }}
+                      className={`fv-batch-item ${itemClass}`}
                     >
-                      <span style={{ fontSize: '1.25rem' }}>
+                      <span className="fv-batch-item-icon">
                         {getFileIcon(file.type)}
                       </span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{
-                          fontWeight: 600,
-                          fontSize: '0.85rem',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}>
+                      <div className="fv-batch-item-info">
+                        <div className="fv-batch-item-name">
                           {file.name}
                         </div>
-                        <div style={{ color: '#666', fontSize: '0.75rem' }}>
+                        <div className="fv-batch-item-size">
                           {formatFileSize(file.size)}
                         </div>
                       </div>
                       {result?.processing && (
-                        <div className="tf-spinner" style={{ width: 16, height: 16 }} />
+                        <div className="tf-spinner tf-spinner--sm" />
                       )}
                       {result?.hash && !result.processing && (
-                        <div style={{
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '0.7rem',
-                          fontWeight: 600,
-                          background: result.verified
-                            ? '#C1F5C9'
+                        <div className={`fv-batch-badge ${
+                          result.verified
+                            ? 'fv-batch-badge--verified'
                             : isContentDiffers
-                              ? '#FEF5E7'
-                              : '#FADBD8',
-                          color: result.verified
-                            ? '#2ECC71'
-                            : isContentDiffers
-                              ? '#F39C12'
-                              : '#E74C3C',
-                        }}>
+                              ? 'fv-batch-badge--differs'
+                              : 'fv-batch-badge--not-found'
+                        }`}>
                           {result.verified ? '✓ Verified' : isContentDiffers ? 'Content Differs' : '✗ Not Found'}
                         </div>
                       )}
                       {result?.errorMessage && (
-                        <div style={{ color: '#F39C12', fontSize: '0.7rem' }}>
+                        <div className="fv-batch-error-label">
                           Error
                         </div>
                       )}
@@ -1110,25 +923,8 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
               </div>
 
               {!batchIsProcessing && batchResults.some(r => r.hash && !r.verified && r.existingFileWithSameName) && (
-                <div style={{
-                  padding: '16px',
-                  background: '#FEF5E7',
-                  border: '2px solid #000',
-                  borderRadius: '12px',
-                  marginBottom: '16px',
-                  maxHeight: '400px',
-                  overflowY: 'auto',
-                  boxShadow: '3px 3px 0px 0px #000',
-                }}>
-                  <div style={{
-                    fontWeight: 600,
-                    color: '#F39C12',
-                    fontSize: '0.9rem',
-                    marginBottom: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}>
+                <div className="fv-batch-diff-box">
+                  <div className="fv-batch-diff-title">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                       <line x1="12" y1="9" x2="12" y2="13" />
@@ -1136,11 +932,11 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                     </svg>
                     Files with Same Name Found - Content Differs
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#333', lineHeight: 1.5 }}>
+                  <div className="fv-batch-diff-text">
                     The following files have matching names on blockchain but different content:
                   </div>
 
-                  <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div className="fv-batch-diff-list">
                     {batchResults.map((result, idx) => {
                       if (!result.hash || result.verified || !result.existingFileWithSameName) return null;
                       const file = batchFiles[idx];
@@ -1148,108 +944,57 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                       const bytesExisting = result.existingFileWithSameName.document_hash.match(/.{1,2}/g) || [];
 
                       return (
-                        <div key={idx} style={{
-                          padding: '12px',
-                          background: '#fff',
-                          border: '2px solid #000',
-                          borderRadius: '12px',
-                          boxShadow: '2px 2px 0px 0px #000',
-                        }}>
-                          <div style={{ marginBottom: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
+                        <div key={idx} className="fv-batch-diff-item">
+                          <div className="fv-batch-diff-item-name">
                             {file.name}
                           </div>
 
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '8px',
-                            marginBottom: '8px',
-                          }}>
+                          <div className="fv-batch-diff-hash-grid">
                             <div>
-                              <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '4px' }}>
+                              <div className="fv-batch-diff-hash-label">
                                 Current File Hash
                               </div>
-                              <div style={{
-                                fontFamily: 'var(--font-mono)',
-                                fontSize: '0.7rem',
-                                lineHeight: '1.6',
-                                letterSpacing: '0.5px',
-                                padding: '8px 12px',
-                                background: '#FADBD8',
-                                border: '2px solid #000',
-                                borderRadius: '12px',
-                                wordBreak: 'break-all',
-                              }}>
+                              <div className="fv-batch-diff-hash-block fv-batch-diff-hash-block--current">
                                 {bytesCurrent.map((byte, i) => (
-                                  <span
+                                  <HashByteSpan
                                     key={`curr-${idx}-${i}`}
-                                    style={{
-                                      color: byte !== bytesExisting[i] ? '#E74C3C' : '#000',
-                                      fontWeight: byte !== bytesExisting[i] ? '700' : '400',
-                                      fontSize: '0.65rem',
-                                      marginRight: '1px',
-                                    }}
-                                  >
-                                    {byte}
-                                  </span>
+                                    byte={byte}
+                                    isDiff={byte !== bytesExisting[i]}
+                                  />
                                 ))}
                               </div>
                             </div>
 
                             <div>
-                              <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '4px' }}>
+                              <div className="fv-batch-diff-hash-label">
                                 Stored File Hash
                               </div>
-                              <div style={{
-                                fontFamily: 'var(--font-mono)',
-                                fontSize: '0.7rem',
-                                lineHeight: '1.6',
-                                letterSpacing: '0.5px',
-                                padding: '8px 12px',
-                                background: '#C1F5C9',
-                                border: '2px solid #000',
-                                borderRadius: '12px',
-                                wordBreak: 'break-all',
-                              }}>
+                              <div className="fv-batch-diff-hash-block fv-batch-diff-hash-block--stored">
                                 {bytesExisting.map((byte, i) => (
-                                  <span
+                                  <HashByteSpan
                                     key={`stored-${idx}-${i}`}
-                                    style={{
-                                      color: byte !== bytesCurrent[i] ? '#E74C3C' : '#000',
-                                      fontWeight: byte !== bytesCurrent[i] ? '700' : '400',
-                                      fontSize: '0.65rem',
-                                      marginRight: '1px',
-                                    }}
-                                  >
-                                    {byte}
-                                  </span>
+                                    byte={byte}
+                                    isDiff={byte !== bytesCurrent[i]}
+                                  />
                                 ))}
                               </div>
                             </div>
                           </div>
 
-                          <div style={{
-                            display: 'flex',
-                            gap: '12px',
-                            marginTop: '8px',
-                            padding: '8px 12px',
-                            background: '#FADBD8',
-                            border: '2px solid #000',
-                            borderRadius: '12px',
-                          }}>
-                            <span style={{ color: '#E74C3C', fontWeight: 600, fontSize: '0.8rem' }}>
+                          <div className="fv-batch-diff-stats-row">
+                            <span className="fv-batch-diff-bits">
                               Differs by ~{bytesExisting.reduce((acc, byte, i) => acc + (byte !== bytesCurrent[i] ? 4 : 0), 0)} bits
                             </span>
-                            <span style={{ color: '#666', fontSize: '0.7rem' }}>
+                            <span className="fv-batch-diff-bytes">
                               ({bytesExisting.filter((byte, i) => byte !== bytesCurrent[i]).length} / {bytesExisting.length} bytes)
                             </span>
                           </div>
 
-                          <div style={{ fontSize: '0.75rem', color: '#333' }}>
-                            <div style={{ marginBottom: '4px' }}>
+                          <div className="fv-batch-diff-meta">
+                            <div className="fv-batch-diff-meta-row">
                               <strong>Stored file:</strong> {formatFileSize(result.existingFileWithSameName.file_size)}
                               {file.size !== result.existingFileWithSameName.file_size && (
-                                <span style={{ color: '#E74C3C', marginLeft: '8px' }}>
+                                <span className="fv-batch-diff-size-diff">
                                   (current: {formatFileSize(file.size)})
                                 </span>
                               )}
@@ -1285,7 +1030,7 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', position: 'relative' }}>
+              <div className="fv-batch-actions">
                 {!batchIsProcessing && batchResults.length === 0 && (
                   <button
                     className="tf-submit"
@@ -1302,12 +1047,11 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
 
                 {!batchIsProcessing && batchResults.length > 0 && (
                   <>
-                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <div className="fv-export-wrap">
                       <button
                         ref={exportButtonRef}
                         className="tf-submit"
                         onClick={() => setShowExportDropdown(!showExportDropdown)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -1319,105 +1063,22 @@ export function FileVerifier({ initialHash }: FileVerifierProps) {
 
                       {showExportDropdown && (
                         <div
+                          className="fv-export-dropdown"
                           onClick={(e) => e.stopPropagation()}
-                          style={{
-                            position: 'absolute',
-                            top: 'calc(100% + 8px)',
-                            right: 0,
-                            width: '200px',
-                            background: '#fff',
-                            border: '2px solid #000',
-                            borderRadius: '12px',
-                            padding: '8px',
-                            zIndex: 9999,
-                            boxShadow: '3px 3px 0px 0px #000',
-                          }}
                         >
-                          <button
-                            onClick={() => handleExport('xls')}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              width: '100%',
-                              padding: '10px 12px',
-                              border: 'none',
-                              borderRadius: '8px',
-                              background: 'transparent',
-                              color: '#000',
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                          >
+                          <button onClick={() => handleExport('xls')} className="fv-export-item">
                             <FileSpreadsheet size={16} />
                             Export as Excel
                           </button>
-                          <button
-                            onClick={() => handleExport('pdf')}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              width: '100%',
-                              padding: '10px 12px',
-                              border: 'none',
-                              borderRadius: '8px',
-                              background: 'transparent',
-                              color: '#000',
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                          >
+                          <button onClick={() => handleExport('pdf')} className="fv-export-item">
                             <FileText size={16} />
                             Export as PDF
                           </button>
-                          <button
-                            onClick={() => handleExport('json')}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              width: '100%',
-                              padding: '10px 12px',
-                              border: 'none',
-                              borderRadius: '8px',
-                              background: 'transparent',
-                              color: '#000',
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                          >
+                          <button onClick={() => handleExport('json')} className="fv-export-item">
                             <FileJson size={16} />
                             Export as JSON
                           </button>
-                          <button
-                            onClick={() => handleExport('html')}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              width: '100%',
-                              padding: '10px 12px',
-                              border: 'none',
-                              borderRadius: '8px',
-                              background: 'transparent',
-                              color: '#000',
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = '#C1F5C9'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                          >
+                          <button onClick={() => handleExport('html')} className="fv-export-item">
                             <Globe size={16} />
                             Export as HTML
                           </button>

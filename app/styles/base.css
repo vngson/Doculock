@@ -1,0 +1,135 @@
+/* ── Neo-Brutalism Design System ── */
+@import url("https://fonts.googleapis.com/css2?family=Oi&display=swap");
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Neo-Brutalism Palette */
+  --bg: #f9f9f0;
+  --surface: #ffffff;
+  --surface-light: #ffffff;
+  --card: #ffffff;
+  --border: #000000;
+  --border-light: #333333;
+
+  --primary: #d2ff00;
+  --primary-hover: #bce300;
+  --secondary: #a2a7ff;
+  --tertiary: #c1f5c9;
+  --black: #000000;
+  --white: #ffffff;
+  --sui-blue: #4da2ff;
+
+  /* Text */
+  --text: #000000;
+  --text-secondary: #333333;
+  --text-dim: #666666;
+  --text-accent: #000000;
+  --text-tertiary: #888888;
+  --wallet-text: #000000;
+
+  /* Status Colors */
+  --success: #2ecc71;
+  --success-bg: #e8f8ee;
+  --warning: #f39c12;
+  --warning-bg: #fef5e7;
+  --error: #e74c3c;
+  --error-bg: #fdedec;
+
+  /* Hard Shadows */
+  --shadow-sm: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-md: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-lg: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-xs: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+
+  /* Spacing & Layout */
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Typography */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto",
+    "Helvetica Neue", sans-serif;
+  --font-mono:
+    "SF Mono", "Cascadia Code", "Consolas", "JetBrains Mono", monospace;
+
+  /* Transitions */
+  --transition-fast: 100ms ease;
+  --transition-normal: 150ms ease;
+
+  /* Z-Index */
+  --z-dropdown: 100;
+  --z-modal: 200;
+  --z-tooltip: 300;
+}
+
+/* ── Theme Transitions ── */
+
+* {
+  transition-property:
+    color, background-color, border-color, box-shadow, transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ── Main Container ── */
+
+main {
+  position: relative;
+  z-index: 10;
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+@media (min-width: 640px) {
+  main {
+    /* max-width: 640px; */
+    padding: 32px 24px 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  main {
+    /* max-width: 832px; */
+    padding: 40px 32px 120px;
+  }
+}
+
+@media (min-width: 1280px) {
+  main {
+    /* max-width: 1100px; */
+    padding: 48px 40px 140px;
+  }
+}

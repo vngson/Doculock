@@ -120,7 +120,7 @@ export function RegistryCreator() {
 
   if (state === 'checking') {
     return (
-      <div className="tf-card" style={{ padding: '24px' }}>
+      <div className="tf-card">
         <div className="rc-checking">
           <div className="tf-spinner rc-checking-spinner" />
           <div className="rc-checking-text">

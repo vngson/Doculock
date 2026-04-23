@@ -274,12 +274,7 @@ export function DocumentComparison() {
                 {bytesA.map((byte, i) => (
                   <span
                     key={`a-${i}`}
-                    style={{
-                      color: byte !== bytesB[i] ? '#E74C3C' : '#000',
-                      fontWeight: byte !== bytesB[i] ? '700' : '400',
-                      textDecoration: byte !== bytesB[i] ? 'underline' : 'none',
-                      marginRight: '2px',
-                    }}
+                    className={`fv-hash-byte ${byte !== bytesB[i] ? 'fv-hash-byte--diff' : ''}`}
                   >
                     {byte}
                   </span>
@@ -294,12 +289,7 @@ export function DocumentComparison() {
                 {bytesB.map((byte, i) => (
                   <span
                     key={`b-${i}`}
-                    style={{
-                      color: byte !== bytesA[i] ? '#E74C3C' : '#000',
-                      fontWeight: byte !== bytesA[i] ? '700' : '400',
-                      textDecoration: byte !== bytesA[i] ? 'underline' : 'none',
-                      marginRight: '2px',
-                    }}
+                    className={`fv-hash-byte ${byte !== bytesA[i] ? 'fv-hash-byte--diff' : ''}`}
                   >
                     {byte}
                   </span>
@@ -318,8 +308,8 @@ export function DocumentComparison() {
               </svg>
               How this works
             </div>
-            <p style={{ margin: 0 }}>
-              <strong style={{ color: '#000' }}>
+            <p className="fv-explanation-text">
+              <strong className="fv-explanation-strong">
                 SHA-256 hash is calculated from file CONTENT only.
               </strong>{' '}
               Filename, size, and type are metadata. Two files with different names but same content will have the same hash. The hash comparison above shows if the actual file content is identical.
