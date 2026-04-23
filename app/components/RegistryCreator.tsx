@@ -121,15 +121,9 @@ export function RegistryCreator() {
   if (state === 'checking') {
     return (
       <div className="tf-card" style={{ padding: '24px' }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          padding: '20px',
-        }}>
-          <div className="tf-spinner" style={{ width: 32, height: 32 }} />
-          <div style={{ color: '#333', fontSize: '0.9rem' }}>
+        <div className="rc-checking">
+          <div className="tf-spinner rc-checking-spinner" />
+          <div className="rc-checking-text">
             Checking registry status...
           </div>
         </div>
@@ -164,29 +158,12 @@ export function RegistryCreator() {
 
       {state === 'no-wallet' && (
         <>
-          <p style={{
-            color: '#333',
-            fontSize: '0.9rem',
-            lineHeight: '1.6',
-            marginBottom: '20px',
-          }}>
+          <p className="rc-description">
             Connect your wallet to automatically set up the document registry on-chain.
             This is a one-time setup step.
           </p>
 
-          <div style={{
-            padding: '14px 18px',
-            background: '#FFF3CD',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            color: '#856404',
-            fontSize: '0.9rem',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            boxShadow: '3px 3px 0px 0px #000',
-          }}>
+          <div className="rc-warn-box">
             <AlertTriangle size={18} />
             Please connect your wallet using the Connect button in the header.
           </div>
@@ -194,35 +171,14 @@ export function RegistryCreator() {
       )}
 
       {state === 'creating' && (
-        <div style={{
-          padding: '20px',
-          background: '#C1F5C9',
-          borderRadius: '12px',
-          border: '2px solid #000',
-          marginBottom: '20px',
-          boxShadow: '3px 3px 0px 0px #000',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '12px',
-          }}>
-            <div className="tf-spinner" style={{ width: 20, height: 20 }} />
-            <div style={{
-              color: '#000',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-            }}>
+        <div className="rc-creating-box">
+          <div className="rc-creating-header">
+            <div className="tf-spinner rc-creating-spinner" />
+            <div className="rc-creating-label">
               Creating registry on blockchain...
             </div>
           </div>
-          <p style={{
-            color: '#333',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            margin: 0,
-          }}>
+          <p className="rc-creating-text">
             Please confirm the transaction in your wallet. This only needs to be done once.
           </p>
         </div>
@@ -239,18 +195,16 @@ export function RegistryCreator() {
             {error || 'Failed to create registry. Please try again.'}
           </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+          <div className="rc-actions">
             <button
               onClick={handleRetry}
               className="tf-submit"
-              style={{ flex: 1 }}
             >
               Retry
             </button>
             <button
               onClick={handleClearRegistry}
               className="vf-reset"
-              style={{ flex: 1, justifyContent: 'center' }}
             >
               Reset
             </button>
@@ -260,58 +214,21 @@ export function RegistryCreator() {
 
       {state === 'ready' && (
         <>
-          <div style={{
-            padding: '16px',
-            background: '#C1F5C9',
-            borderRadius: '12px',
-            border: '2px solid #000',
-            marginBottom: '20px',
-            boxShadow: '3px 3px 0px 0px #000',
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              marginBottom: '12px',
-              color: '#2ECC71',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-            }}>
+          <div className="rc-ready-box">
+            <div className="rc-ready-header">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               Registry is active and ready to use
             </div>
-            <p style={{
-              color: '#333',
-              fontSize: '0.85rem',
-              lineHeight: '1.6',
-              margin: 0,
-            }}>
+            <p className="rc-ready-text">
               You can now upload as many documents as you want. Each document will be securely timestamped on the blockchain.
             </p>
           </div>
 
           {registryId && (
-            <div style={{
-              padding: '14px 16px',
-              background: '#F5F5F5',
-              borderRadius: '12px',
-              fontFamily: 'monospace',
-              fontSize: '0.8rem',
-              wordBreak: 'break-all',
-              marginBottom: '20px',
-              border: '2px solid #000',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}>
-              <div style={{
-                fontSize: '0.7rem',
-                opacity: 0.6,
-                marginBottom: '6px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: '#2ECC71',
-              }}>
+            <div className="rc-registry-id">
+              <div className="rc-registry-id-label">
                 Registry ID
               </div>
               {registryId}
@@ -320,15 +237,7 @@ export function RegistryCreator() {
 
           <button
             onClick={handleClearRegistry}
-            className="vf-reset"
-            style={{
-              width: '100%',
-              justifyContent: 'center',
-              background: '#D2FF00',
-              color: '#000',
-              border: '2px solid #000',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}
+            className="vf-reset rc-reset-btn"
           >
             Reset Registry (Demo Only)
           </button>

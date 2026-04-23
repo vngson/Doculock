@@ -63,55 +63,20 @@ export function Toast({ message, type = 'info', duration = 3000, onClose }: Toas
 
   return (
     <div
-      className="toast"
-      style={{
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        zIndex: 9999,
-        padding: '16px 20px',
-        background: color.bg,
-        border: '2px solid #000000',
-        borderRadius: '16px',
-        color: color.text,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        fontWeight: 600,
-        fontSize: '0.95rem',
-        boxShadow: '3px 3px 0px 0px #000000',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(-20px)',
-        transition: 'all 0.3s ease',
-        maxWidth: '400px',
-      }}
+      className={`toast toast--${type} ${visible ? 'toast--visible' : 'toast--hidden'}`}
     >
-      <div style={{ flexShrink: 0 }}>
+      <div className="toast-icon">
         {icons[type]}
       </div>
-      <div style={{ flex: 1 }}>
+      <div className="toast-body">
         {message}
       </div>
       <button
+        className="toast-close"
         onClick={() => {
           setVisible(false);
           setTimeout(() => onClose?.(), 300);
         }}
-        style={{
-          background: '#fff',
-          border: '2px solid #000',
-          borderRadius: '8px',
-          color: 'inherit',
-          cursor: 'pointer',
-          padding: '4px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.6,
-          transition: 'opacity 0.2s',
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6'; }}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="18" y1="6" x2="6" y2="18" />

@@ -76,11 +76,10 @@ export function QRModal({ hash, txDigest, onClose }: QRModalProps) {
         </button>
         {txDigest && (
           <a
-            className="qr-copy-btn"
+            className="qr-copy-btn link-explorer"
             href={getExplorerTxUrl(txDigest)}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: 'none', marginTop: 8 }}
             aria-label="View on Explorer"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

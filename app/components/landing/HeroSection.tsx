@@ -40,11 +40,11 @@ export function HeroSection({
             Verify Document
           </button>
           <button
-            className={`cta-ghost ${!walletConnected ? "cta--disabled" : ""}`}
+            className={`cta-outline ${!walletConnected ? "cta--disabled" : ""}`}
             onClick={walletConnected ? onDemoClick : undefined}
             disabled={!walletConnected}
           >
-            Try Demo
+            ▶ Try Demo
           </button>
         </div>
 

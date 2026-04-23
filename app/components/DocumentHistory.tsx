@@ -74,10 +74,10 @@ export function DocumentHistory() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>My Documents</span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+      <div className="dh-header">
+        <div className="dh-title-group">
+          <span className="dh-title">My Documents</span>
+          <span className="dh-count">
             ({documents.length})
           </span>
         </div>

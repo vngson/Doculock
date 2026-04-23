@@ -23,12 +23,9 @@ export function FraudSimulation({
   const [tamperField, setTamperField] = useState<'name' | 'size'>('name');
 
   const generateTamperedHash = () => {
-    // Generate a different hash that looks realistic
-    // In a real scenario, this would be computed from the tampered data
     const hashArray = originalHash.split('');
     const tamperedArray = [...hashArray];
 
-    // Flip about 30-40% of the characters to simulate 97% difference
     const flipCount = Math.floor(hashArray.length * 0.35);
     const positions = new Set<number>();
 
@@ -40,7 +37,6 @@ export function FraudSimulation({
     positions.forEach(pos => {
       const char = hashArray[pos];
       let newChar = char;
-      // Flip to a different hex character
       const hexChars = '0123456789abcdef';
       const currentIndex = hexChars.indexOf(char);
       if (currentIndex !== -1) {
@@ -55,12 +51,10 @@ export function FraudSimulation({
 
   const handleSimulate = (field: 'name' | 'size') => {
     setTamperField(field);
-    // For rename: hash stays same (content unchanged)
-    // For size change: hash changes (content modified)
     if (field === 'name') {
-      setTamperedHash(originalHash); // Same hash = same content
+      setTamperedHash(originalHash);
     } else {
-      setTamperedHash(generateTamperedHash()); // Different hash = modified content
+      setTamperedHash(generateTamperedHash());
     }
     setSimulated(true);
   };
@@ -81,7 +75,6 @@ export function FraudSimulation({
     if (tamperField === 'name') {
       return fileName.replace(/\.(pdf|docx|doc|txt|jpg|png)$/i, '_tampered.$1');
     } else {
-      // Simulate different file size
       const tamperedSize = Math.floor(fileSize * (Math.random() * 0.5 + 0.75));
       return formatFileSize(tamperedSize);
     }
@@ -97,27 +90,13 @@ export function FraudSimulation({
   };
 
   const difference = calculateDifference();
+  const isOk = tamperField === 'name';
 
   return (
-    <div style={{
-      padding: '20px',
-      background: '#FADBD8',
-      border: '2px solid #000',
-      borderRadius: '12px',
-      marginTop: '20px',
-      boxShadow: '3px 3px 0px 0px #000',
-    }}>
+    <div className="fs-container">
       {!simulated ? (
         <>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginBottom: '16px',
-            color: '#F39C12',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-          }}>
+          <div className="fs-header">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -126,70 +105,22 @@ export function FraudSimulation({
             Fraud Detection Test
           </div>
 
-          <p style={{
-            color: '#333',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            marginBottom: '16px',
-          }}>
+          <p className="fs-description">
             Simulate what happens if someone tries to tamper with this document.
             Even a small change will cause the hash to be completely different.
           </p>
 
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-          }}>
+          <div className="fs-btn-group">
             <button
               onClick={() => handleSimulate('name')}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                background: '#FADBD8',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                color: '#E74C3C',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: '3px 3px 0px 0px #000',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#F5B7B1';
-                e.currentTarget.style.borderColor = '#000';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#FADBD8';
-                e.currentTarget.style.borderColor = '#000';
-              }}
+              className="fs-btn"
             >
               <FileEdit size={14} /> Simulate Rename
             </button>
 
             <button
               onClick={() => handleSimulate('size')}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                background: '#FADBD8',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                color: '#E74C3C',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: '3px 3px 0px 0px #000',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#F5B7B1';
-                e.currentTarget.style.borderColor = '#000';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#FADBD8';
-                e.currentTarget.style.borderColor = '#000';
-              }}
+              className="fs-btn"
             >
               <Ruler size={14} /> Simulate Size Change
             </button>
@@ -197,20 +128,7 @@ export function FraudSimulation({
         </>
       ) : (
         <>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginBottom: '20px',
-            padding: '12px',
-            background: tamperField === 'name' ? '#FEF5E7' : '#FADBD8',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            color: tamperField === 'name' ? '#F39C12' : '#E74C3C',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            boxShadow: '3px 3px 0px 0px #000',
-          }}>
+          <div className={`fs-result-banner ${isOk ? 'fs-result-banner--warn' : 'fs-result-banner--fail'}`}>
             {tamperField === 'name' ? (
               <>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -233,81 +151,17 @@ export function FraudSimulation({
           </div>
 
           {/* Hash Comparison */}
-          <div style={{
-            background: '#fff',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '20px',
-            boxShadow: '3px 3px 0px 0px #000',
-          }}>
-            <div style={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              color: '#666',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}>
+          <div className="fs-card">
+            <div className="fs-section-heading">
               Hash Comparison
             </div>
 
-            <style>{`
-              @keyframes hashDiffPop {
-                0% {
-                  opacity: 0;
-                  transform: scale(1.3);
-                }
-                100% {
-                  opacity: 1;
-                  transform: scale(1);
-                }
-              }
-              .hash-row {
-                display: flex;
-                gap: '4px';
-                margin-bottom: '8px';
-              }
-              .hash-byte {
-                font-family: 'var(--font-mono)', monospace;
-                font-size: '0.75rem';
-                padding: '3px 4px';
-                border-radius: '3px';
-                min-width: '16px';
-                text-align: center';
-                transition: 'all 0.2s';
-              }
-            `}</style>
-
             {/* Original Hash */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '8px',
-            }}>
-              <div style={{
-                width: '80px',
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: '#666',
-                textTransform: 'uppercase',
-              }}>
+            <div className="fs-hash-row">
+              <div className="fs-hash-label">
                 Original
               </div>
-              <div style={{
-                flex: 1,
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.7rem',
-                color: '#000',
-                wordBreak: 'break-all',
-                lineHeight: '1.8',
-                letterSpacing: '1px',
-                background: '#C1F5C9',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                padding: '10px 14px',
-              }}>
+              <div className="fs-hash-block fs-hash-block--original">
                 {originalHash.match(/.{1,2}/g)?.map((byte, i) => (
                   <span
                     key={`orig-${i}`}
@@ -316,16 +170,13 @@ export function FraudSimulation({
                       margin: '0 1px',
                       color: originalHash[i * 2] !== tamperedHash[i * 2] ||
                              originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                             ? '#E74C3C'
-                             : '#000',
+                             ? '#E74C3C' : '#000',
                       fontWeight: originalHash[i * 2] !== tamperedHash[i * 2] ||
                                  originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                 ? '700'
-                                 : '400',
+                                 ? '700' : '400',
                       textDecoration: originalHash[i * 2] !== tamperedHash[i * 2] ||
                                           originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                          ? 'underline'
-                                          : 'none',
+                                          ? 'underline' : 'none',
                     }}
                   >
                     {byte}
@@ -335,34 +186,11 @@ export function FraudSimulation({
             </div>
 
             {/* Tampered Hash */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '8px',
-            }}>
-              <div style={{
-                width: '80px',
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: '#666',
-                textTransform: 'uppercase',
-              }}>
+            <div className="fs-hash-row">
+              <div className="fs-hash-label">
                 Tampered
               </div>
-              <div style={{
-                flex: 1,
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.7rem',
-                color: '#000',
-                wordBreak: 'break-all',
-                lineHeight: '1.8',
-                letterSpacing: '1px',
-                background: '#FADBD8',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                padding: '10px 14px',
-              }}>
+              <div className="fs-hash-block fs-hash-block--tampered">
                 {tamperedHash.match(/.{1,2}/g)?.map((byte, i) => (
                   <span
                     key={`tamp-${i}`}
@@ -371,16 +199,13 @@ export function FraudSimulation({
                       margin: '0 1px',
                       color: originalHash[i * 2] !== tamperedHash[i * 2] ||
                              originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                             ? '#E74C3C'
-                             : '#000',
+                             ? '#E74C3C' : '#000',
                       fontWeight: originalHash[i * 2] !== tamperedHash[i * 2] ||
                                  originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                 ? '700'
-                                 : '400',
+                                 ? '700' : '400',
                       textDecoration: originalHash[i * 2] !== tamperedHash[i * 2] ||
                                           originalHash[i * 2 + 1] !== tamperedHash[i * 2 + 1]
-                                          ? 'underline'
-                                          : 'none',
+                                          ? 'underline' : 'none',
                     }}
                   >
                     {byte}
@@ -390,51 +215,19 @@ export function FraudSimulation({
             </div>
 
             {/* Difference Stats */}
-            <div style={{
-              marginTop: '12px',
-              padding: '10px 14px',
-              background: tamperField === 'name' ? '#C1F5C9' : '#FADBD8',
-              border: '2px solid #000',
-              borderRadius: '12px',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '8px',
-                color: tamperField === 'name' ? '#2ECC71' : '#E74C3C',
-                fontWeight: 600,
-                fontSize: '0.8rem',
-              }}>
-                <span>Hash Difference: <span style={{ fontSize: '1.2rem', marginLeft: '4px' }}>{difference}%</span></span>
-                <span style={{ opacity: 0.7 }}>{tamperField === 'name' ? '0% - Content unchanged' : '97% expected for 1 bit change'}</span>
+            <div className={`fs-diff-stats ${isOk ? 'fs-diff-stats--ok' : 'fs-diff-stats--fail'}`}>
+              <div className={`fs-diff-stats-header ${isOk ? 'fs-diff-stats-header--ok' : 'fs-diff-stats-header--fail'}`}>
+                <span>Hash Difference: <span className="fs-diff-stats-pct">{difference}%</span></span>
+                <span className="fs-diff-stats-sub">{tamperField === 'name' ? '0% - Content unchanged' : '97% expected for 1 bit change'}</span>
               </div>
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-              }}>
-                <div style={{
-                  flex: 1,
-                  height: '8px',
-                  background: tamperField === 'name' ? '#C1F5C9' : '#FADBD8',
-                  borderRadius: '4px',
-                  overflow: 'hidden',
-                  border: '1px solid #000',
-                }}>
-                  <div style={{
-                    width: `${difference}%`,
-                    height: '100%',
-                    background: tamperField === 'name' ? '#2ECC71' : '#E74C3C',
-                    borderRadius: '4px',
-                    transition: 'width 0.5s ease-out',
-                  }} />
+              <div className="fs-diff-bar-row">
+                <div className={`fs-diff-bar-track ${isOk ? 'fs-diff-bar-track--ok' : 'fs-diff-bar-track--fail'}`}>
+                  <div
+                    className={`fs-diff-bar-fill ${isOk ? 'fs-diff-bar-fill--ok' : 'fs-diff-bar-fill--fail'}`}
+                    style={{ '--diff-width': `${difference}%` } as React.CSSProperties}
+                  />
                 </div>
-                <span style={{
-                  fontSize: '0.7rem',
-                  color: '#666',
-                  whiteSpace: 'nowrap',
-                }}>
+                <span className="fs-diff-bar-label">
                   {Math.round((originalHash.length / 2) * (difference / 100))} / {originalHash.length / 2} bytes changed
                 </span>
               </div>
@@ -442,53 +235,17 @@ export function FraudSimulation({
           </div>
 
           {/* Metadata Comparison */}
-          <div style={{
-            background: '#fff',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '20px',
-            boxShadow: '3px 3px 0px 0px #000',
-          }}>
-            <div style={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              color: '#666',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}>
+          <div className="fs-card">
+            <div className="fs-section-heading">
               Metadata Comparison
             </div>
 
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '10px',
-                background: '#C1F5C9',
-                border: '2px solid #000',
-                borderRadius: '12px',
-              }}>
-                <div style={{
-                  width: '100px',
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  textTransform: 'uppercase',
-                }}>
+            <div className="fs-meta-list">
+              <div className="fs-meta-row fs-meta-row--ok">
+                <div className="fs-meta-label">
                   Original
                 </div>
-                <div style={{
-                  flex: 1,
-                  fontSize: '0.85rem',
-                  color: '#000',
-                  wordBreak: 'break-all',
-                }}>
+                <div className="fs-meta-value">
                   {tamperField === 'name' ? fileName : `${formatFileSize(fileSize)} (${mimeType})`}
                 </div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" strokeWidth="2">
@@ -496,29 +253,11 @@ export function FraudSimulation({
                 </svg>
               </div>
 
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '10px',
-                background: '#FADBD8',
-                border: '2px solid #000',
-                borderRadius: '12px',
-              }}>
-                <div style={{
-                  width: '100px',
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  textTransform: 'uppercase',
-                }}>
+              <div className="fs-meta-row fs-meta-row--fail">
+                <div className="fs-meta-label">
                   Tampered
                 </div>
-                <div style={{
-                  flex: 1,
-                  fontSize: '0.85rem',
-                  color: '#E74C3C',
-                  wordBreak: 'break-all',
-                }}>
+                <div className="fs-meta-value fs-meta-value--fail">
                   {getTamperedValue()}
                 </div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E74C3C" strokeWidth="2">
@@ -531,24 +270,8 @@ export function FraudSimulation({
           </div>
 
           {/* Explanation */}
-          <div style={{
-            padding: '14px',
-            background: '#C1F5C9',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            fontSize: '0.8rem',
-            color: '#333',
-            lineHeight: '1.6',
-            boxShadow: '3px 3px 0px 0px #000',
-          }}>
-            <div style={{
-              fontWeight: 600,
-              color: '#D2FF00',
-              marginBottom: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}>
+          <div className="fs-explanation">
+            <div className="fs-explanation-header">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="16" x2="12" y2="12" />
@@ -562,7 +285,7 @@ export function FraudSimulation({
                   <strong style={{ color: '#000' }}>
                     Hash is based on file content, not file name.
                   </strong>{' '}
-                  Renaming a file doesn't change its hash because the content
+                  Renaming a file doesn&apos;t change its hash because the content
                   remains exactly the same. This is why renaming alone cannot
                   bypass blockchain verification.
                 </>
@@ -582,27 +305,7 @@ export function FraudSimulation({
           {/* Reset button */}
           <button
             onClick={handleReset}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: 'transparent',
-              border: '2px solid #000',
-              borderRadius: '12px',
-              color: '#333',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#D2FF00';
-              e.currentTarget.style.color = '#D2FF00';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#000';
-              e.currentTarget.style.color = '#333';
-            }}
+            className="fs-reset-btn"
           >
             ↻ Reset & Try Again
           </button>

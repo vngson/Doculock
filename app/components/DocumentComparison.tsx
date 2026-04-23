@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Scale, AlertTriangle } from 'lucide-react';
+import { Scale } from 'lucide-react';
 import { FileDropzone } from './FileDropzone';
 import { HashDisplay } from './HashDisplay';
 import { showToast } from './Toast';
@@ -14,6 +14,73 @@ interface ComparisonResult {
   byteDifferences: number;
   percentageDiff: number;
   diffPositions: number[];
+}
+
+function FileCard({ file, hash, onRemove }: { file: File; hash: string; onRemove: () => void }) {
+  return (
+    <div className="dc-file-card">
+      <div className="dc-file-card-header">
+        <span className="dc-file-card-icon">
+          {getFileIcon(file.type)}
+        </span>
+        <div className="dc-file-card-info">
+          <div className="dc-file-card-name">
+            {file.name}
+          </div>
+          <div className="dc-file-card-meta">
+            {formatFileSize(file.size)} • {file.type}
+          </div>
+        </div>
+      </div>
+      <HashDisplay hash={hash} label="SHA-256 Hash" />
+      <button onClick={onRemove} className="dc-remove-btn">
+        Remove File
+      </button>
+    </div>
+  );
+}
+
+function ComparisonFieldGroup({ label, match, valueA, valueB, diffNote }: {
+  label: string;
+  match: boolean;
+  valueA: string;
+  valueB: string;
+  diffNote?: string;
+}) {
+  return (
+    <div className={`dc-field-group ${match ? 'dc-field-group--ok' : 'dc-field-group--fail'}`}>
+      <div className="dc-field-label">{label}</div>
+      <div className="dc-field-rows">
+        <div className="dc-field-row">
+          <span className="dc-field-label-ab">File A:</span>
+          <span className={`dc-field-value ${!match ? 'dc-field-value--fail' : ''}`}>
+            {valueA}
+          </span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={match ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
+            {match
+              ? <polyline points="20 6 9 17 4 12" />
+              : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
+            }
+          </svg>
+        </div>
+        <div className="dc-field-row">
+          <span className="dc-field-label-ab">File B:</span>
+          <span className={`dc-field-value ${!match ? 'dc-field-value--fail' : ''}`}>
+            {valueB}
+          </span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={match ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
+            {match
+              ? <polyline points="20 6 9 17 4 12" />
+              : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
+            }
+          </svg>
+        </div>
+      </div>
+      {diffNote && (
+        <div className="dc-diff-note">{diffNote}</div>
+      )}
+    </div>
+  );
 }
 
 export function DocumentComparison() {
@@ -78,6 +145,7 @@ export function DocumentComparison() {
 
   const bytesA = hashA.match(/.{1,2}/g) || [];
   const bytesB = hashB.match(/.{1,2}/g) || [];
+  const isIdentical = comparisonResult?.areIdentical ?? true;
 
   return (
     <div className="tf-card">
@@ -89,12 +157,7 @@ export function DocumentComparison() {
         </div>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px',
-        marginBottom: '20px',
-      }}>
+      <div className="dc-grid">
         {/* File A Section */}
         <div className="dc-file-section">
           <div className="tf-label">File A (Original)</div>
@@ -106,70 +169,11 @@ export function DocumentComparison() {
             />
           )}
           {fileA && (
-            <div style={{
-              padding: '16px',
-              background: '#fff',
-              border: '2px solid #000',
-              borderRadius: '12px',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '12px',
-              }}>
-                <span style={{ fontSize: '2rem' }}>
-                  {getFileIcon(fileA.type)}
-                </span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}>
-                    {fileA.name}
-                  </div>
-                  <div style={{
-                    color: '#333',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    marginTop: 2,
-                  }}>
-                    {formatFileSize(fileA.size)} • {fileA.type}
-                  </div>
-                </div>
-              </div>
-              <HashDisplay hash={hashA} label="SHA-256 Hash" />
-              <button
-                onClick={() => { setFileA(null); setHashA(''); setComparisonResult(null); }}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  marginTop: '12px',
-                  background: 'transparent',
-                  border: '2px solid #000',
-                  borderRadius: '12px',
-                  color: '#333',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#EF4444';
-                  e.currentTarget.style.color = '#EF4444';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#000';
-                  e.currentTarget.style.color = '#333';
-                }}
-              >
-                Remove File
-              </button>
-            </div>
+            <FileCard
+              file={fileA}
+              hash={hashA}
+              onRemove={() => { setFileA(null); setHashA(''); setComparisonResult(null); }}
+            />
           )}
         </div>
 
@@ -184,70 +188,11 @@ export function DocumentComparison() {
             />
           )}
           {fileB && (
-            <div style={{
-              padding: '16px',
-              background: '#fff',
-              border: '2px solid #000',
-              borderRadius: '12px',
-              boxShadow: '3px 3px 0px 0px #000',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '12px',
-              }}>
-                <span style={{ fontSize: '2rem' }}>
-                  {getFileIcon(fileB.type)}
-                </span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}>
-                    {fileB.name}
-                  </div>
-                  <div style={{
-                    color: '#333',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    marginTop: 2,
-                  }}>
-                    {formatFileSize(fileB.size)} • {fileB.type}
-                  </div>
-                </div>
-              </div>
-              <HashDisplay hash={hashB} label="SHA-256 Hash" />
-              <button
-                onClick={() => { setFileB(null); setHashB(''); setComparisonResult(null); }}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  marginTop: '12px',
-                  background: 'transparent',
-                  border: '2px solid #000',
-                  borderRadius: '12px',
-                  color: '#333',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#EF4444';
-                  e.currentTarget.style.color = '#EF4444';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#000';
-                  e.currentTarget.style.color = '#333';
-                }}
-              >
-                Remove File
-              </button>
-            </div>
+            <FileCard
+              file={fileB}
+              hash={hashB}
+              onRemove={() => { setFileB(null); setHashB(''); setComparisonResult(null); }}
+            />
           )}
         </div>
       </div>
@@ -256,348 +201,60 @@ export function DocumentComparison() {
       {comparisonResult && fileA && fileB && (
         <>
           {/* Metadata Comparison */}
-          <div style={{
-            background: '#fff',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            boxShadow: '3px 3px 0px 0px #000',
-            padding: '16px',
-            marginBottom: '20px',
-          }}>
-            <div style={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              color: '#666',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}>
+          <div className="dc-comparison-box">
+            <div className="dc-section-heading">
               File Metadata Comparison
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {/* File Name */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                padding: '10px',
-                background: fileA.name === fileB.name
-                  ? '#C1F5C9'
-                  : '#FADBD8',
-                border: fileA.name === fileB.name
-                  ? '2px solid #000'
-                  : '2px solid #000',
-                borderRadius: '12px',
-              }}>
-                <div style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
-                }}>
-                  File Name
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px',
-                    background: '#fff',
-                    border: '1px solid #000',
-                    borderRadius: '8px',
-                  }}>
-                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File A:</span>
-                    <span style={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      color: fileA.name === fileB.name ? '#000' : '#E74C3C',
-                      fontFamily: 'monospace',
-                      wordBreak: 'break-all',
-                    }}>
-                      {fileA.name}
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.name === fileB.name ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
-                      {fileA.name === fileB.name
-                        ? <polyline points="20 6 9 17 4 12" />
-                        : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
-                      }
-                    </svg>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px',
-                    background: '#fff',
-                    border: '1px solid #000',
-                    borderRadius: '8px',
-                  }}>
-                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File B:</span>
-                    <span style={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      color: fileA.name === fileB.name ? '#000' : '#E74C3C',
-                      fontFamily: 'monospace',
-                      wordBreak: 'break-all',
-                    }}>
-                      {fileB.name}
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.name === fileB.name ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
-                      {fileA.name === fileB.name
-                        ? <polyline points="20 6 9 17 4 12" />
-                        : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
-                      }
-                    </svg>
-                  </div>
-                </div>
-                {fileA.name !== fileB.name && (
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: '#E74C3C',
-                    fontWeight: 600,
-                    marginTop: '4px',
-                  }}>
-                    Filenames differ
-                  </div>
-                )}
-              </div>
+            <div className="dc-field-list">
+              <ComparisonFieldGroup
+                label="File Name"
+                match={fileA.name === fileB.name}
+                valueA={fileA.name}
+                valueB={fileB.name}
+                diffNote={fileA.name !== fileB.name ? 'Filenames differ' : undefined}
+              />
 
-              {/* File Size */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                padding: '10px',
-                background: fileA.size === fileB.size
-                  ? '#C1F5C9'
-                  : '#FADBD8',
-                border: fileA.size === fileB.size
-                  ? '2px solid #000'
-                  : '2px solid #000',
-                borderRadius: '12px',
-              }}>
-                <div style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
-                }}>
-                  File Size
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px',
-                    background: '#fff',
-                    border: '1px solid #000',
-                    borderRadius: '8px',
-                  }}>
-                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File A:</span>
-                    <span style={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      color: fileA.size === fileB.size ? '#000' : '#E74C3C',
-                      fontFamily: 'monospace',
-                    }}>
-                      {formatFileSize(fileA.size)} ({fileA.size} bytes)
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.size === fileB.size ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
-                      {fileA.size === fileB.size
-                        ? <polyline points="20 6 9 17 4 12" />
-                        : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
-                      }
-                    </svg>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px',
-                    background: '#fff',
-                    border: '1px solid #000',
-                    borderRadius: '8px',
-                  }}>
-                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File B:</span>
-                    <span style={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      color: fileA.size === fileB.size ? '#000' : '#E74C3C',
-                      fontFamily: 'monospace',
-                    }}>
-                      {formatFileSize(fileB.size)} ({fileB.size} bytes)
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.size === fileB.size ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
-                      {fileA.size === fileB.size
-                        ? <polyline points="20 6 9 17 4 12" />
-                        : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
-                      }
-                    </svg>
-                  </div>
-                </div>
-                {fileA.size !== fileB.size && (
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: '#E74C3C',
-                    fontWeight: 600,
-                    marginTop: '4px',
-                  }}>
-                    Sizes differ by {Math.abs(fileA.size - fileB.size)} bytes
-                  </div>
-                )}
-              </div>
+              <ComparisonFieldGroup
+                label="File Size"
+                match={fileA.size === fileB.size}
+                valueA={`${formatFileSize(fileA.size)} (${fileA.size} bytes)`}
+                valueB={`${formatFileSize(fileB.size)} (${fileB.size} bytes)`}
+                diffNote={fileA.size !== fileB.size ? `Sizes differ by ${Math.abs(fileA.size - fileB.size)} bytes` : undefined}
+              />
 
-              {/* File Type */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                padding: '10px',
-                background: fileA.type === fileB.type
-                  ? '#C1F5C9'
-                  : '#FADBD8',
-                border: fileA.type === fileB.type
-                  ? '2px solid #000'
-                  : '2px solid #000',
-                borderRadius: '12px',
-              }}>
-                <div style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
-                }}>
-                  File Type (MIME)
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px',
-                    background: '#fff',
-                    border: '1px solid #000',
-                    borderRadius: '8px',
-                  }}>
-                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File A:</span>
-                    <span style={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      color: fileA.type === fileB.type ? '#000' : '#E74C3C',
-                      fontFamily: 'monospace',
-                    }}>
-                      {fileA.type}
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.type === fileB.type ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
-                      {fileA.type === fileB.type
-                        ? <polyline points="20 6 9 17 4 12" />
-                        : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
-                      }
-                    </svg>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px',
-                    background: '#fff',
-                    border: '1px solid #000',
-                    borderRadius: '8px',
-                  }}>
-                    <span style={{ fontSize: '0.75rem', color: '#666', minWidth: '60px' }}>File B:</span>
-                    <span style={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      color: fileA.type === fileB.type ? '#000' : '#E74C3C',
-                      fontFamily: 'monospace',
-                    }}>
-                      {fileB.type}
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={fileA.type === fileB.type ? '#2ECC71' : '#E74C3C'} strokeWidth="2">
-                      {fileA.type === fileB.type
-                        ? <polyline points="20 6 9 17 4 12" />
-                        : <><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></>
-                      }
-                    </svg>
-                  </div>
-                </div>
-                {fileA.type !== fileB.type && (
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: '#E74C3C',
-                    fontWeight: 600,
-                    marginTop: '4px',
-                  }}>
-                    File types differ
-                  </div>
-                )}
-              </div>
+              <ComparisonFieldGroup
+                label="File Type (MIME)"
+                match={fileA.type === fileB.type}
+                valueA={fileA.type}
+                valueB={fileB.type}
+                diffNote={fileA.type !== fileB.type ? 'File types differ' : undefined}
+              />
             </div>
           </div>
 
           {/* Difference Statistics */}
-          <div style={{
-            padding: '16px',
-            background: comparisonResult.areIdentical
-              ? '#C1F5C9'
-              : '#FADBD8',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            boxShadow: '3px 3px 0px 0px #000',
-            marginBottom: '20px',
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '12px',
-              color: comparisonResult.areIdentical ? '#2ECC71' : '#E74C3C',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-            }}>
+          <div className={`dc-stats-box ${isIdentical ? 'dc-stats-box--ok' : 'dc-stats-box--fail'}`}>
+            <div className={`dc-stats-header ${isIdentical ? 'dc-stats-header--ok' : 'dc-stats-header--fail'}`}>
               <span>
-                {comparisonResult.areIdentical
+                {isIdentical
                   ? 'Files are identical'
                   : `Files differ by ~${estimateBitDifferences(comparisonResult.byteDifferences)} bits`}
               </span>
-              <span style={{ opacity: 0.7 }}>
-                {comparisonResult.areIdentical ? '100% match' : `${comparisonResult.percentageDiff.toFixed(1)}% difference`}
+              <span className="dc-stats-header-sub">
+                {isIdentical ? '100% match' : `${comparisonResult.percentageDiff.toFixed(1)}% difference`}
               </span>
             </div>
 
-            {!comparisonResult.areIdentical && (
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-              }}>
-                <div style={{
-                  flex: 1,
-                  height: '8px',
-                  background: '#FADBD8',
-                  border: '1px solid #000',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    width: `${comparisonResult.percentageDiff}%`,
-                    height: '100%',
-                    background: '#E74C3C',
-                    borderRadius: '8px',
-                    transition: 'width 0.5s ease-out',
-                  }} />
+            {!isIdentical && (
+              <div className="dc-stats-bar-row">
+                <div className="dc-stats-bar-track">
+                  <div
+                    className="dc-stats-bar-fill"
+                    style={{ '--dc-progress': `${comparisonResult.percentageDiff}%` } as React.CSSProperties}
+                  />
                 </div>
-                <span style={{
-                  fontSize: '0.7rem',
-                  color: '#666',
-                  whiteSpace: 'nowrap',
-                }}>
+                <span className="dc-stats-bar-label">
                   {comparisonResult.byteDifferences} / {hashA.length / 2} bytes
                 </span>
               </div>
@@ -605,41 +262,15 @@ export function DocumentComparison() {
           </div>
 
           {/* Hash Comparison Visualization */}
-          <div style={{
-            background: '#fff',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            boxShadow: '3px 3px 0px 0px #000',
-            padding: '16px',
-            marginBottom: '20px',
-          }}>
-            <div style={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              color: '#666',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}>
+          <div className="dc-comparison-box">
+            <div className="dc-section-heading">
               Hash Comparison
             </div>
 
             {/* File A Hash */}
-            <div style={{ marginBottom: '12px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
-                File A Hash
-              </div>
-              <div style={{
-                fontFamily: 'monospace',
-                fontSize: '0.75rem',
-                lineHeight: '1.8',
-                letterSpacing: '1px',
-                padding: '10px 14px',
-                background: '#C1F5C9',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                wordBreak: 'break-all',
-              }}>
+            <div className="dc-hash-comparison">
+              <div className="dc-hash-label-row">File A Hash</div>
+              <div className="dc-hash-block dc-hash-block--ok">
                 {bytesA.map((byte, i) => (
                   <span
                     key={`a-${i}`}
@@ -658,20 +289,8 @@ export function DocumentComparison() {
 
             {/* File B Hash */}
             <div>
-              <div style={{ fontSize: '0.75rem', color: '#333', marginBottom: '8px' }}>
-                File B Hash
-              </div>
-              <div style={{
-                fontFamily: 'monospace',
-                fontSize: '0.75rem',
-                lineHeight: '1.8',
-                letterSpacing: '1px',
-                padding: '10px 14px',
-                background: '#FADBD8',
-                border: '2px solid #000',
-                borderRadius: '12px',
-                wordBreak: 'break-all',
-              }}>
+              <div className="dc-hash-label-row">File B Hash</div>
+              <div className="dc-hash-block dc-hash-block--fail">
                 {bytesB.map((byte, i) => (
                   <span
                     key={`b-${i}`}
@@ -690,24 +309,8 @@ export function DocumentComparison() {
           </div>
 
           {/* Explanation */}
-          <div style={{
-            padding: '14px',
-            background: '#C1F5C9',
-            border: '2px solid #000',
-            borderRadius: '12px',
-            boxShadow: '3px 3px 0px 0px #000',
-            fontSize: '0.8rem',
-            color: '#333',
-            lineHeight: '1.6',
-          }}>
-            <div style={{
-              fontWeight: 600,
-              color: '#000',
-              marginBottom: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}>
+          <div className="dc-explanation">
+            <div className="dc-explanation-header">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="16" x2="12" y2="12" />
@@ -726,7 +329,7 @@ export function DocumentComparison() {
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+      <div className="dc-actions">
         <button
           className="tf-submit"
           onClick={handleCompare}
@@ -748,25 +351,10 @@ export function DocumentComparison() {
 
       {/* Loading indicator */}
       {isCalculating && (
-        <div style={{
-          padding: '16px',
-          background: '#C1F5C9',
-          borderRadius: '12px',
-          border: '2px solid #000',
-          boxShadow: '3px 3px 0px 0px #000',
-          marginTop: '20px',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-          }}>
-            <div className="tf-spinner" style={{ width: 18, height: 18 }} />
-            <div style={{
-              color: '#000',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-            }}>
+        <div className="dc-loading-box">
+          <div className="dc-loading-header">
+            <div className="tf-spinner dc-loading-spinner" />
+            <div className="dc-loading-text">
               Calculating hash...
             </div>
           </div>
