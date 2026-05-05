@@ -4,6 +4,7 @@ import { SuiClientProvider, WalletProvider } from '@mysten/dapp-kit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getFullnodeUrl } from '@mysten/sui/client';
 import { doculockConfig } from '@/lib/config';
+import { IntroOverlay } from './components/IntroOverlay';
 import { useState } from 'react';
 
 const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultNetwork={network}
       >
         <WalletProvider autoConnect={true}>
+          <IntroOverlay />
           {children}
         </WalletProvider>
       </SuiClientProvider>

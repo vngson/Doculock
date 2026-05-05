@@ -360,7 +360,7 @@
   border-radius: var(--radius-sm);
   border: 2px solid var(--black);
   margin-bottom: 20px;
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-sm); */
 }
 
 .rc-ready-header {
@@ -389,7 +389,7 @@
   word-break: break-all;
   margin-bottom: 20px;
   border: 2px solid var(--black);
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-sm); */
 }
 
 .rc-registry-id-label {
@@ -1725,8 +1725,13 @@
   background: var(--surface);
   border: 2.5px solid var(--black);
   border-radius: 16px;
-  box-shadow: var(--shadow-sm);
+  transform: translate(2px, 2px);
+  /* box-shadow: var(--shadow-sm); */
   min-width: 0;
+}
+
+.landing-hero-content .stat-card:hover {
+  transform: translate(0, 0);
 }
 
 .landing-hero-content .stat-number {

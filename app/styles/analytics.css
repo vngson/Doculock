@@ -219,10 +219,10 @@
   }
 }
 
-.stat-card:hover {
+/* .stat-card:hover {
   transform: translate(0, 0);
   box-shadow: var(--shadow-xs);
-}
+} */
 
 .stat-card--loading {
   pointer-events: none;

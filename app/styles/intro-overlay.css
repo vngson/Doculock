@@ -1,0 +1,66 @@
+/* ── Intro Overlay ── */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  pointer-events: all;
+}
+
+.intro-overlay--done {
+  pointer-events: none;
+}
+
+/* 3×3 grid holding the logo pieces */
+.intro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: clamp(140px, 35vw, 280px);
+  height: clamp(140px, 35vw, 280px);
+  gap: 2px;
+  animation: logo-enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.intro-piece {
+  background-image: url("/favicon.png");
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  will-change: transform, opacity;
+  /* Override global * transition */
+  transition-property: transform, opacity;
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.intro-piece.intro-piece--idle {
+  transition-duration: 0s;
+}
+
+/* ── Appear animation ── */
+@keyframes logo-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ── Overlay fade ── */
+.intro-overlay.fade-out {
+  animation: overlay-fade 0.5s ease-out forwards;
+}
+
+@keyframes overlay-fade {
+  to {
+    opacity: 0;
+  }
+}
